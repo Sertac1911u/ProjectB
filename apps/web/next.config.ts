@@ -7,6 +7,12 @@ const nextConfig: NextConfig = {
   // The default bottom-left spot covers the sidebar's sign-out button.
   devIndicators: { position: "bottom-right" },
   transpilePackages: ["@projectb/core", "@projectb/db"],
+  experimental: {
+    // The Tailwind loader's scanned source files are not tracked by the
+    // persistent build cache, so a cached build can ship CSS without newly
+    // used classes. Builds start from scratch instead.
+    turbopackFileSystemCacheForBuild: false,
+  },
   turbopack: {
     rules: {
       "*.css": {

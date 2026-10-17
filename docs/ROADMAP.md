@@ -48,7 +48,7 @@ CSV dışa aktarma, fiş fotoğrafı, gelecek nakit akışı tahmini.
 - [x] **4. Döviz kurları ve çevrim.**
 - [x] **5. Tekrarlayan işlemler.**
 - [x] **6. Bütçeler ve birikim hedefleri.**
-- [ ] **7. Panel ve raporlar.**
+- [x] **7. Panel ve raporlar.**
 
 ## Teknik kararlar
 
@@ -67,3 +67,6 @@ CSV dışa aktarma, fiş fotoğrafı, gelecek nakit akışı tahmini.
 - **Bütçe limitleri** ay bazında saklanır: bir limit kendi ayından, aynı kategorinin sonraki
   kaydına kadar geçerlidir; değişiklik o aydan itibaren uygulanır, geçmiş aylar korunur.
   Harcamalar `expense_entries` görünümünden gelir, yani taksitler ödendikleri aya sayılır.
+- **Raporlar** seçilen dönemi tam aylar olarak alır; tek aylık dönemler günlük, daha uzunlar aylık
+  gösterilir. Net varlık geçmişi hesapların açılış bakiyesi ve işlemlerinden hesaplanır, dövizler
+  güncel kurla çevrilir. Grafikler harici kütüphane olmadan SVG ile çizilir.

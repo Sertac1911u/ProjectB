@@ -6,8 +6,6 @@
   "Common": {
     "appName": "ProjectB",
     "language": "Language",
-    "comingSoon": "Coming soon",
-    "phase": "Phase {phase}",
     "save": "Save",
     "cancel": "Cancel",
     "delete": "Delete",
@@ -54,9 +52,6 @@
     "categories": "Categories",
     "recurring": "Recurring"
   },
-  "Placeholder": {
-    "description": "This section arrives in phase {phase}."
-  },
   "Dashboard": {
     "netWorth": "Net worth",
     "income": "Income this month",
@@ -70,7 +65,11 @@
     "addAccount": "Add account",
     "addTransaction": "Add transaction",
     "upcomingPayments": "Upcoming card payments",
-    "goals": "Savings goals"
+    "goals": "Savings goals",
+    "spendingThisMonth": "Spending this month",
+    "lastSixMonths": "Last 6 months",
+    "seeReports": "Reports",
+    "netWorthTrend": "Net worth over the last 12 months"
   },
   "NotFound": {
     "title": "Page not found",
@@ -487,5 +486,41 @@
     "emptyDescription": "Set a goal to see how much is left and how much to put aside each month to make the target date.",
     "depositEntry": "Contribution",
     "withdrawEntry": "Withdrawal"
+  },
+  "Reports": {
+    "title": "Reports",
+    "description": "See how your income, spending and net worth change over time.",
+    "period": "Period",
+    "periods": {
+      "thisMonth": "This month",
+      "lastMonth": "Last month",
+      "3m": "Last 3 months",
+      "6m": "Last 6 months",
+      "12m": "Last 12 months",
+      "thisYear": "This year",
+      "lastYear": "Last year"
+    },
+    "income": "Income",
+    "expense": "Expenses",
+    "net": "Net",
+    "savingsRate": "Savings rate",
+    "vsPrevious": "{change} vs previous period",
+    "noPrevious": "No data in the previous period",
+    "savingsRateHint": "Share of income left unspent",
+    "cashFlow": "Income and expenses",
+    "cashFlowHint": "{granularity, select, day {Daily} other {Monthly}} totals. Installments count in the month they are paid; transfers are left out.",
+    "cashFlowChart": "Income and expenses chart",
+    "expenseByCategory": "Expenses by category",
+    "incomeByCategory": "Income by category",
+    "uncategorized": "Uncategorized",
+    "noData": "No transactions in this period.",
+    "netWorth": "Net worth",
+    "netWorthHint": "All account balances added up, card debt subtracted. Other currencies are converted at the latest rates.",
+    "netWorthChart": "Net worth chart",
+    "showTable": "Show as table",
+    "date": "Date",
+    "share": "Share",
+    "amount": "Amount",
+    "seeTransactions": "See transactions"
   }
 }

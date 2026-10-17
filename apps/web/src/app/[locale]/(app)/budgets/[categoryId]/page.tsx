@@ -93,7 +93,7 @@ async function EditBudget({
           <Link
             href={{
               pathname: "/transactions",
-              query: { categoryId: category.id, from, to },
+              query: { category: category.id, from, to },
             }}
             className={buttonVariants({ variant: "outline" })}
           >

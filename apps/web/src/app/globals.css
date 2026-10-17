@@ -17,6 +17,11 @@
   --warning: oklch(0.78 0.15 75);
   --warning-foreground: oklch(0.5 0.12 60);
   --ring: oklch(0.52 0.13 165);
+  /* Chart series, validated for color vision deficiencies on the card surface. */
+  --chart-income: #2a78d6;
+  --chart-expense: #eb6834;
+  --chart-grid: #ebeae6;
+  --chart-axis: #c3c2b7;
 }
 
 @theme inline {
@@ -39,6 +44,8 @@
   --color-warning: var(--warning);
   --color-warning-foreground: var(--warning-foreground);
   --color-ring: var(--ring);
+  --color-chart-income: var(--chart-income);
+  --color-chart-expense: var(--chart-expense);
 }
 
 @layer base {
