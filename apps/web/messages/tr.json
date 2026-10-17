@@ -66,7 +66,6 @@
     "greetingNoName": "Merhaba",
     "recent": "Son işlemler",
     "seeAll": "Tümünü gör",
-    "otherCurrencies": "Yalnızca {currency} hesapları toplandı. Diğer para birimleri kur desteğiyle (4. aşama) eklenecek.",
     "addAccount": "Hesap ekle",
     "addTransaction": "İşlem ekle",
     "upcomingPayments": "Yaklaşan kart ödemeleri"
@@ -217,7 +216,8 @@
     "minPaymentRate": "Asgari ödeme oranı (%)",
     "minPaymentRateHint": "Bankanın ekstrede istediği asgari ödeme yüzdesi, genellikle 20 veya 40.",
     "dayOption": "Ayın {day}. günü",
-    "chooseDay": "Gün seç"
+    "chooseDay": "Gün seç",
+    "totalIn": "Toplam varlık ({currency})"
   },
   "Transactions": {
     "new": "Yeni işlem",
@@ -350,5 +350,17 @@
     "previousStatements": "Önceki ekstreler",
     "overdue": "Son ödeme tarihi geçti",
     "daysLeft": "{days, plural, =0 {Bugün son gün} one {# gün kaldı} other {# gün kaldı}}"
+  },
+  "Rates": {
+    "title": "Döviz kurları",
+    "description": "TCMB'nin günlük döviz alış kurları. Farklı para birimindeki tutarlar ana para birimine bu kurlarla çevrilir.",
+    "source": "Kurlar: TCMB döviz alış, {date}",
+    "stale": "Kurlar güncellenemedi; {date} tarihli kurlar kullanılıyor.",
+    "none": "Henüz kur alınamadı; farklı para birimindeki tutarlar toplamlara katılmadı.",
+    "missing": "Bazı para birimleri için kur bulunamadı; o hesaplar toplama katılmadı.",
+    "unit": "1 {currency}",
+    "approx": "≈ {amount}",
+    "estimate": "Kurla yaklaşık: {amount}",
+    "useEstimate": "Bunu kullan"
   }
 }

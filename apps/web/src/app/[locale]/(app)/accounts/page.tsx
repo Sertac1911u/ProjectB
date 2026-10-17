@@ -1,14 +1,23 @@
-import { isAccountType } from "@projectb/core";
+import {
+  convert,
+  DEFAULT_CURRENCY,
+  isAccountType,
+  isCurrencyCode,
+  sumIn,
+} from "@projectb/core";
 import { Plus } from "lucide-react";
 import { getLocale, getTranslations } from "next-intl/server";
 import { Suspense } from "react";
 import { AccountIcon } from "@/components/finance/account-icon";
 import { Amount } from "@/components/finance/amount";
+import { RatesNote } from "@/components/finance/rates-note";
 import { PageHeader } from "@/components/page-header";
 import { buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Link } from "@/i18n/navigation";
+import { getProfile } from "@/lib/auth";
 import { type AccountWithBalance, getAccounts } from "@/lib/data/finance";
+import { getRates } from "@/lib/data/rates";
 
 export default async function AccountsPage() {
   const [t, tNav] = await Promise.all([
@@ -38,12 +47,23 @@ function ListSkeleton() {
 }
 
 async function AccountList() {
-  const [accounts, t, tTypes, locale] = await Promise.all([
+  const [accounts, profile, rateInfo, t, tTypes, locale] = await Promise.all([
     getAccounts(),
+    getProfile(),
+    getRates(),
     getTranslations("Accounts"),
     getTranslations("AccountTypes"),
     getLocale(),
   ]);
+  const base = isCurrencyCode(profile.baseCurrency)
+    ? profile.baseCurrency
+    : DEFAULT_CURRENCY;
+  const code = (c: string) => (isCurrencyCode(c) ? c : DEFAULT_CURRENCY);
+  /** The account balance in the main currency, for accounts in other currencies. */
+  const inBase = (account: AccountWithBalance) =>
+    account.currency === base
+      ? null
+      : convert(account.balance, code(account.currency), base, rateInfo.rates);
   const active = accounts.filter((a) => !a.archivedAt);
   const archived = accounts.filter((a) => a.archivedAt);
 
@@ -72,24 +92,49 @@ async function AccountList() {
       return sum;
     }, {}),
   );
+  const multiCurrency =
+    totals.length > 1 || (totals[0] && totals[0][0] !== base);
+  const overall = sumIn(
+    active.map((a) => ({ amount: a.balance, currency: code(a.currency) })),
+    base,
+    rateInfo.rates,
+  );
 
   return (
     <div className="flex flex-col gap-4">
       {totals.length > 0 && (
-        <div className="grid gap-4 sm:grid-cols-3">
-          {totals.map(([currency, total]) => (
-            <Card key={currency} className="p-5">
-              <p className="text-sm text-muted-foreground">
-                {t("total", { currency })}
-              </p>
-              <Amount
-                value={total}
-                currency={currency}
-                locale={locale}
-                className="text-2xl font-semibold"
-              />
-            </Card>
-          ))}
+        <div>
+          <div className="grid gap-4 sm:grid-cols-3">
+            {multiCurrency && (
+              <Card className="border-primary/30 p-5">
+                <p className="text-sm text-muted-foreground">
+                  {t("totalIn", { currency: base })}
+                </p>
+                <Amount
+                  value={overall.total}
+                  currency={base}
+                  locale={locale}
+                  className="text-2xl font-semibold"
+                />
+              </Card>
+            )}
+            {totals.map(([currency, total]) => (
+              <Card key={currency} className="p-5">
+                <p className="text-sm text-muted-foreground">
+                  {t("total", { currency })}
+                </p>
+                <Amount
+                  value={total}
+                  currency={currency}
+                  locale={locale}
+                  className="text-2xl font-semibold"
+                />
+              </Card>
+            ))}
+          </div>
+          {multiCurrency && (
+            <RatesNote info={rateInfo} missing={overall.missing.length > 0} />
+          )}
         </div>
       )}
       <Card className="divide-y">
@@ -101,6 +146,8 @@ async function AccountList() {
               isAccountType(account.type) ? account.type : "bank",
             )}
             locale={locale}
+            converted={inBase(account)}
+            base={base}
           />
         ))}
       </Card>
@@ -118,6 +165,8 @@ async function AccountList() {
                   isAccountType(account.type) ? account.type : "bank",
                 )}
                 locale={locale}
+                converted={inBase(account)}
+                base={base}
               />
             ))}
           </Card>
@@ -131,10 +180,15 @@ function AccountRow({
   account,
   typeLabel,
   locale,
+  converted,
+  base,
 }: {
   account: AccountWithBalance;
   typeLabel: string;
   locale: string;
+  /** Balance in the main currency when the account uses another one. */
+  converted: number | null;
+  base: string;
 }) {
   return (
     <Link
@@ -146,12 +200,19 @@ function AccountRow({
         <p className="truncate font-medium">{account.name}</p>
         <p className="text-sm text-muted-foreground">{typeLabel}</p>
       </div>
-      <Amount
-        value={account.balance}
-        currency={account.currency}
-        locale={locale}
-        className="font-medium"
-      />
+      <div className="text-right">
+        <Amount
+          value={account.balance}
+          currency={account.currency}
+          locale={locale}
+          className="font-medium"
+        />
+        {converted !== null && (
+          <p className="text-xs text-muted-foreground">
+            ≈ <Amount value={converted} currency={base} locale={locale} />
+          </p>
+        )}
+      </div>
     </Link>
   );
 }

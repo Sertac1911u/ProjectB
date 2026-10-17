@@ -45,7 +45,7 @@ CSV dışa aktarma, fiş fotoğrafı, gelecek nakit akışı tahmini.
 - [x] **1. Supabase ve giriş:** kayıt, giriş, şifre sıfırlama, profil (dil, ana para birimi).
 - [x] **2. Hesaplar, işlemler, kategoriler:** etiketler, arama ve filtre dahil.
 - [x] **3. Kredi kartı:** ekstre ve taksitler.
-- [ ] **4. Döviz kurları ve çevrim.**
+- [x] **4. Döviz kurları ve çevrim.**
 - [ ] **5. Tekrarlayan işlemler.**
 - [ ] **6. Bütçeler ve birikim hedefleri.**
 - [ ] **7. Panel ve raporlar.**
@@ -59,5 +59,8 @@ CSV dışa aktarma, fiş fotoğrafı, gelecek nakit akışı tahmini.
 - **Veritabanı şeması** `packages/db/src/schema` altında Drizzle ile tanımlı; migration'lar
   `pnpm db:generate` ile üretilip `pnpm db:migrate` ile uygulanır. Web sunucusu sorguları
   `asUser()` ile kullanıcının yetkisiyle çalıştırır, böylece RLS kuralları web ve mobilde aynıdır.
+- **Döviz kurları** TCMB'nin günlük bülteninden (döviz alış) alınır ve ortak `exchange_rates`
+  tablosunda saklanır. Kurlar bugüne ait değilse yenisi sayfa yanıtından sonra arka planda
+  çekilir; TCMB'ye ulaşılamazsa son bilinen kur kullanılır.
 - **Ortak kod** `packages/` altında: web ve mobil aynı tipleri, doğrulamayı ve
   hesaplama mantığını kullanır.

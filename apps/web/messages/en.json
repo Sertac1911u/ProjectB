@@ -66,7 +66,6 @@
     "greetingNoName": "Hello",
     "recent": "Recent transactions",
     "seeAll": "See all",
-    "otherCurrencies": "Only {currency} accounts are counted. Other currencies arrive with exchange rates (phase 4).",
     "addAccount": "Add account",
     "addTransaction": "Add transaction",
     "upcomingPayments": "Upcoming card payments"
@@ -217,7 +216,8 @@
     "minPaymentRate": "Minimum payment (%)",
     "minPaymentRateHint": "The minimum share of the statement your bank asks for, often 20 or 40.",
     "dayOption": "Day {day} of the month",
-    "chooseDay": "Choose a day"
+    "chooseDay": "Choose a day",
+    "totalIn": "Total ({currency})"
   },
   "Transactions": {
     "new": "New transaction",
@@ -350,5 +350,17 @@
     "previousStatements": "Previous statements",
     "overdue": "Payment is overdue",
     "daysLeft": "{days, plural, =0 {Due today} one {# day left} other {# days left}}"
+  },
+  "Rates": {
+    "title": "Exchange rates",
+    "description": "TCMB's daily forex buying rates. Amounts in other currencies are converted to your main currency with these.",
+    "source": "Rates: TCMB forex buying, {date}",
+    "stale": "Rates could not be updated; using rates from {date}.",
+    "none": "No exchange rates yet; amounts in other currencies are left out of totals.",
+    "missing": "Some currencies have no rate; those accounts are left out of the total.",
+    "unit": "1 {currency}",
+    "approx": "≈ {amount}",
+    "estimate": "At the current rate: about {amount}",
+    "useEstimate": "Use this"
   }
 }

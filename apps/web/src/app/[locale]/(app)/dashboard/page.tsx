@@ -1,10 +1,11 @@
-import { DEFAULT_CURRENCY, isCurrencyCode } from "@projectb/core";
+import { DEFAULT_CURRENCY, isCurrencyCode, sumIn } from "@projectb/core";
 import { Plus, Wallet } from "lucide-react";
 import { connection } from "next/server";
 import { getLocale, getTranslations } from "next-intl/server";
 import { Suspense } from "react";
 import { AccountIcon } from "@/components/finance/account-icon";
 import { Amount } from "@/components/finance/amount";
+import { RatesNote } from "@/components/finance/rates-note";
 import { TransactionList } from "@/components/finance/transaction-list";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardDescription, CardHeader } from "@/components/ui/card";
@@ -17,6 +18,7 @@ import {
   listTransactions,
 } from "@/lib/data/finance";
 import { getDueStatements } from "@/lib/data/cards";
+import { getRates } from "@/lib/data/rates";
 import { daysBetween, formatDay, monthRange, today } from "@/lib/dates";
 import { cn } from "@/lib/utils";
 
@@ -74,10 +76,11 @@ async function Summary() {
   // "This month" depends on the current date, so it is computed per request.
   await connection();
   const { from, to } = monthRange(today());
-  const [profile, accounts, totals, locale, t] = await Promise.all([
+  const [profile, accounts, totals, rateInfo, locale, t] = await Promise.all([
     getProfile(),
     getAccounts(),
     getTotals(from, to),
+    getRates(),
     getLocale(),
     getTranslations("Dashboard"),
   ]);
@@ -108,19 +111,33 @@ async function Summary() {
     );
   }
 
-  // Until exchange rates exist (phase 4), only the main currency is summed.
-  const netWorth = active
-    .filter((a) => a.currency === currency)
-    .reduce((sum, a) => sum + a.balance, 0);
-  const total = (kind: string) =>
-    totals.find((row) => row.currency === currency && row.kind === kind)
-      ?.total ?? 0;
-  const otherCurrencies = active.some((a) => a.currency !== currency);
+  // Everything is converted to the main currency at the latest TCMB rates.
+  const { rates } = rateInfo;
+  const code = (c: string) => (isCurrencyCode(c) ? c : DEFAULT_CURRENCY);
+  const netWorth = sumIn(
+    active.map((a) => ({ amount: a.balance, currency: code(a.currency) })),
+    currency,
+    rates,
+  );
+  const sumKind = (kind: string) =>
+    sumIn(
+      totals
+        .filter((row) => row.kind === kind)
+        .map((row) => ({ amount: row.total, currency: code(row.currency) })),
+      currency,
+      rates,
+    );
+  const income = sumKind("income");
+  const expense = sumKind("expense");
+  const foreign =
+    active.some((a) => a.currency !== currency) ||
+    totals.some((row) => row.currency !== currency);
+  const missing = [netWorth, income, expense].some((s) => s.missing.length > 0);
 
   const cards = [
-    { key: "netWorth", value: netWorth, kind: undefined },
-    { key: "income", value: total("income"), kind: "income" },
-    { key: "expense", value: total("expense"), kind: "expense" },
+    { key: "netWorth", value: netWorth.total, kind: undefined },
+    { key: "income", value: income.total, kind: "income" },
+    { key: "expense", value: expense.total, kind: "expense" },
   ] as const;
 
   return (
@@ -141,11 +158,7 @@ async function Summary() {
           </Card>
         ))}
       </div>
-      {otherCurrencies && (
-        <p className="mt-2 text-xs text-muted-foreground">
-          {t("otherCurrencies", { currency })}
-        </p>
-      )}
+      {foreign && <RatesNote info={rateInfo} missing={missing} />}
     </>
   );
 }
