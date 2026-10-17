@@ -29,7 +29,7 @@ import {
 } from "@/lib/data/cashflow";
 import { getAccounts } from "@/lib/data/finance";
 import { getGoals } from "@/lib/data/planning";
-import { getMonthlySaving } from "@/lib/data/reports";
+import { getMonthlyAverages } from "@/lib/data/reports";
 import { today } from "@/lib/dates";
 import { type FormState, respond } from "./state";
 
@@ -101,11 +101,11 @@ export async function whatIf(
     ? { method: "card", amount, cardId: card.id, installments }
     : { method: "cash", amount };
 
-  const [before, after, goals, monthlySaving] = await Promise.all([
+  const [before, after, goals, averages] = await Promise.all([
     getCashForecast(),
     simulatePurchase(purchase),
     getGoals(),
-    getMonthlySaving(),
+    getMonthlyAverages(),
   ]);
   const day = today();
   const cardPlan = card
@@ -136,7 +136,7 @@ export async function whatIf(
         .map((g) => ({
           id: g.id,
           name: g.name,
-          delayDays: goalDelayDays(amount, monthlySaving),
+          delayDays: goalDelayDays(amount, averages?.saving ?? null),
         })),
     },
   });

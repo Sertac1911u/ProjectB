@@ -1,4 +1,9 @@
-import type { Locale } from "@projectb/core";
+import {
+  CURRENCIES,
+  formatMoney,
+  goalForecast,
+  type Locale,
+} from "@projectb/core";
 import { ArrowLeftRight, Pencil, Trash2 } from "lucide-react";
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
@@ -18,7 +23,12 @@ import {
 import { SubmitButton } from "@/components/ui/submit-button";
 import { Link } from "@/i18n/navigation";
 import { deleteContribution } from "@/lib/actions/planning";
-import { getGoalContributions, getGoals } from "@/lib/data/planning";
+import { getGoalRates } from "@/lib/data/goal-rates";
+import {
+  getGoalContributions,
+  getGoals,
+  type GoalWithProgress,
+} from "@/lib/data/planning";
 import { formatDay, today } from "@/lib/dates";
 import { isUuid } from "@/lib/ids";
 
@@ -72,6 +82,9 @@ async function Goal({ params }: { params: Params }) {
         <Card className="p-6">
           <GoalSummary goal={goal} size="large" />
         </Card>
+        {!goal.progress.reached && !goal.archivedAt && (
+          <GoalForecastCard goal={goal} locale={locale} />
+        )}
         {goal.account ? (
           <Card className="flex flex-col gap-3 p-6">
             <p className="text-sm text-muted-foreground">
@@ -176,6 +189,98 @@ async function Contributions({
                     <Trash2 />
                   </SubmitButton>
                 </form>
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
+    </Card>
+  );
+}
+
+/** When the goal is likely reached: as things are, saving more, or after a setback. */
+async function GoalForecastCard({
+  goal,
+  locale,
+}: {
+  goal: GoalWithProgress;
+  locale: Locale;
+}) {
+  const [rates, t] = await Promise.all([
+    getGoalRates([goal]),
+    getTranslations("Goals"),
+  ]);
+  const rate = rates.get(goal.id);
+  const unit = 10 ** CURRENCIES[goal.currency].minorUnits;
+  const extra = 1_000 * unit;
+  const shock = 15_000 * unit;
+  const day = today();
+  const money = (v: number) => formatMoney(v, goal.currency, locale);
+  const { remaining } = goal.progress;
+  const scenarios = rate?.monthly
+    ? [
+        {
+          label: t("scenarioCurrent"),
+          result: goalForecast(remaining, rate.monthly, day, goal.targetDate),
+        },
+        {
+          label: t("scenarioMore", { amount: money(extra) }),
+          result: goalForecast(
+            remaining,
+            rate.monthly + extra,
+            day,
+            goal.targetDate,
+          ),
+        },
+        {
+          label: t("scenarioShock", { amount: money(shock) }),
+          result: goalForecast(
+            remaining + shock,
+            rate.monthly,
+            day,
+            goal.targetDate,
+          ),
+        },
+      ]
+    : [];
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>{t("forecast")}</CardTitle>
+        <CardDescription>
+          {rate?.monthly
+            ? t("forecastHint", {
+                source: rate.source,
+                amount: money(rate.monthly),
+              })
+            : t("forecastNone")}
+        </CardDescription>
+      </CardHeader>
+      {scenarios.length > 0 && (
+        <ul className="divide-y border-t text-sm">
+          {scenarios.map(({ label, result }) => (
+            <li
+              key={label}
+              className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5 px-6 py-3"
+            >
+              <span>{label}</span>
+              <span className="text-right">
+                <span className="font-medium">
+                  {result.reachOn
+                    ? formatDay(result.reachOn, locale)
+                    : t("unreachable")}
+                </span>
+                {result.onTime !== null && (
+                  <span
+                    className={
+                      result.onTime
+                        ? "block text-xs text-accent-foreground"
+                        : "block text-xs text-destructive"
+                    }
+                  >
+                    {result.onTime ? t("onTime") : t("late")}
+                  </span>
+                )}
               </span>
             </li>
           ))}

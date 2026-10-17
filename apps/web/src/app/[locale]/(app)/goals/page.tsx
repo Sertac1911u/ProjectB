@@ -1,13 +1,16 @@
+import { goalForecast } from "@projectb/core";
 import { Link as LinkIcon, Plus, Target } from "lucide-react";
 import { connection } from "next/server";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { Suspense } from "react";
 import { GoalSummary } from "@/components/finance/goal-card";
 import { PageHeader } from "@/components/page-header";
 import { buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Link } from "@/i18n/navigation";
+import { getGoalRates } from "@/lib/data/goal-rates";
 import { type GoalWithProgress, getGoals } from "@/lib/data/planning";
+import { formatDay, today } from "@/lib/dates";
 
 export default async function GoalsPage() {
   const t = await getTranslations("Goals");
@@ -35,7 +38,24 @@ export default async function GoalsPage() {
 async function GoalList() {
   // Progress towards a target date depends on today's date.
   await connection();
-  const [goals, t] = await Promise.all([getGoals(), getTranslations("Goals")]);
+  const [goals, t, locale] = await Promise.all([
+    getGoals(),
+    getTranslations("Goals"),
+    getLocale(),
+  ]);
+  const rates = await getGoalRates(goals);
+  const day = today();
+  // When an open goal is likely reached at its current pace.
+  const estimate = (goal: GoalWithProgress) => {
+    if (goal.archivedAt || goal.progress.reached) return null;
+    const { reachOn } = goalForecast(
+      goal.progress.remaining,
+      rates.get(goal.id)?.monthly ?? null,
+      day,
+      goal.targetDate,
+    );
+    return reachOn ? t("estimate", { date: formatDay(reachOn, locale) }) : null;
+  };
 
   if (goals.length === 0) {
     return (
@@ -64,7 +84,7 @@ async function GoalList() {
     <div className="flex flex-col gap-6">
       <div className="grid gap-4 sm:grid-cols-2">
         {active.map((goal) => (
-          <GoalTile key={goal.id} goal={goal} />
+          <GoalTile key={goal.id} goal={goal} estimate={estimate(goal)} />
         ))}
       </div>
       {archived.length > 0 && (
@@ -74,7 +94,7 @@ async function GoalList() {
           </h2>
           <div className="grid gap-4 opacity-70 sm:grid-cols-2">
             {archived.map((goal) => (
-              <GoalTile key={goal.id} goal={goal} />
+              <GoalTile key={goal.id} goal={goal} estimate={null} />
             ))}
           </div>
         </section>
@@ -83,7 +103,13 @@ async function GoalList() {
   );
 }
 
-async function GoalTile({ goal }: { goal: GoalWithProgress }) {
+async function GoalTile({
+  goal,
+  estimate,
+}: {
+  goal: GoalWithProgress;
+  estimate: string | null;
+}) {
   return (
     <Link
       href={`/goals/${goal.id}`}
@@ -99,6 +125,9 @@ async function GoalTile({ goal }: { goal: GoalWithProgress }) {
         )}
       </div>
       <GoalSummary goal={goal} />
+      {estimate && (
+        <p className="mt-1 text-xs text-muted-foreground">{estimate}</p>
+      )}
     </Link>
   );
 }

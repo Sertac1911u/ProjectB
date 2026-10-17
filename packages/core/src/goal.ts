@@ -64,3 +64,33 @@ export function goalDelayDays(
   if (!monthlySaving || monthlySaving <= 0) return null;
   return Math.ceil((amount / monthlySaving) * DAYS_PER_MONTH);
 }
+
+const addDays = (day: string, days: number) =>
+  new Date(Date.parse(`${day}T00:00:00Z`) + days * 86_400_000)
+    .toISOString()
+    .slice(0, 10);
+
+export type GoalForecast = {
+  /** Expected day the goal is reached, or null at no or negative saving. */
+  reachOn: string | null;
+  /** Whether that is on or before the target date (null without one). */
+  onTime: boolean | null;
+};
+
+/** When saving `monthly` closes the gap of `remaining`. */
+export function goalForecast(
+  remaining: MinorUnits,
+  monthly: MinorUnits | null,
+  today: string,
+  targetDate: string | null,
+): GoalForecast {
+  if (remaining <= 0) return { reachOn: today, onTime: true };
+  if (!monthly || monthly <= 0) {
+    return { reachOn: null, onTime: targetDate ? false : null };
+  }
+  const reachOn = addDays(
+    today,
+    Math.ceil((remaining / monthly) * DAYS_PER_MONTH),
+  );
+  return { reachOn, onTime: targetDate ? reachOn <= targetDate : null };
+}
