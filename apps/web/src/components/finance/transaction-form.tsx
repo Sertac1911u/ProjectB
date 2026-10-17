@@ -54,12 +54,17 @@ export function TransactionForm({ transactionId, ...props }: Props) {
     // Remount after each attempt: React resets a form once its action
     // finishes, which would otherwise wipe what the user typed.
     <form
-      key={JSON.stringify(state)}
+      key={state.nonce ?? "initial"}
       action={action}
       className="flex flex-col gap-4"
       noValidate
     >
-      <TransactionFields state={state} locale={locale} {...props} />
+      <TransactionFields
+        state={state}
+        locale={locale}
+        isNew={!transactionId}
+        {...props}
+      />
     </form>
   );
 }
@@ -71,7 +76,12 @@ function TransactionFields({
   accounts,
   categories,
   tags,
-}: Omit<Props, "transactionId"> & { state: FormState; locale: Locale }) {
+  isNew,
+}: Omit<Props, "transactionId"> & {
+  state: FormState;
+  locale: Locale;
+  isNew: boolean;
+}) {
   const fid = useFieldId();
   const t = useTranslations("Transactions");
   const tCategories = useTranslations("Categories");
@@ -130,6 +140,9 @@ function TransactionFields({
   return (
     <>
       {formError && <Alert>{formError}</Alert>}
+      {state.status === "success" && (
+        <Alert variant="success">{t("saved")}</Alert>
+      )}
       <fieldset>
         <legend className="sr-only">{t("filters.kind")}</legend>
         <div className="grid grid-cols-3 gap-1 rounded-lg border bg-muted p-1">
@@ -356,8 +369,13 @@ function TransactionFields({
         </div>
       )}
 
-      <div>
+      <div className="flex flex-wrap gap-2">
         <SubmitButton>{tCommon("save")}</SubmitButton>
+        {isNew && (
+          <SubmitButton variant="outline" name="intent" value="again">
+            {t("saveAndNew")}
+          </SubmitButton>
+        )}
       </div>
     </>
   );

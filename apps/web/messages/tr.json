@@ -248,7 +248,9 @@
     },
     "previous": "Önceki",
     "next": "Sonraki",
-    "transferLabel": "{from} → {to}"
+    "transferLabel": "{from} → {to}",
+    "saveAndNew": "Kaydet ve yeni ekle",
+    "saved": "İşlem kaydedildi. Bir sonrakini ekleyebilirsin."
   },
   "Categories": {
     "title": "Kategoriler",

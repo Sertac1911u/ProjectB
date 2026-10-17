@@ -31,6 +31,22 @@ describe.skipIf(!url)("profiles row level security", () => {
     await db.$client.end();
   });
 
+  it("runs as the authenticated role, scoped to the transaction", async () => {
+    const [inside] = await asUser(
+      db,
+      { sub: alice, role: "authenticated" },
+      (tx) =>
+        tx.execute<{ role: string; uid: string }>(
+          sql`select current_user as role, auth.uid()::text as uid`,
+        ),
+    );
+    expect(inside).toEqual({ role: "authenticated", uid: alice });
+    const [after] = await db.execute<{ role: string }>(
+      sql`select current_user as role`,
+    );
+    expect(after?.role).toBe("postgres");
+  });
+
   it("creates a profile on sign up with a valid locale", async () => {
     const rows = await db.select().from(profiles).where(eq(profiles.id, alice));
     expect(rows[0]?.locale).toBe("en");

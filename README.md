@@ -49,6 +49,11 @@ pnpm dev
 
 Sonra tarayıcıda <http://localhost:3000> adresini aç.
 
+`pnpm dev` her sayfayı ilk açılışta derler ve kodu optimize etmeden çalıştırır; ilk
+tıklamalar birkaç saniye sürebilir. Uygulamanın gerçek hızını görmek için `pnpm start`
+kullan (her kod değişikliğinden sonra yeniden derler). Proje klasörünün OneDrive gibi
+eşitlenen bir klasörde olmaması da geliştirme modunu belirgin şekilde hızlandırır.
+
 ## Komutlar
 
 | Komut            | Ne yapar                              |

@@ -28,14 +28,17 @@ export function asUser<T>(
   run: (tx: Tx) => Promise<T>,
 ) {
   return db.transaction(async (tx) => {
+    // One round trip: the claims for auth.uid() and the role, both scoped to
+    // this transaction (`set_config('role', ..., true)` is SET LOCAL ROLE).
     await tx.execute(sql`
       select
         set_config('request.jwt.claims', ${JSON.stringify(claims)}, true),
-        set_config('request.jwt.claim.sub', ${claims.sub}, true)
+        set_config('request.jwt.claim.sub', ${claims.sub}, true),
+        set_config('role', 'authenticated', true)
     `);
-    await tx.execute(sql`set local role authenticated`);
     return run(tx);
   });
 }
 
+export * from "./queries";
 export * from "./schema";

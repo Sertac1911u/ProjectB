@@ -51,7 +51,7 @@ export function CategoryForm({
 
   return (
     <form
-      key={JSON.stringify(state)}
+      key={state.nonce ?? "initial"}
       action={action}
       className="flex flex-col gap-4"
       noValidate
