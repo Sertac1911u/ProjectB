@@ -26,6 +26,7 @@ export async function eventDescriber() {
   const accountName = (id: string | null) =>
     accounts.find((a) => a.id === id)?.name ?? "";
   return (source: CashSource) => {
+    if (source.type === "purchase") return t("thisPurchase");
     if (source.type === "card") {
       return t("cardPayment", { card: source.cardName });
     }
@@ -119,7 +120,9 @@ function TimelineRow({
   const href =
     source.type === "card"
       ? `/accounts/${source.cardId}`
-      : `/recurring/${source.ruleId}`;
+      : source.type === "recurring"
+        ? `/recurring/${source.ruleId}`
+        : "/cashflow";
   const negative = entry.balance < 0;
   const after = formatMoney(
     entry.balance,

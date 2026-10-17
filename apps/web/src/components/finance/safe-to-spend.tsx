@@ -109,7 +109,10 @@ export async function SafeToSpend({
               : t("safeTotalMonth", { amount: money(forecast.safeToSpend) })}
           </li>
         )}
-        <li>{t("available", { amount: money(forecast.startBalance) })}</li>
+        <li>{t("available", { amount: money(forecast.accountBalance) })}</li>
+        {forecast.reserved > 0 && (
+          <li>{t("reservedLine", { amount: money(forecast.reserved) })}</li>
+        )}
         {forecast.lowest.balance < forecast.startBalance && (
           <li className={cn(short && "text-destructive")}>
             {t("lowest", {

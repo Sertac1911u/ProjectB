@@ -1,3 +1,4 @@
+import { formatMoney, isCurrencyCode } from "@projectb/core";
 import { Pencil, Plus } from "lucide-react";
 import { connection } from "next/server";
 import { getLocale, getTranslations } from "next-intl/server";
@@ -6,7 +7,8 @@ import { AccountIcon } from "@/components/finance/account-icon";
 import { Amount } from "@/components/finance/amount";
 import { CashTimeline } from "@/components/finance/cash-timeline";
 import { SafeToSpend } from "@/components/finance/safe-to-spend";
-import { SpendCalculator } from "@/components/finance/spend-calculator";
+import { WhatIfForm } from "@/components/finance/what-if-form";
+import { Progress } from "@/components/ui/progress";
 import { PageHeader } from "@/components/page-header";
 import { buttonVariants } from "@/components/ui/button";
 import {
@@ -17,7 +19,12 @@ import {
 } from "@/components/ui/card";
 import { Link } from "@/i18n/navigation";
 import type { AccountWithBalance } from "@/lib/data/finance";
-import { getCashForecast, HORIZON_DAYS } from "@/lib/data/cashflow";
+import {
+  type CashForecast,
+  getCashForecast,
+  HORIZON_DAYS,
+} from "@/lib/data/cashflow";
+import { formatDay } from "@/lib/dates";
 
 export default async function CashFlowPage() {
   const t = await getTranslations("CashFlow");
@@ -36,12 +43,12 @@ export default async function CashFlowPage() {
 async function CashFlow() {
   // The forecast starts from today's date.
   await connection();
-  const [forecast, locale, t] = await Promise.all([
+  const [forecast, locale, t, tWhatIf] = await Promise.all([
     getCashForecast(),
     getLocale(),
     getTranslations("CashFlow"),
+    getTranslations("WhatIf"),
   ]);
-  const toPayday = forecast.payday !== null;
 
   return (
     <div className="flex flex-col gap-4">
@@ -51,20 +58,19 @@ async function CashFlow() {
       {forecast.spendable.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle>{t("calculator")}</CardTitle>
-            <CardDescription>{t("calculatorHint")}</CardDescription>
+            <CardTitle>{tWhatIf("title")}</CardTitle>
+            <CardDescription>{tWhatIf("hint")}</CardDescription>
           </CardHeader>
           <div className="px-6 pb-6">
-            <SpendCalculator
+            <WhatIfForm
               currency={forecast.currency}
-              safeToSpend={forecast.safeToSpend}
-              daysLeft={forecast.daysLeft}
-              windowEndBalance={forecast.windowEndBalance}
-              toPayday={toPayday}
+              cards={forecast.cards.map((c) => ({ id: c.id, name: c.name }))}
             />
           </div>
         </Card>
       )}
+
+      <Envelopes forecast={forecast} locale={locale} />
 
       <Card>
         <CardHeader>
@@ -163,5 +169,91 @@ async function AccountRows({
         </li>
       ))}
     </ul>
+  );
+}
+
+/** Envelopes for rare payments, with what each should hold by now. */
+async function Envelopes({
+  forecast,
+  locale,
+}: {
+  forecast: CashForecast;
+  locale: string;
+}) {
+  const t = await getTranslations("Envelopes");
+  return (
+    <Card>
+      <CardHeader className="flex flex-row flex-wrap items-start justify-between gap-3">
+        <div className="flex flex-col gap-1.5">
+          <CardTitle>{t("title")}</CardTitle>
+          <CardDescription>{t("hint")}</CardDescription>
+        </div>
+        <Link
+          href="/cashflow/envelopes/new"
+          className={buttonVariants({ variant: "outline", size: "sm" })}
+        >
+          <Plus />
+          {t("new")}
+        </Link>
+      </CardHeader>
+      {forecast.envelopes.length === 0 ? (
+        <p className="px-6 pb-6 text-sm text-muted-foreground">{t("empty")}</p>
+      ) : (
+        <ul className="divide-y border-t">
+          {forecast.envelopes.map((envelope) => (
+            <li key={envelope.id}>
+              <Link
+                href={`/cashflow/envelopes/${envelope.id}`}
+                className="flex flex-col gap-2 px-6 py-4 transition-colors hover:bg-muted/60"
+              >
+                <span className="flex flex-wrap items-baseline justify-between gap-x-3">
+                  <span className="font-medium">{envelope.name}</span>
+                  <span className="text-sm text-muted-foreground">
+                    {t("due", {
+                      date: formatDay(envelope.cycle.due, locale),
+                      amount: formatMoney(
+                        envelope.amount,
+                        isCurrencyCode(envelope.currency)
+                          ? envelope.currency
+                          : "TRY",
+                        locale,
+                      ),
+                    })}
+                  </span>
+                </span>
+                <Progress
+                  value={envelope.cycle.percent}
+                  label={envelope.name}
+                />
+                <span className="flex flex-wrap justify-between gap-x-3 text-xs text-muted-foreground">
+                  <span>
+                    {t("reservedSoFar", {
+                      amount: formatMoney(
+                        envelope.cycle.reserved,
+                        isCurrencyCode(envelope.currency)
+                          ? envelope.currency
+                          : "TRY",
+                        locale,
+                      ),
+                    })}
+                  </span>
+                  <span>
+                    {t("monthly", {
+                      amount: formatMoney(
+                        envelope.cycle.monthly,
+                        isCurrencyCode(envelope.currency)
+                          ? envelope.currency
+                          : "TRY",
+                        locale,
+                      ),
+                    })}
+                  </span>
+                </span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
+    </Card>
   );
 }

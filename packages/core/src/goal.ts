@@ -49,3 +49,18 @@ export function goalProgress(
     overdue: months === 0,
   };
 }
+
+/** Average month length in days, for turning months into days. */
+const DAYS_PER_MONTH = 30.44;
+
+/**
+ * Days by which spending `amount` pushes back reaching a goal, given what is
+ * saved in a typical month. Null when nothing is being saved.
+ */
+export function goalDelayDays(
+  amount: MinorUnits,
+  monthlySaving: MinorUnits | null,
+): number | null {
+  if (!monthlySaving || monthlySaving <= 0) return null;
+  return Math.ceil((amount / monthlySaving) * DAYS_PER_MONTH);
+}

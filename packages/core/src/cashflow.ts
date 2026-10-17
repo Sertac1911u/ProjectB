@@ -212,17 +212,3 @@ export function forecast<S>({
     shortfalls,
   };
 }
-
-/** What spending `amount` today does to the forecast's limits. */
-export function spendImpact(
-  result: Pick<Forecast, "safeToSpend" | "daysLeft" | "windowEndBalance">,
-  amount: MinorUnits,
-) {
-  const safe = result.safeToSpend - amount;
-  return {
-    safeToSpend: safe,
-    dailyLimit: Math.max(0, Math.floor(safe / result.daysLeft)),
-    windowEndBalance: result.windowEndBalance - amount,
-    fits: safe >= 0,
-  };
-}

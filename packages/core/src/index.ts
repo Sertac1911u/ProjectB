@@ -3,6 +3,7 @@ export * from "./budget";
 export * from "./card";
 export * from "./cashflow";
 export * from "./currency";
+export * from "./envelope";
 export * from "./finance";
 export * from "./forms";
 export * from "./goal";

@@ -1,17 +1,24 @@
 import "server-only";
 import {
+  addStatements,
   type CashEvent,
   cardPayments,
   convert,
   type CurrencyCode,
   DEFAULT_CURRENCY,
+  envelopeCycle,
   forecast,
+  installmentAmounts,
   isCurrencyCode,
   occurrencesUntil,
+  reservedBy,
   type Schedule,
+  statementFor,
 } from "@projectb/core";
+import { envelopes as envelopesTable } from "@projectb/db";
+import { asc, isNull } from "drizzle-orm";
 import { cache } from "react";
-import { getProfile } from "@/lib/auth";
+import { getProfile, withUser } from "@/lib/auth";
 import { monthRange, today } from "@/lib/dates";
 import { isConfiguredCard, settingsOf } from "./cards";
 import {
@@ -43,7 +50,23 @@ export type CashSource =
       cardName: string;
       statementDate: string;
       overdue: boolean;
-    };
+    }
+  | { type: "purchase" };
+
+/** A purchase tried out in the "what if I buy this?" simulator. */
+export type Purchase =
+  | { method: "cash"; amount: number }
+  | { method: "card"; amount: number; cardId: string; installments: number };
+
+export const getEnvelopes = cache(async () =>
+  withUser((tx) =>
+    tx
+      .select()
+      .from(envelopesTable)
+      .where(isNull(envelopesTable.archivedAt))
+      .orderBy(asc(envelopesTable.dueOn)),
+  ),
+);
 
 const code = (c: string): CurrencyCode =>
   isCurrencyCode(c) ? c : DEFAULT_CURRENCY;
@@ -61,14 +84,21 @@ export const isSpendable = (account: AccountWithBalance) =>
  * The money available to spend until the next payday, and the scheduled
  * income and payments of the coming weeks, in the main currency.
  */
-export const getCashForecast = cache(async () => {
+export const getCashForecast = cache(() => computeForecast());
+
+/** The forecast as it would be after buying something today. */
+export const simulatePurchase = (purchase: Purchase) =>
+  computeForecast(purchase);
+
+async function computeForecast(purchase?: Purchase) {
   const day = today();
   const horizon = addDays(day, HORIZON_DAYS);
-  const [accounts, rules, rateInfo, profile] = await Promise.all([
+  const [accounts, rules, rateInfo, profile, envelopeRows] = await Promise.all([
     getAccounts(),
     getRecurringRules(),
     getRates(),
     getProfile(),
+    getEnvelopes(),
   ]);
   const currency = code(profile.baseCurrency);
   let missingRate = false;
@@ -148,6 +178,35 @@ export const getCashForecast = cache(async () => {
   }
 
   const cards = accounts.filter((a) => !a.archivedAt).filter(isConfiguredCard);
+  if (purchase?.method === "cash") {
+    events.push({
+      on: day,
+      amount: -purchase.amount,
+      source: { type: "purchase" },
+    });
+  } else if (purchase?.method === "card") {
+    const card = cards.find((c) => c.id === purchase.cardId);
+    if (card) {
+      // Each installment is billed on one statement, starting with the open one.
+      const first = statementFor(day, card.statementDay);
+      const list = cardCharges.get(card.id) ?? [];
+      // The amount is typed in the main currency.
+      const inCard =
+        convert(
+          purchase.amount,
+          currency,
+          code(card.currency),
+          rateInfo.rates,
+        ) ?? purchase.amount;
+      installmentAmounts(inCard, purchase.installments).forEach((amount, k) =>
+        list.push({
+          on: addStatements(first, k, card.statementDay),
+          amount,
+        }),
+      );
+      cardCharges.set(card.id, list);
+    }
+  }
   await Promise.all(
     cards.map(async (card) => {
       const transactions = await getCardTransactions(card.id);
@@ -175,15 +234,38 @@ export const getCashForecast = cache(async () => {
     }),
   );
 
+  // Envelopes keep what they should hold by payday out of the money available.
+  const monthEnd = monthRange(day).to;
+  const windowEnd = payday ? addDays(payday, -1) : monthEnd;
+  const envelopes = envelopeRows.map((row) => {
+    const schedule = {
+      amount: row.amount,
+      startOn: row.startOn,
+      dueOn: row.dueOn,
+      intervalMonths: row.intervalMonths,
+    };
+    return {
+      ...row,
+      cycle: envelopeCycle(schedule, day),
+      keptOut: toBase(reservedBy(schedule, day, windowEnd), row.currency),
+    };
+  });
+  const reserved = envelopes.reduce((sum, e) => sum + e.keptOut, 0);
+
   const result = forecast({
     today: day,
-    balance,
+    balance: balance - reserved,
     events,
     payday,
-    monthEnd: monthRange(day).to,
+    monthEnd,
   });
   return {
     ...result,
+    /** Money in spendable accounts, before envelopes. */
+    accountBalance: balance,
+    cards,
+    reserved,
+    envelopes,
     currency,
     spendable,
     others: accounts.filter((a) => !a.archivedAt && !isSpendable(a)),
@@ -192,6 +274,6 @@ export const getCashForecast = cache(async () => {
     missingRate,
     rateInfo,
   };
-});
+}
 
-export type CashForecast = Awaited<ReturnType<typeof getCashForecast>>;
+export type CashForecast = Awaited<ReturnType<typeof computeForecast>>;
