@@ -4,6 +4,7 @@ const PROTECTED = [
   "/dashboard",
   "/accounts",
   "/transactions",
+  "/recurring",
   "/budgets",
   "/goals",
   "/reports",

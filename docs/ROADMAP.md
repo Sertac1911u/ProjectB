@@ -46,7 +46,7 @@ CSV dışa aktarma, fiş fotoğrafı, gelecek nakit akışı tahmini.
 - [x] **2. Hesaplar, işlemler, kategoriler:** etiketler, arama ve filtre dahil.
 - [x] **3. Kredi kartı:** ekstre ve taksitler.
 - [x] **4. Döviz kurları ve çevrim.**
-- [ ] **5. Tekrarlayan işlemler.**
+- [x] **5. Tekrarlayan işlemler.**
 - [ ] **6. Bütçeler ve birikim hedefleri.**
 - [ ] **7. Panel ve raporlar.**
 

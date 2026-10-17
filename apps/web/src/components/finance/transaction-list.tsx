@@ -1,4 +1,9 @@
-import { ArrowLeftRight, ArrowDownLeft, ArrowUpRight } from "lucide-react";
+import {
+  ArrowDownLeft,
+  ArrowLeftRight,
+  ArrowUpRight,
+  Repeat,
+} from "lucide-react";
 import { getLocale, getTranslations } from "next-intl/server";
 import { Amount } from "@/components/finance/amount";
 import { Card } from "@/components/ui/card";
@@ -20,10 +25,11 @@ export async function TransactionList({
   rows: TransactionListRow[];
   categories: CategoryRow[];
 }) {
-  const [locale, t, tCategories] = await Promise.all([
+  const [locale, t, tCategories, tRecurring] = await Promise.all([
     getLocale(),
     getTranslations("Transactions"),
     getTranslations("Categories"),
+    getTranslations("Recurring"),
   ]);
   const byId = new Map(categories.map((c) => [c.id, c]));
   const label = (id: string | null) => {
@@ -70,8 +76,16 @@ export async function TransactionList({
                         .filter(Boolean)
                         .join(" · ")}
                     </p>
-                    {(row.tags.length > 0 || row.installmentCount > 1) && (
+                    {(row.tags.length > 0 ||
+                      row.installmentCount > 1 ||
+                      row.recurringRuleId) && (
                       <div className="mt-1 flex flex-wrap gap-1">
+                        {row.recurringRuleId && (
+                          <span className="inline-flex items-center gap-1 rounded-full bg-accent px-2 py-0.5 text-xs text-accent-foreground">
+                            <Repeat className="size-3" />
+                            {tRecurring("badge")}
+                          </span>
+                        )}
                         {row.installmentCount > 1 && (
                           <span className="rounded-full bg-accent px-2 py-0.5 text-xs text-accent-foreground">
                             {t("installmentBadge", {

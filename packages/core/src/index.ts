@@ -6,4 +6,5 @@ export * from "./forms";
 export * from "./locale";
 export * from "./money";
 export * from "./rates";
+export * from "./recurring";
 export * from "./validation";

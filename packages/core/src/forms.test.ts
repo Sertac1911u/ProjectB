@@ -3,6 +3,7 @@ import {
   accountSchema,
   parseAmount,
   parseTags,
+  recurringSchema,
   transactionSchema,
 } from "./forms";
 import { fieldErrors } from "./validation";
@@ -159,5 +160,70 @@ describe("transactionSchema installments", () => {
     expect(fieldErrors(tooMany.error!)).toEqual({
       installments: "invalidInstallments",
     });
+  });
+});
+
+describe("recurringSchema", () => {
+  const base = {
+    kind: "expense",
+    accountId: account,
+    amount: "15.000",
+    startOn: "2026-11-01",
+    frequency: "monthly",
+  };
+
+  it("defaults to every month without an end", () => {
+    expect(recurringSchema.parse(base)).toMatchObject({
+      frequency: "monthly",
+      interval: 1,
+      endOn: null,
+      maxOccurrences: null,
+    });
+  });
+
+  it("validates how the schedule ends", () => {
+    expect(
+      recurringSchema.parse({
+        ...base,
+        ends: "afterCount",
+        maxOccurrences: "12",
+      }).maxOccurrences,
+    ).toBe(12);
+    expect(
+      recurringSchema.parse({ ...base, ends: "onDate", endOn: "2027-10-31" })
+        .endOn,
+    ).toBe("2027-10-31");
+    const before = recurringSchema.safeParse({
+      ...base,
+      ends: "onDate",
+      endOn: "2026-10-01",
+    });
+    expect(fieldErrors(before.error!)).toEqual({ endOn: "invalidEndDate" });
+    const none = recurringSchema.safeParse({
+      ...base,
+      ends: "afterCount",
+      maxOccurrences: "0",
+    });
+    expect(fieldErrors(none.error!)).toEqual({
+      maxOccurrences: "invalidOccurrences",
+    });
+    const weird = recurringSchema.safeParse({
+      ...base,
+      frequency: "daily",
+      interval: "13",
+    });
+    expect(fieldErrors(weird.error!)).toEqual({
+      frequency: "invalidFrequency",
+      interval: "invalidInterval",
+    });
+  });
+
+  it("applies the transfer rules", () => {
+    const same = recurringSchema.safeParse({
+      ...base,
+      kind: "transfer",
+      toAccountId: account,
+    });
+    expect(fieldErrors(same.error!)).toEqual({ toAccountId: "sameAccount" });
   });
 });

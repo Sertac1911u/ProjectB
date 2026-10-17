@@ -51,7 +51,8 @@
     "goals": "Goals",
     "reports": "Reports",
     "settings": "Settings",
-    "categories": "Categories"
+    "categories": "Categories",
+    "recurring": "Recurring"
   },
   "Placeholder": {
     "description": "This section arrives in phase {phase}."
@@ -152,6 +153,10 @@
     "invalidDay": "Choose a day between 1 and 31.",
     "invalidRate": "Enter a rate between 0 and 100.",
     "invalidInstallments": "Invalid installments. Installments are only available for credit card expenses.",
+    "invalidFrequency": "Invalid repeat option.",
+    "invalidInterval": "Choose a number between 1 and 12.",
+    "invalidEndDate": "The end date cannot be before the start.",
+    "invalidOccurrences": "Enter a number between 1 and 360.",
     "unknown": "Something went wrong. Please try again."
   },
   "Settings": {
@@ -362,5 +367,45 @@
     "approx": "≈ {amount}",
     "estimate": "At the current rate: about {amount}",
     "useEstimate": "Use this"
+  },
+  "Recurring": {
+    "title": "Recurring transactions",
+    "description": "Regular transactions like salary, rent or subscriptions are added automatically when due.",
+    "new": "New recurring transaction",
+    "newTitle": "New recurring transaction",
+    "editTitle": "Edit recurring transaction",
+    "startOn": "Start date",
+    "repeat": "Repeat",
+    "every": "Every",
+    "frequencies": {
+      "weekly": "week",
+      "monthly": "month",
+      "yearly": "year"
+    },
+    "summary": {
+      "weekly": "{interval, plural, =1 {Every week} other {Every # weeks}}",
+      "monthly": "{interval, plural, =1 {Every month} other {Every # months}}",
+      "yearly": "{interval, plural, =1 {Every year} other {Every # years}}"
+    },
+    "ends": "Ends",
+    "endsNever": "Never",
+    "endsOnDate": "On a date",
+    "endsAfterCount": "After a number of times",
+    "endOn": "End date",
+    "maxOccurrences": "Number of times",
+    "preview": "First dates: {dates}",
+    "pastStart": "The start is in the past: transactions up to today are created too.",
+    "next": "Next: {date}",
+    "finished": "Finished",
+    "paused": "Paused",
+    "pause": "Pause",
+    "resume": "Resume",
+    "resumeHint": "When resumed, dates missed while paused are skipped.",
+    "deleteHint": "Transactions the rule already created are kept.",
+    "emptyTitle": "No recurring transactions yet",
+    "emptyDescription": "Enter your salary, rent or subscriptions once and they are added every period.",
+    "badge": "Recurring",
+    "upcoming": "Upcoming recurring transactions",
+    "remaining": "{count} left"
   }
 }

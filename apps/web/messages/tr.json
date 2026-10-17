@@ -51,7 +51,8 @@
     "goals": "Hedefler",
     "reports": "Raporlar",
     "settings": "Ayarlar",
-    "categories": "Kategoriler"
+    "categories": "Kategoriler",
+    "recurring": "Tekrarlayan"
   },
   "Placeholder": {
     "description": "Bu bölüm {phase}. aşamada eklenecek."
@@ -152,6 +153,10 @@
     "invalidDay": "1 ile 31 arasında bir gün seç.",
     "invalidRate": "0 ile 100 arasında bir oran yaz.",
     "invalidInstallments": "Geçersiz taksit. Taksit yalnızca kredi kartıyla yapılan giderlerde seçilebilir.",
+    "invalidFrequency": "Geçersiz tekrar seçimi.",
+    "invalidInterval": "1 ile 12 arasında bir sayı seç.",
+    "invalidEndDate": "Bitiş tarihi başlangıçtan önce olamaz.",
+    "invalidOccurrences": "1 ile 360 arasında bir sayı yaz.",
     "unknown": "Bir şeyler ters gitti. Lütfen tekrar dene."
   },
   "Settings": {
@@ -362,5 +367,45 @@
     "approx": "≈ {amount}",
     "estimate": "Kurla yaklaşık: {amount}",
     "useEstimate": "Bunu kullan"
+  },
+  "Recurring": {
+    "title": "Tekrarlayan işlemler",
+    "description": "Maaş, kira, abonelik gibi düzenli işlemler zamanı gelince kendiliğinden eklenir.",
+    "new": "Yeni tekrarlayan işlem",
+    "newTitle": "Yeni tekrarlayan işlem",
+    "editTitle": "Tekrarlayan işlemi düzenle",
+    "startOn": "Başlangıç tarihi",
+    "repeat": "Tekrar",
+    "every": "Her",
+    "frequencies": {
+      "weekly": "hafta",
+      "monthly": "ay",
+      "yearly": "yıl"
+    },
+    "summary": {
+      "weekly": "{interval, plural, =1 {Her hafta} other {# haftada bir}}",
+      "monthly": "{interval, plural, =1 {Her ay} other {# ayda bir}}",
+      "yearly": "{interval, plural, =1 {Her yıl} other {# yılda bir}}"
+    },
+    "ends": "Bitiş",
+    "endsNever": "Bitmesin",
+    "endsOnDate": "Şu tarihte bitsin",
+    "endsAfterCount": "Belirli sayıda sonra bitsin",
+    "endOn": "Bitiş tarihi",
+    "maxOccurrences": "Tekrar sayısı",
+    "preview": "İlk tarihler: {dates}",
+    "pastStart": "Başlangıç geçmişte: o tarihten bugüne kadarki işlemler de oluşturulur.",
+    "next": "Sonraki: {date}",
+    "finished": "Bitti",
+    "paused": "Duraklatıldı",
+    "pause": "Duraklat",
+    "resume": "Devam ettir",
+    "resumeHint": "Devam ettirince duraklatıldığı sürede kaçırılan tarihler atlanır.",
+    "deleteHint": "Silinen kuralın daha önce oluşturduğu işlemler kalır.",
+    "emptyTitle": "Henüz tekrarlayan işlem yok",
+    "emptyDescription": "Maaşını, kiranı veya aboneliklerini bir kez gir, her dönem kendiliğinden eklensin.",
+    "badge": "Tekrarlayan",
+    "upcoming": "Yaklaşan tekrarlayan işlemler",
+    "remaining": "{count} kez kaldı"
   }
 }

@@ -24,9 +24,11 @@ import {
 import { alias } from "drizzle-orm/pg-core";
 import { cache } from "react";
 import { withUser } from "@/lib/auth";
+import { materializeRecurring } from "./recurring";
 
-export const getAccounts = cache(async () =>
-  withUser((tx) =>
+export const getAccounts = cache(async () => {
+  await materializeRecurring();
+  return withUser((tx) =>
     tx
       .select({
         id: accounts.id,
@@ -44,8 +46,8 @@ export const getAccounts = cache(async () =>
       .from(accounts)
       .innerJoin(accountBalances, eq(accountBalances.accountId, accounts.id))
       .orderBy(asc(accounts.createdAt)),
-  ),
-);
+  );
+});
 
 export type AccountWithBalance = Awaited<
   ReturnType<typeof getAccounts>
@@ -154,6 +156,7 @@ export async function listTransactions(filters: TransactionFilters, page = 1) {
     );
   }
 
+  await materializeRecurring();
   const rows = await withUser((tx) =>
     tx
       .select({
@@ -163,6 +166,7 @@ export async function listTransactions(filters: TransactionFilters, page = 1) {
         toAmount: transactions.toAmount,
         occurredOn: transactions.occurredOn,
         installmentCount: transactions.installmentCount,
+        recurringRuleId: transactions.recurringRuleId,
         note: transactions.note,
         categoryId: transactions.categoryId,
         account: {
@@ -220,6 +224,7 @@ export async function getTransaction(id: string) {
  * purchases count with the installments that fall in the period.
  */
 export async function getTotals(from: string, to: string) {
+  await materializeRecurring();
   return withUser(async (tx) => {
     const [income, expense] = await Promise.all([
       tx
@@ -265,6 +270,7 @@ export async function getTotals(from: string, to: string) {
 
 /** Every transaction that moves money on or off a card, oldest first. */
 export async function getCardTransactions(cardId: string) {
+  await materializeRecurring();
   return withUser((tx) =>
     tx
       .select({

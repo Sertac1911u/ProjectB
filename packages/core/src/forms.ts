@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { CURRENCIES, type CurrencyCode } from "./currency";
 import { MAX_INSTALLMENTS } from "./card";
+import { FREQUENCIES, MAX_INTERVAL, MAX_OCCURRENCES } from "./recurring";
 import { ACCOUNT_TYPES, CATEGORY_KINDS, TRANSACTION_KINDS } from "./finance";
 import { type MinorUnits, parseMoney } from "./money";
 import { error, type ValidationError } from "./validation";
@@ -109,28 +110,58 @@ const tagList = z
   )
   .refine((list) => list.length <= MAX_TAGS, error("tooManyTags"));
 
+const transactionFields = {
+  kind: z.enum(TRANSACTION_KINDS, error("invalidKind")),
+  accountId: z.uuid(error("accountRequired")),
+  toAccountId: optionalId("invalidAccount"),
+  categoryId: optionalId("invalidCategory"),
+  amount: z.string().trim().min(1, error("amountRequired")),
+  /** Only needed for transfers between accounts in different currencies. */
+  toAmount: z.string().optional().default(""),
+  note: z
+    .string()
+    .trim()
+    .max(500, error("noteTooLong"))
+    .optional()
+    .transform((v) => v || null),
+  tags: tagList,
+};
+
+type TransferFields = {
+  kind: string;
+  accountId: string;
+  toAccountId: string | null;
+};
+
+function checkTransfer(data: TransferFields, ctx: z.RefinementCtx) {
+  if (data.kind !== "transfer") return;
+  if (!data.toAccountId) {
+    ctx.addIssue({
+      code: "custom",
+      path: ["toAccountId"],
+      ...error("accountRequired"),
+    });
+  } else if (data.toAccountId === data.accountId) {
+    ctx.addIssue({
+      code: "custom",
+      path: ["toAccountId"],
+      ...error("sameAccount"),
+    });
+  }
+}
+
+const count = (max: number, message: ValidationError) =>
+  z.coerce
+    .number(error(message))
+    .int(error(message))
+    .min(1, error(message))
+    .max(max, error(message));
+
 export const transactionSchema = z
   .object({
-    kind: z.enum(TRANSACTION_KINDS, error("invalidKind")),
-    accountId: z.uuid(error("accountRequired")),
-    toAccountId: optionalId("invalidAccount"),
-    categoryId: optionalId("invalidCategory"),
-    amount: z.string().trim().min(1, error("amountRequired")),
-    /** Only needed for transfers between accounts in different currencies. */
-    toAmount: z.string().optional().default(""),
+    ...transactionFields,
     occurredOn: z.iso.date(error("invalidDate")),
-    note: z
-      .string()
-      .trim()
-      .max(500, error("noteTooLong"))
-      .optional()
-      .transform((v) => v || null),
-    tags: tagList,
-    installments: z.coerce
-      .number(error("invalidInstallments"))
-      .int(error("invalidInstallments"))
-      .min(1, error("invalidInstallments"))
-      .max(MAX_INSTALLMENTS, error("invalidInstallments"))
+    installments: count(MAX_INSTALLMENTS, "invalidInstallments")
       .optional()
       .default(1),
   })
@@ -142,20 +173,57 @@ export const transactionSchema = z
         ...error("invalidInstallments"),
       });
     }
-    if (data.kind !== "transfer") return;
-    if (!data.toAccountId) {
-      ctx.addIssue({
-        code: "custom",
-        path: ["toAccountId"],
-        ...error("accountRequired"),
-      });
-    } else if (data.toAccountId === data.accountId) {
-      ctx.addIssue({
-        code: "custom",
-        path: ["toAccountId"],
-        ...error("sameAccount"),
-      });
+    checkTransfer(data, ctx);
+  });
+
+export const RECURRING_ENDS = ["never", "onDate", "afterCount"] as const;
+
+export const recurringSchema = z
+  .object({
+    ...transactionFields,
+    startOn: z.iso.date(error("invalidDate")),
+    frequency: z.enum(FREQUENCIES, error("invalidFrequency")),
+    interval: count(MAX_INTERVAL, "invalidInterval").optional().default(1),
+    ends: z
+      .enum(RECURRING_ENDS, error("invalidFrequency"))
+      .optional()
+      .default("never"),
+    endOn: z.string().optional().default(""),
+    maxOccurrences: z.string().optional().default(""),
+  })
+  .superRefine(checkTransfer)
+  .transform((data, ctx) => {
+    const { ends, endOn, maxOccurrences, ...rest } = data;
+    let end = {
+      endOn: null as string | null,
+      maxOccurrences: null as number | null,
+    };
+    if (ends === "onDate") {
+      const parsed = z.iso.date().safeParse(endOn);
+      if (!parsed.success || parsed.data < data.startOn) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["endOn"],
+          ...error("invalidEndDate"),
+        });
+      } else {
+        end = { ...end, endOn: parsed.data };
+      }
+    } else if (ends === "afterCount") {
+      const parsed = count(MAX_OCCURRENCES, "invalidOccurrences").safeParse(
+        maxOccurrences,
+      );
+      if (!parsed.success) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["maxOccurrences"],
+          ...error("invalidOccurrences"),
+        });
+      } else {
+        end = { ...end, maxOccurrences: parsed.data };
+      }
     }
+    return { ...rest, ...end };
   });
 
 /**
