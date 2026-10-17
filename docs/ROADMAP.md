@@ -62,7 +62,7 @@ Basit ve detaylı görünüm vardır; basit görünüm sadece temel bölümleri 
       harcamadan düşer; bir alışverişin hedeflere etkisi.
 - [x] **10. Dayanıklılık göstergesi ve hedef tahmini:** gelir kesilirse kaç ay idare edilir;
       hedeflere ulaşma tarihi ve senaryolar.
-- [ ] **11. Borç stratejisi ve gerçek net servet:** kredi hesapları, borç kapatma sıraları,
+- [x] **11. Borç stratejisi ve gerçek net servet:** kredi hesapları, borç kapatma sıraları,
       altın ve döviz varlıkları.
 
 ## Teknik kararlar
@@ -97,3 +97,8 @@ Basit ve detaylı görünüm vardır; basit görünüm sadece temel bölümleri 
   harcaması. Harcama geçmişi yoksa düzenli ödemeler ve zarflar kullanılır. Seviye ve gerekçeler
   aynı girdilerden gösterilir. **Hedef tarihi**, bağlı hesabın son üç aydaki artışından, yoksa
   katkılardan, o da yoksa ortalama aylık birikimden tahmin edilir.
+- **Krediler** hesap olarak tutulur; bakiye kalan borçtur (eksi). Ödemeler krediye transfer olarak
+  girilir; kalan borç bankadaki rakamla güncellendiğinde açılış bakiyesi buna göre ayarlanır.
+  Krediler dayanıklılık rezervinden düşülmez (taksitleri düzenli ödeme olarak sayılır).
+  **Altın** hesabının değeri miktar × birim fiyattır; fiyat elle güncellenir. **Borç planı** her ay
+  asgari ödemeleri yapar, kalanı stratejinin seçtiği borca verir; serbest kalan para sonrakine geçer.

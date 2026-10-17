@@ -78,7 +78,9 @@ const addDays = (day: string, days: number) =>
 
 /** Accounts whose money counts as available to spend. */
 export const isSpendable = (account: AccountWithBalance) =>
-  account.spendable && !account.archivedAt && account.type !== "credit_card";
+  account.spendable &&
+  !account.archivedAt &&
+  !["credit_card", "loan", "gold"].includes(account.type);
 
 /**
  * The money available to spend until the next payday, and the scheduled

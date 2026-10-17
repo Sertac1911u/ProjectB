@@ -48,6 +48,7 @@
     "transactions": "İşlemler",
     "budgets": "Bütçeler",
     "goals": "Hedefler",
+    "debts": "Borç planı",
     "reports": "Raporlar",
     "settings": "Ayarlar",
     "categories": "Kategoriler",
@@ -160,7 +161,8 @@
     "invalidOccurrences": "1 ile 360 arasında bir sayı yaz.",
     "unknown": "Bir şeyler ters gitti. Lütfen tekrar dene.",
     "categoryRequired": "Bir kategori seç.",
-    "invalidUiMode": "Geçersiz görünüm."
+    "invalidUiMode": "Geçersiz görünüm.",
+    "invalidQuantity": "Miktarı 12,5 biçiminde yaz."
   },
   "Settings": {
     "profileTitle": "Profil",
@@ -198,7 +200,9 @@
     "cash": "Nakit",
     "bank": "Banka hesabı",
     "credit_card": "Kredi kartı",
-    "savings": "Birikim / yatırım"
+    "savings": "Birikim / yatırım",
+    "loan": "Kredi / borç",
+    "gold": "Altın"
   },
   "Accounts": {
     "new": "Yeni hesap",
@@ -233,7 +237,32 @@
     "chooseDay": "Gün seç",
     "totalIn": "Toplam varlık ({currency})",
     "spendable": "Harcanabilir para",
-    "spendableHint": "Maaşa kadar güvenli harcama hesabına dahil edilir. Birikim hesaplarını genelde dışarıda bırakırsın."
+    "spendableHint": "Maaşa kadar güvenli harcama hesabına dahil edilir. Birikim hesaplarını genelde dışarıda bırakırsın.",
+    "loanSettings": "Kredi bilgileri",
+    "loanSettingsHint": "Borç planı ve nakit akışı bu bilgilere göre hesaplanır.",
+    "loanRemaining": "Kalan borç",
+    "loanRemainingHint": "Bugün itibarıyla ödenecek toplam. Ödemeleri bu hesaba transfer olarak girdikçe azalır; bankadaki rakamla arada güncelleyebilirsin.",
+    "loanPayment": "Aylık taksit",
+    "interestRate": "Aylık faiz oranı (%)",
+    "interestRateHint": "Örn. 3,49. Borç planında hangi borcun daha pahalı olduğunu bulmak için kullanılır.",
+    "goldSettings": "Altın",
+    "goldUnit": "Birim",
+    "goldUnits": {
+      "gram": "gram",
+      "quarter": "çeyrek",
+      "half": "yarım",
+      "full": "tam"
+    },
+    "goldQuantity": "Miktar",
+    "unitPrice": "Birim fiyat",
+    "unitPriceHint": "Güncel alış fiyatını gir; değer miktar × fiyat olarak hesaplanır.",
+    "priceOn": "Fiyat {date}",
+    "holding": "{quantity} {unit}",
+    "addLoanPayment": "Aylık ödemeyi ekle",
+    "assets": "Varlıklar",
+    "debts": "Borçlar",
+    "netWorth": "Net servet",
+    "debtPlan": "Borç planı"
   },
   "Transactions": {
     "new": "Yeni işlem",
@@ -681,5 +710,43 @@
     "envelopes": "Zarflar",
     "tile": "Gelirin kesilse ~{months} idare edersin",
     "details": "Ayrıntılar"
+  },
+  "Debts": {
+    "title": "Borç planı",
+    "description": "Borçlarını hangi sırayla kapatırsan ne kadar sürede ve ne kadar faizle biteceğini karşılaştır.",
+    "empty": "Takip ettiğin bir borç yok. Kredi veya borç hesabı ekle; kredi kartı borçların da burada görünür.",
+    "addLoan": "Kredi ekle",
+    "list": "Borçların",
+    "balance": "Kalan",
+    "rate": "Aylık faiz",
+    "minimum": "Asgari / taksit",
+    "rateMissing": "faiz girilmemiş",
+    "rateMissingHint": "Faiz oranı girilmemiş borçlar faizsiz kabul edilir. Doğru karşılaştırma için hesap ayarlarından oranı gir.",
+    "budget": "Ayda borçlara ayırabileceğin ({currency})",
+    "budgetHint": "En az asgari ödemelerin toplamı: {amount}",
+    "calculate": "Karşılaştır",
+    "strategies": {
+      "smallest": "En küçük borç önce",
+      "highestRate": "En yüksek faizli önce"
+    },
+    "strategyHints": {
+      "smallest": "Borç sayısı hızla azalır, motive eder.",
+      "highestRate": "Toplamda en az faizi ödersin."
+    },
+    "finish": "{months} ayda biter · {date}",
+    "interest": "Toplam faiz {amount}",
+    "never": "Bu bütçeyle borçlar kapanmıyor: faiz ödemeleri aşıyor.",
+    "extra": "Ayda {amount} ek ödeme yaparsan",
+    "extraResult": "{months} ay erken biter, {interest} daha az faiz ödersin.",
+    "extraSame": "Süre değişmez ama {interest} daha az faiz ödersin.",
+    "byDate": "Belirli bir tarihe kadar bitirmek için",
+    "targetDate": "Hedef tarih",
+    "needed": "Ayda {amount} ayırman gerekir.",
+    "neededImpossible": "Bu tarihe kadar bitirmek mümkün görünmüyor.",
+    "order": "Kapanma sırası",
+    "paidOff": "{date}",
+    "schedule": "İlk aylardaki ödemeler",
+    "payday": "Ödemeleri maaş gününde yaparsan ilk ödeme {date}.",
+    "moreInterest": "{amount} daha fazla faiz"
   }
 }

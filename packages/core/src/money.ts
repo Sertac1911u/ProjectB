@@ -48,8 +48,19 @@ export function parseMoney(
   currency: CurrencyCode,
   locale: string,
 ): MinorUnits | null {
+  return parseScaled(input, CURRENCIES[currency].minorUnits, locale);
+}
+
+/**
+ * Parses a number typed in the locale's notation into an integer scaled by
+ * 10^decimals: "3,49" with 2 decimals is 349. Null if it has more decimals.
+ */
+export function parseScaled(
+  input: string,
+  decimals: number,
+  locale: string,
+): number | null {
   const { group, decimal } = separators(locale);
-  const { minorUnits } = CURRENCIES[currency];
 
   // Some locales group digits with (no-break) spaces; whitespace never
   // carries meaning in an amount, so drop it entirely.
@@ -69,13 +80,21 @@ export function parseMoney(
       : null;
   if (integerDigits === null) return null;
 
-  if (!/^\d*$/.test(fractionPart) || fractionPart.length > minorUnits) {
+  if (!/^\d*$/.test(fractionPart) || fractionPart.length > decimals) {
     return null;
   }
 
-  const amount = Number(integerDigits + fractionPart.padEnd(minorUnits, "0"));
+  const amount = Number(integerDigits + fractionPart.padEnd(decimals, "0"));
   if (!Number.isSafeInteger(amount)) return null;
   return negative ? -amount : amount;
+}
+
+/** Formats an integer scaled by 10^decimals for an input field: 349 -> "3,49". */
+export function formatScaled(value: number, decimals: number, locale: string) {
+  return new Intl.NumberFormat(locale, {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: decimals,
+  }).format(value / 10 ** decimals);
 }
 
 function escapeRegExp(value: string): string {

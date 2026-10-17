@@ -6,7 +6,11 @@ import {
   CURRENCIES,
   type CurrencyCode,
   formatAmountInput,
+  formatScaled,
+  GOLD_UNITS,
   type Locale,
+  QUANTITY_DECIMALS,
+  RATE_DECIMALS,
   SPENDABLE_BY_DEFAULT,
 } from "@projectb/core";
 import { useLocale, useTranslations } from "next-intl";
@@ -32,6 +36,12 @@ type Props = {
     dueDay: number | null;
     minPaymentRate: number | null;
     spendable: boolean;
+    balance: number;
+    interestRateBp: number | null;
+    loanPayment: number | null;
+    goldUnit: string | null;
+    goldQuantity: number | null;
+    unitPrice: number | null;
   };
   defaultCurrency: CurrencyCode;
   /** The currency cannot change once transactions use the account. */
@@ -68,6 +78,32 @@ export function AccountForm({
     statementDay: account?.statementDay ? String(account.statementDay) : "",
     dueDay: account?.dueDay ? String(account.dueDay) : "",
     minPaymentRate: String(account?.minPaymentRate ?? 20),
+    interestRate:
+      account?.interestRateBp != null
+        ? formatScaled(account.interestRateBp, RATE_DECIMALS, locale)
+        : "",
+    loanPayment:
+      account?.loanPayment != null
+        ? formatAmountInput(account.loanPayment, account.currency, locale)
+        : "",
+    // A loan's balance is negative: what is owed.
+    loanRemaining:
+      account?.type === "loan"
+        ? formatAmountInput(
+            Math.max(0, -account.balance),
+            account.currency,
+            locale,
+          )
+        : "",
+    goldUnit: account?.goldUnit ?? "gram",
+    goldQuantity:
+      account?.goldQuantity != null
+        ? formatScaled(account.goldQuantity, QUANTITY_DECIMALS, locale)
+        : "",
+    unitPrice:
+      account?.unitPrice != null
+        ? formatAmountInput(account.unitPrice, account.currency, locale)
+        : "",
   };
   const [type, setType] = useState(values.type);
   const byType = (t?: string) =>
@@ -140,7 +176,7 @@ export function AccountForm({
           </Select>
         </Field>
       </div>
-      {type !== "credit_card" && (
+      {!["credit_card", "loan", "gold"].includes(type) && (
         <label className="flex items-start gap-3 rounded-md border p-3 text-sm">
           <input
             type="checkbox"
@@ -157,22 +193,123 @@ export function AccountForm({
           </span>
         </label>
       )}
-      <Field
-        id={fid("openingBalance")}
-        label={`${t("openingBalance")} (${tCommon("optional")})`}
-        hint={t("openingBalanceHint")}
-        error={fieldError("openingBalance")}
-      >
-        <Input
+      {type !== "loan" && type !== "gold" && (
+        <Field
           id={fid("openingBalance")}
-          name="openingBalance"
-          inputMode="decimal"
-          autoComplete="off"
-          placeholder="0,00"
-          defaultValue={values.openingBalance}
-          aria-invalid={Boolean(fieldError("openingBalance"))}
-        />
-      </Field>
+          label={`${t("openingBalance")} (${tCommon("optional")})`}
+          hint={t("openingBalanceHint")}
+          error={fieldError("openingBalance")}
+        >
+          <Input
+            id={fid("openingBalance")}
+            name="openingBalance"
+            inputMode="decimal"
+            autoComplete="off"
+            placeholder="0,00"
+            defaultValue={values.openingBalance}
+            aria-invalid={Boolean(fieldError("openingBalance"))}
+          />
+        </Field>
+      )}
+      {type === "loan" && (
+        <fieldset className="flex flex-col gap-4 rounded-lg border p-4">
+          <legend className="px-1 text-sm font-medium">
+            {t("loanSettings")}
+          </legend>
+          <p className="-mt-2 text-sm text-muted-foreground">
+            {t("loanSettingsHint")}
+          </p>
+          <Field
+            id={fid("loanRemaining")}
+            label={t("loanRemaining")}
+            hint={t("loanRemainingHint")}
+            error={fieldError("loanRemaining")}
+          >
+            <Input
+              id={fid("loanRemaining")}
+              name="loanRemaining"
+              inputMode="decimal"
+              autoComplete="off"
+              defaultValue={values.loanRemaining}
+              aria-invalid={Boolean(fieldError("loanRemaining"))}
+            />
+          </Field>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Field
+              id={fid("loanPayment")}
+              label={t("loanPayment")}
+              error={fieldError("loanPayment")}
+            >
+              <Input
+                id={fid("loanPayment")}
+                name="loanPayment"
+                inputMode="decimal"
+                autoComplete="off"
+                defaultValue={values.loanPayment}
+                aria-invalid={Boolean(fieldError("loanPayment"))}
+              />
+            </Field>
+            <RateField
+              id={fid("interestRate")}
+              defaultValue={values.interestRate}
+              error={fieldError("interestRate")}
+            />
+          </div>
+        </fieldset>
+      )}
+      {type === "gold" && (
+        <fieldset className="flex flex-col gap-4 rounded-lg border p-4">
+          <legend className="px-1 text-sm font-medium">
+            {t("goldSettings")}
+          </legend>
+          <div className="grid gap-4 sm:grid-cols-3">
+            <Field id={fid("goldUnit")} label={t("goldUnit")}>
+              <Select
+                id={fid("goldUnit")}
+                name="goldUnit"
+                defaultValue={values.goldUnit}
+              >
+                {GOLD_UNITS.map((unit) => (
+                  <option key={unit} value={unit}>
+                    {t(`goldUnits.${unit}`)}
+                  </option>
+                ))}
+              </Select>
+            </Field>
+            <Field
+              id={fid("goldQuantity")}
+              label={t("goldQuantity")}
+              error={fieldError("goldQuantity")}
+            >
+              <Input
+                id={fid("goldQuantity")}
+                name="goldQuantity"
+                inputMode="decimal"
+                autoComplete="off"
+                defaultValue={values.goldQuantity}
+                aria-invalid={Boolean(fieldError("goldQuantity"))}
+              />
+            </Field>
+            <Field
+              id={fid("unitPrice")}
+              label={t("unitPrice")}
+              error={fieldError("unitPrice")}
+            >
+              <Input
+                id={fid("unitPrice")}
+                name="unitPrice"
+                inputMode="decimal"
+                autoComplete="off"
+                defaultValue={values.unitPrice}
+                aria-invalid={Boolean(fieldError("unitPrice"))}
+              />
+            </Field>
+          </div>
+          <p className="-mt-2 text-xs text-muted-foreground">
+            {t("unitPriceHint")}
+          </p>
+        </fieldset>
+      )}
       {type === "credit_card" && (
         <fieldset className="flex flex-col gap-4 rounded-lg border p-4">
           <legend className="px-1 text-sm font-medium">
@@ -251,6 +388,12 @@ export function AccountForm({
                 aria-invalid={Boolean(fieldError("minPaymentRate"))}
               />
             </Field>
+            <RateField
+              id={fid("interestRate")}
+              defaultValue={values.interestRate}
+              error={fieldError("interestRate")}
+              optional
+            />
           </div>
         </fieldset>
       )}
@@ -258,5 +401,42 @@ export function AccountForm({
         <SubmitButton>{tCommon("save")}</SubmitButton>
       </div>
     </form>
+  );
+}
+
+function RateField({
+  id,
+  defaultValue,
+  error,
+  optional = false,
+}: {
+  id: string;
+  defaultValue?: string;
+  error?: string;
+  optional?: boolean;
+}) {
+  const t = useTranslations("Accounts");
+  const tCommon = useTranslations("Common");
+  return (
+    <Field
+      id={id}
+      label={
+        optional
+          ? `${t("interestRate")} (${tCommon("optional")})`
+          : t("interestRate")
+      }
+      hint={t("interestRateHint")}
+      error={error}
+    >
+      <Input
+        id={id}
+        name="interestRate"
+        inputMode="decimal"
+        autoComplete="off"
+        placeholder="3,49"
+        defaultValue={defaultValue}
+        aria-invalid={Boolean(error)}
+      />
+    </Field>
   );
 }

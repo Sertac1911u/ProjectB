@@ -1,6 +1,8 @@
 import {
   Banknote,
+  Coins,
   CreditCard,
+  HandCoins,
   Landmark,
   type LucideIcon,
   PiggyBank,
@@ -12,6 +14,8 @@ const ICONS: Record<string, LucideIcon> = {
   bank: Landmark,
   credit_card: CreditCard,
   savings: PiggyBank,
+  loan: HandCoins,
+  gold: Coins,
 };
 
 export function AccountIcon({

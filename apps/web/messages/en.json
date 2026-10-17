@@ -48,6 +48,7 @@
     "transactions": "Transactions",
     "budgets": "Budgets",
     "goals": "Goals",
+    "debts": "Debt plan",
     "reports": "Reports",
     "settings": "Settings",
     "categories": "Categories",
@@ -160,7 +161,8 @@
     "invalidOccurrences": "Enter a number between 1 and 360.",
     "unknown": "Something went wrong. Please try again.",
     "categoryRequired": "Choose a category.",
-    "invalidUiMode": "Invalid interface."
+    "invalidUiMode": "Invalid interface.",
+    "invalidQuantity": "Write the quantity as 12.5."
   },
   "Settings": {
     "profileTitle": "Profile",
@@ -198,7 +200,9 @@
     "cash": "Cash",
     "bank": "Bank account",
     "credit_card": "Credit card",
-    "savings": "Savings / investments"
+    "savings": "Savings / investments",
+    "loan": "Loan / debt",
+    "gold": "Gold"
   },
   "Accounts": {
     "new": "New account",
@@ -233,7 +237,32 @@
     "chooseDay": "Choose a day",
     "totalIn": "Total ({currency})",
     "spendable": "Spendable money",
-    "spendableHint": "Counted in what you can safely spend until payday. Savings accounts are usually left out."
+    "spendableHint": "Counted in what you can safely spend until payday. Savings accounts are usually left out.",
+    "loanSettings": "Loan details",
+    "loanSettingsHint": "The debt plan and cash flow are worked out from these.",
+    "loanRemaining": "Amount still owed",
+    "loanRemainingHint": "What is left to pay as of today. It goes down as you add payments as transfers to this account; update it from your bank now and then.",
+    "loanPayment": "Monthly installment",
+    "interestRate": "Monthly interest rate (%)",
+    "interestRateHint": "E.g. 3.49. The debt plan uses it to find the most expensive debt.",
+    "goldSettings": "Gold",
+    "goldUnit": "Unit",
+    "goldUnits": {
+      "gram": "gram",
+      "quarter": "quarter coin",
+      "half": "half coin",
+      "full": "full coin"
+    },
+    "goldQuantity": "Quantity",
+    "unitPrice": "Price per unit",
+    "unitPriceHint": "Enter the current buying price; the value is quantity × price.",
+    "priceOn": "Price of {date}",
+    "holding": "{quantity} {unit}",
+    "addLoanPayment": "Add the monthly payment",
+    "assets": "Assets",
+    "debts": "Debts",
+    "netWorth": "Net worth",
+    "debtPlan": "Debt plan"
   },
   "Transactions": {
     "new": "New transaction",
@@ -681,5 +710,43 @@
     "envelopes": "Envelopes",
     "tile": "If income stopped: about {months}",
     "details": "Details"
+  },
+  "Debts": {
+    "title": "Debt plan",
+    "description": "Compare how long it takes and how much interest you pay depending on the order you clear your debts in.",
+    "empty": "No debts to plan. Add a loan account; your credit card debt shows up here too.",
+    "addLoan": "Add a loan",
+    "list": "Your debts",
+    "balance": "Owed",
+    "rate": "Monthly rate",
+    "minimum": "Minimum / installment",
+    "rateMissing": "no rate",
+    "rateMissingHint": "Debts without an interest rate are treated as interest-free. Add the rate in the account settings for a fair comparison.",
+    "budget": "What you can put towards debts each month ({currency})",
+    "budgetHint": "At least the minimum payments: {amount}",
+    "calculate": "Compare",
+    "strategies": {
+      "smallest": "Smallest debt first",
+      "highestRate": "Highest interest first"
+    },
+    "strategyHints": {
+      "smallest": "The number of debts drops fast, which keeps you going.",
+      "highestRate": "You pay the least interest overall."
+    },
+    "finish": "Done in {months} months · {date}",
+    "interest": "Total interest {amount}",
+    "never": "Debts never clear on this budget: interest outgrows the payments.",
+    "extra": "Paying {amount} more each month",
+    "extraResult": "finishes {months} months sooner with {interest} less interest.",
+    "extraSame": "Takes as long, with {interest} less interest.",
+    "byDate": "To be debt-free by a date",
+    "targetDate": "Target date",
+    "needed": "You need to put aside {amount} a month.",
+    "neededImpossible": "That date does not look reachable.",
+    "order": "Payoff order",
+    "paidOff": "{date}",
+    "schedule": "Payments in the first months",
+    "payday": "Paying on payday, the first payment is on {date}.",
+    "moreInterest": "{amount} more interest"
   }
 }

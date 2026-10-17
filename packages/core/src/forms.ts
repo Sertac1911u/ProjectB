@@ -2,8 +2,15 @@ import { z } from "zod";
 import { CURRENCIES, type CurrencyCode } from "./currency";
 import { MAX_INSTALLMENTS } from "./card";
 import { FREQUENCIES, MAX_INTERVAL, MAX_OCCURRENCES } from "./recurring";
-import { ACCOUNT_TYPES, CATEGORY_KINDS, TRANSACTION_KINDS } from "./finance";
-import { type MinorUnits, parseMoney } from "./money";
+import {
+  ACCOUNT_TYPES,
+  CATEGORY_KINDS,
+  GOLD_UNITS,
+  QUANTITY_DECIMALS,
+  RATE_DECIMALS,
+  TRANSACTION_KINDS,
+} from "./finance";
+import { type MinorUnits, parseMoney, parseScaled } from "./money";
 import { error, type ValidationError } from "./validation";
 
 const currencyCodes = Object.keys(CURRENCIES) as [
@@ -44,16 +51,83 @@ export const accountSchema = z
     statementDay: z.string().optional().default(""),
     dueDay: z.string().optional().default(""),
     minPaymentRate: z.string().optional().default("20"),
-    /** A checkbox: present when ticked. Never set for credit cards. */
+    /** A checkbox: present when ticked. Never set for cards, loans or gold. */
     spendable: z
       .string()
       .optional()
       .transform((v) => v === "on" || v === "true"),
+    /** Monthly interest in percent, for cards and loans. */
+    interestRate: z.string().optional().default(""),
+    // Loans only: the monthly installment and what is still owed.
+    loanPayment: z.string().optional().default(""),
+    loanRemaining: z.string().optional().default(""),
+    // Gold only.
+    goldUnit: z.string().optional().default("gram"),
+    goldQuantity: z.string().optional().default(""),
+    unitPrice: z.string().optional().default(""),
+    /** Locale of the typed numbers; set by the server action. */
+    locale: z.string().optional().default("tr"),
   })
   .transform((data, ctx) => {
-    const { statementDay, dueDay, minPaymentRate, ...rest } = data;
+    const {
+      statementDay,
+      dueDay,
+      minPaymentRate,
+      interestRate,
+      loanPayment,
+      loanRemaining,
+      goldUnit,
+      goldQuantity,
+      unitPrice,
+      locale,
+      ...rest
+    } = data;
+    const issue = (path: string, message: ValidationError) =>
+      ctx.addIssue({ code: "custom", path: [path], ...error(message) });
+
+    let rateBp: number | null = null;
+    if (
+      (data.type === "credit_card" || data.type === "loan") &&
+      interestRate.trim()
+    ) {
+      rateBp = parseScaled(interestRate, RATE_DECIMALS, locale);
+      if (rateBp === null || rateBp < 0 || rateBp > 10_000) {
+        issue("interestRate", "invalidRate");
+      }
+    }
+    const loan =
+      data.type === "loan"
+        ? {
+            payment: loanPayment,
+            remaining: loanRemaining,
+          }
+        : null;
+    if (loan && !loan.remaining.trim())
+      issue("loanRemaining", "amountRequired");
+    if (loan && !loan.payment.trim()) issue("loanPayment", "amountRequired");
+
+    let gold = null as null | {
+      unit: (typeof GOLD_UNITS)[number];
+      quantityMilli: number;
+      unitPrice: string;
+    };
+    if (data.type === "gold") {
+      const unit = GOLD_UNITS.find((u) => u === goldUnit);
+      const quantity = parseScaled(goldQuantity, QUANTITY_DECIMALS, locale);
+      if (!unit) issue("goldUnit", "invalidAccountType");
+      if (quantity === null || quantity < 0)
+        issue("goldQuantity", "invalidQuantity");
+      if (!unitPrice.trim()) issue("unitPrice", "amountRequired");
+      gold = {
+        unit: unit ?? "gram",
+        quantityMilli: quantity ?? 0,
+        unitPrice,
+      };
+    }
+    const extra = { rateBp, loan, gold };
     if (data.type !== "credit_card") {
-      return { ...rest, card: null };
+      if (data.type === "loan" || data.type === "gold") rest.spendable = false;
+      return { ...rest, ...extra, card: null };
     }
     rest.spendable = false;
     const parse = (schema: z.ZodType<number>, value: string, path: string) => {
@@ -80,7 +154,7 @@ export const accountSchema = z
         "minPaymentRate",
       ),
     };
-    return { ...rest, card };
+    return { ...rest, ...extra, card };
   });
 
 export const categorySchema = z.object({

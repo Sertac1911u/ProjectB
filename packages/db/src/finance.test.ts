@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { DEFAULT_CATEGORIES, installmentAmounts } from "@projectb/core";
-import { eq, sql } from "drizzle-orm";
+import { eq, inArray, sql } from "drizzle-orm";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import {
   accountBalances,
@@ -124,6 +124,63 @@ describe.skipIf(!url)("finance tables", () => {
       }),
     ).catch(causeOf);
     expect(withBobsCategory).toMatch(/violates foreign key constraint/);
+  });
+
+  it("keeps loan and gold fields on their own account types", async () => {
+    const attempts = [
+      { name: "X", type: "bank", currency: "TRY", loanPayment: 100 },
+      { name: "X", type: "bank", currency: "TRY", interestRateBp: 300 },
+      {
+        name: "X",
+        type: "gold",
+        currency: "TRY",
+        goldUnit: "gram",
+        goldQuantity: 1000,
+      },
+      { name: "X", type: "bank", currency: "TRY", goldUnit: "gram" },
+      { name: "X", type: "loan", currency: "TRY", interestRateBp: 20000 },
+    ];
+    for (const values of attempts) {
+      const result = await as(alice, (tx) =>
+        tx.insert(accounts).values(values),
+      ).catch(causeOf);
+      expect(result, JSON.stringify(values)).toMatch(
+        /violates check constraint/,
+      );
+    }
+    const created = await as(alice, (tx) =>
+      tx
+        .insert(accounts)
+        .values([
+          {
+            name: "Kredi",
+            type: "loan",
+            currency: "TRY",
+            openingBalance: -100_000,
+            interestRateBp: 349,
+            loanPayment: 5_000,
+          },
+          {
+            name: "Altın",
+            type: "gold",
+            currency: "TRY",
+            goldUnit: "gram",
+            goldQuantity: 12_500,
+            unitPrice: 300_000,
+            priceOn: "2026-10-17",
+          },
+        ])
+        .returning({ id: accounts.id }),
+    );
+    // Other tests count Alice's accounts.
+    await as(alice, (tx) =>
+      tx.delete(accounts).where(
+        inArray(
+          accounts.id,
+          created.map((a) => a.id),
+        ),
+      ),
+    );
   });
 
   it("rejects malformed transactions", async () => {

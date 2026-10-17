@@ -5,6 +5,7 @@ import {
   ArrowLeftRight,
   CalendarClock,
   ChartPie,
+  HandCoins,
   LayoutDashboard,
   type LucideIcon,
   PiggyBank,
@@ -37,6 +38,7 @@ const items: {
   { href: "/recurring", key: "recurring", icon: Repeat, simple: false },
   { href: "/budgets", key: "budgets", icon: PiggyBank, simple: false },
   { href: "/goals", key: "goals", icon: Target, simple: true },
+  { href: "/debts", key: "debts", icon: HandCoins, simple: false },
   { href: "/reports", key: "reports", icon: ChartPie, simple: false },
   { href: "/settings", key: "settings", icon: Settings, simple: true },
 ];

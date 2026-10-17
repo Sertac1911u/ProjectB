@@ -8,6 +8,7 @@ import {
   type CurrencyCode,
   convert,
   DEFAULT_CURRENCY,
+  goldValue,
   isCurrencyCode,
   monthOf,
   periodRange,
@@ -229,7 +230,10 @@ const getBalanceFlows = cache(async (to: string) => {
       tx
         .select({
           id: accounts.id,
+          type: accounts.type,
           currency: accounts.currency,
+          goldQuantity: accounts.goldQuantity,
+          unitPrice: accounts.unitPrice,
           openingBalance: accounts.openingBalance,
           openedOn: sql<string>`(${accounts.createdAt} at time zone ${TIME_ZONE})::date::text`,
         })
@@ -259,9 +263,20 @@ export async function getNetWorthHistory(from: string, to: string) {
   const points = buckets
     .filter((b) => b.start <= day)
     .map((b) => ({ ...b, at: b.end < day ? b.end : day }));
+  // Gold is worth its quantity at the latest price, not its transactions.
+  const isGold = new Set(
+    accountList.filter((a) => a.type === "gold").map((a) => a.id),
+  );
   const balances = balancesAt(
-    accountList,
-    flows,
+    accountList.map((a) =>
+      isGold.has(a.id)
+        ? {
+            ...a,
+            openingBalance: goldValue(a.goldQuantity ?? 0, a.unitPrice ?? 0),
+          }
+        : a,
+    ),
+    flows.filter((f) => !isGold.has(f.accountId)),
     points.map((p) => p.at),
   );
   const sums = converter(currency, rateInfo.rates);

@@ -1,5 +1,11 @@
-import { isAccountType } from "@projectb/core";
-import { Pencil, Plus } from "lucide-react";
+import {
+  formatScaled,
+  type GoldUnit,
+  isAccountType,
+  QUANTITY_DECIMALS,
+  RATE_DECIMALS,
+} from "@projectb/core";
+import { Pencil, Plus, Repeat } from "lucide-react";
 import { notFound } from "next/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
 import { Suspense } from "react";
@@ -16,6 +22,7 @@ import {
   getCategories,
   listTransactions,
 } from "@/lib/data/finance";
+import { formatDay } from "@/lib/dates";
 import { isUuid } from "@/lib/ids";
 
 type Props = PageProps<"/[locale]/accounts/[id]">;
@@ -84,14 +91,105 @@ async function AccountOverview({
       </div>
 
       {!isCard && (
-        <Card className="mb-4 p-5">
-          <p className="text-sm text-muted-foreground">{t("balance")}</p>
-          <Amount
-            value={account.balance}
-            currency={account.currency}
-            locale={locale}
-            className="text-2xl font-semibold"
-          />
+        <Card className="mb-4 flex flex-col gap-3 p-5">
+          <div>
+            <p className="text-sm text-muted-foreground">
+              {account.type === "loan" ? t("loanRemaining") : t("balance")}
+            </p>
+            <Amount
+              value={
+                account.type === "loan"
+                  ? Math.max(0, -account.balance)
+                  : account.balance
+              }
+              currency={account.currency}
+              locale={locale}
+              className="text-2xl font-semibold"
+            />
+          </div>
+          {account.type === "loan" && (
+            <>
+              <dl className="grid grid-cols-2 gap-4 text-sm sm:grid-cols-3">
+                {account.loanPayment !== null && (
+                  <div>
+                    <dt className="text-xs text-muted-foreground">
+                      {t("loanPayment")}
+                    </dt>
+                    <dd>
+                      <Amount
+                        value={account.loanPayment}
+                        currency={account.currency}
+                        locale={locale}
+                      />
+                    </dd>
+                  </div>
+                )}
+                {account.interestRateBp !== null && (
+                  <div>
+                    <dt className="text-xs text-muted-foreground">
+                      {t("interestRate")}
+                    </dt>
+                    <dd>
+                      %
+                      {formatScaled(
+                        account.interestRateBp,
+                        RATE_DECIMALS,
+                        locale,
+                      )}
+                    </dd>
+                  </div>
+                )}
+              </dl>
+              <div className="flex flex-wrap gap-2">
+                <Link
+                  href={{
+                    pathname: "/recurring/new",
+                    query: {
+                      kind: "transfer",
+                      to: account.id,
+                      ...(account.loanPayment
+                        ? { amount: account.loanPayment }
+                        : {}),
+                    },
+                  }}
+                  className={buttonVariants({ variant: "outline", size: "sm" })}
+                >
+                  <Repeat />
+                  {t("addLoanPayment")}
+                </Link>
+                <Link
+                  href="/debts"
+                  className={buttonVariants({ variant: "ghost", size: "sm" })}
+                >
+                  {t("debtPlan")}
+                </Link>
+              </div>
+            </>
+          )}
+          {account.type === "gold" &&
+            account.goldQuantity !== null &&
+            account.unitPrice !== null && (
+              <p className="text-sm text-muted-foreground">
+                {t("holding", {
+                  quantity: formatScaled(
+                    account.goldQuantity,
+                    QUANTITY_DECIMALS,
+                    locale,
+                  ),
+                  unit: t(
+                    `goldUnits.${(account.goldUnit ?? "gram") as GoldUnit}`,
+                  ),
+                })}{" "}
+                ×{" "}
+                <Amount
+                  value={account.unitPrice}
+                  currency={account.currency}
+                  locale={locale}
+                />
+                {account.priceOn &&
+                  ` · ${t("priceOn", { date: formatDay(account.priceOn, locale) })}`}
+              </p>
+            )}
         </Card>
       )}
 

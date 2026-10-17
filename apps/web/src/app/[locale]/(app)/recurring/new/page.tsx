@@ -5,6 +5,7 @@ import { Suspense } from "react";
 import { TransactionEditor } from "@/components/finance/transaction-editor";
 import { PageHeader } from "@/components/page-header";
 import { today } from "@/lib/dates";
+import { isUuid } from "@/lib/ids";
 
 type SearchParams = PageProps<"/[locale]/recurring/new">["searchParams"];
 
@@ -29,7 +30,7 @@ export default async function NewRecurringPage({
 }
 
 async function NewRecurring({ searchParams }: { searchParams: SearchParams }) {
-  const { kind } = await searchParams;
+  const { kind, to, amount } = await searchParams;
   // The default start date is today's, so this renders per request.
   await connection();
   return (
@@ -40,6 +41,12 @@ async function NewRecurring({ searchParams }: { searchParams: SearchParams }) {
           ? kind
           : "expense") as TransactionKind,
         accountId: null,
+        // A loan's "add the monthly payment" links here with the loan.
+        toAccountId: isUuid(to) ? to : null,
+        amount:
+          Number.isSafeInteger(Number(amount)) && Number(amount) > 0
+            ? Number(amount)
+            : undefined,
         occurredOn: today(),
         frequency: "monthly",
       }}
