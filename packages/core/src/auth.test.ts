@@ -40,19 +40,27 @@ describe("profileSchema", () => {
         displayName: "  ",
         locale: "en",
         baseCurrency: "USD",
+        uiMode: "simple",
       }),
-    ).toEqual({ displayName: null, locale: "en", baseCurrency: "USD" });
+    ).toEqual({
+      displayName: null,
+      locale: "en",
+      baseCurrency: "USD",
+      uiMode: "simple",
+    });
   });
 
-  it("rejects unsupported locales and currencies", () => {
+  it("rejects unsupported locales, currencies and interface modes", () => {
     const result = profileSchema.safeParse({
       displayName: "",
       locale: "de",
       baseCurrency: "JPY",
+      uiMode: "expert",
     });
     expect(fieldErrors(result.error!)).toEqual({
       locale: "invalidLocale",
       baseCurrency: "invalidCurrency",
+      uiMode: "invalidUiMode",
     });
   });
 });

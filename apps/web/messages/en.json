@@ -43,6 +43,7 @@
   },
   "Nav": {
     "dashboard": "Dashboard",
+    "cashflow": "Cash flow",
     "accounts": "Accounts",
     "transactions": "Transactions",
     "budgets": "Budgets",
@@ -158,7 +159,8 @@
     "invalidEndDate": "The end date cannot be before the start.",
     "invalidOccurrences": "Enter a number between 1 and 360.",
     "unknown": "Something went wrong. Please try again.",
-    "categoryRequired": "Choose a category."
+    "categoryRequired": "Choose a category.",
+    "invalidUiMode": "Invalid interface."
   },
   "Settings": {
     "profileTitle": "Profile",
@@ -184,7 +186,13 @@
       "GBP": "British pound (GBP)"
     },
     "categoriesTitle": "Categories and tags",
-    "categoriesDescription": "Edit your income and expense categories and tags."
+    "categoriesDescription": "Edit your income and expense categories and tags.",
+    "uiMode": "Interface",
+    "uiModeHint": "The simple interface shows only the essentials; none of your data is removed.",
+    "uiModes": {
+      "simple": "Simple",
+      "detailed": "Detailed"
+    }
   },
   "AccountTypes": {
     "cash": "Cash",
@@ -223,7 +231,9 @@
     "minPaymentRateHint": "The minimum share of the statement your bank asks for, often 20 or 40.",
     "dayOption": "Day {day} of the month",
     "chooseDay": "Choose a day",
-    "totalIn": "Total ({currency})"
+    "totalIn": "Total ({currency})",
+    "spendable": "Spendable money",
+    "spendableHint": "Counted in what you can safely spend until payday. Savings accounts are usually left out."
   },
   "Transactions": {
     "new": "New transaction",
@@ -522,5 +532,58 @@
     "share": "Share",
     "amount": "Amount",
     "seeTransactions": "See transactions"
+  },
+  "CashFlow": {
+    "title": "Cash flow",
+    "description": "See how much you can spend until payday and what your money looks like after upcoming payments.",
+    "daysToPayday": "{days, plural, =1 {1 day to payday} other {# days to payday}}",
+    "daysToMonthEnd": "{days, plural, =1 {1 day to the end of the month} other {# days to the end of the month}}",
+    "perDay": "{amount} a day",
+    "perDayHint": "is safe to spend",
+    "safeTotal": "{amount} in total until payday",
+    "safeTotalMonth": "{amount} in total until the end of the month",
+    "shortfall": "{amount} short before payday",
+    "shortfallMonth": "{amount} short before the end of the month",
+    "shortfallAt": "{date}: the balance falls to {amount} after {label}.",
+    "lowest": "Lowest balance {amount} on {date}",
+    "available": "Available now: {amount}",
+    "noPayday": "Add your salary as recurring income to plan around your payday.",
+    "addSalary": "Add your salary",
+    "addPayment": "Add a regular payment",
+    "noAccounts": "No spendable account yet. Add a cash or bank account, or mark an account as spendable.",
+    "details": "Details",
+    "upcoming": "Upcoming payments",
+    "upcomingEmpty": "No planned payments in the coming days.",
+    "calendar": "Payment calendar",
+    "calendarHint": "Regular income and payments and card payments in the next {days} days. Each row shows the expected balance after it.",
+    "after": "Then {amount}",
+    "payday": "Payday",
+    "cardPayment": "{card} card payment",
+    "overdue": "Overdue",
+    "calculator": "Try before you spend",
+    "calculatorHint": "See what spending an amount today does to the days until payday.",
+    "spendAmount": "Amount ({currency})",
+    "impactFits": "Your daily limit becomes {daily} and {balance} is left before payday.",
+    "impactFitsMonth": "Your daily limit becomes {daily} and {balance} is left at the end of the month.",
+    "impactShort": "This leaves you {amount} short before payday.",
+    "impactShortMonth": "This leaves you {amount} short before the end of the month.",
+    "accounts": "Accounts counted",
+    "accountsHint": "Only money in these accounts counts as spendable. Edit an account to change this.",
+    "notCounted": "Not counted",
+    "regular": "Regular income and payments",
+    "regularHint": "Salary, rent, bills and subscriptions are what the forecast is built on.",
+    "seeAll": "See all",
+    "missingRates": "Some amounts are left out because their exchange rate is unknown.",
+    "howItWorks": "After planned payments, the lowest balance you reach before payday is what you can safely spend. Spending you have not planned is not predicted.",
+    "goToAccounts": "Go to accounts"
+  },
+  "Welcome": {
+    "title": "How do you want to use the app?",
+    "description": "You can change this at any time in Settings; your data stays the same.",
+    "simple": "Simple",
+    "simpleText": "What you can spend, upcoming payments, transactions and goals. Everything else stays out of the way.",
+    "detailed": "Detailed",
+    "detailedText": "All of that plus budgets, reports, recurring transactions and every detail.",
+    "choose": "Choose this"
   }
 }

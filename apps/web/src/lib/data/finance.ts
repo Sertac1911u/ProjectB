@@ -36,6 +36,7 @@ export const getAccounts = cache(async () => {
         type: accounts.type,
         currency: accounts.currency,
         openingBalance: accounts.openingBalance,
+        spendable: accounts.spendable,
         creditLimit: accounts.creditLimit,
         statementDay: accounts.statementDay,
         dueDay: accounts.dueDay,

@@ -42,6 +42,8 @@ export const accounts = pgTable(
     name: text().notNull(),
     type: text().notNull(),
     currency: text().notNull(),
+    /** Counted as money available to spend in the cash flow forecast. */
+    spendable: boolean().notNull().default(true),
     /** Balance before the first recorded transaction, in minor units. */
     openingBalance: amount("opening_balance").notNull().default(0),
     // Credit cards only; null until the user enters the card's settings.

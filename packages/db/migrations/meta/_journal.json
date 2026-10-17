@@ -85,6 +85,13 @@
       "when": 1792256659688,
       "tag": "0011_budgets_goals_access",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1792260018588,
+      "tag": "0012_spendable_ui_mode",
+      "breakpoints": true
     }
   ]
 }

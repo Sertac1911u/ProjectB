@@ -2,10 +2,12 @@
 
 import {
   ACCOUNT_TYPES,
+  type AccountType,
   CURRENCIES,
   type CurrencyCode,
   formatAmountInput,
   type Locale,
+  SPENDABLE_BY_DEFAULT,
 } from "@projectb/core";
 import { useLocale, useTranslations } from "next-intl";
 import { useActionState, useState } from "react";
@@ -29,6 +31,7 @@ type Props = {
     statementDay: number | null;
     dueDay: number | null;
     minPaymentRate: number | null;
+    spendable: boolean;
   };
   defaultCurrency: CurrencyCode;
   /** The currency cannot change once transactions use the account. */
@@ -67,6 +70,16 @@ export function AccountForm({
     minPaymentRate: String(account?.minPaymentRate ?? 20),
   };
   const [type, setType] = useState(values.type);
+  const byType = (t?: string) =>
+    SPENDABLE_BY_DEFAULT.includes(t as AccountType);
+  // Follows the account type until the user ticks or unticks it.
+  const [spendable, setSpendable] = useState<boolean | null>(
+    state.values
+      ? state.values.spendable === "on"
+      : account
+        ? account.spendable
+        : null,
+  );
   const days = Array.from({ length: 31 }, (_, i) => String(i + 1));
 
   return (
@@ -127,6 +140,23 @@ export function AccountForm({
           </Select>
         </Field>
       </div>
+      {type !== "credit_card" && (
+        <label className="flex items-start gap-3 rounded-md border p-3 text-sm">
+          <input
+            type="checkbox"
+            name="spendable"
+            checked={spendable ?? byType(type)}
+            onChange={(e) => setSpendable(e.target.checked)}
+            className="mt-0.5 size-4 accent-primary"
+          />
+          <span className="flex flex-col gap-0.5">
+            <span className="font-medium">{t("spendable")}</span>
+            <span className="text-xs text-muted-foreground">
+              {t("spendableHint")}
+            </span>
+          </span>
+        </label>
+      )}
       <Field
         id={fid("openingBalance")}
         label={`${t("openingBalance")} (${tCommon("optional")})`}
