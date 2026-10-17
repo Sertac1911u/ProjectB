@@ -23,6 +23,8 @@ export function formatMoney(
   return new Intl.NumberFormat(locale, {
     style: "currency",
     currency,
+    // "₺1,250.00" rather than "TRY 1,250.00" in English.
+    currencyDisplay: "narrowSymbol",
     minimumFractionDigits: minorUnits,
     maximumFractionDigits: minorUnits,
   }).format(amount / 10 ** minorUnits);

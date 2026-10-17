@@ -3,6 +3,7 @@ import { Plus, Wallet } from "lucide-react";
 import { connection } from "next/server";
 import { getLocale, getTranslations } from "next-intl/server";
 import { Suspense } from "react";
+import { AccountIcon } from "@/components/finance/account-icon";
 import { Amount } from "@/components/finance/amount";
 import { TransactionList } from "@/components/finance/transaction-list";
 import { buttonVariants } from "@/components/ui/button";
@@ -15,7 +16,9 @@ import {
   getTotals,
   listTransactions,
 } from "@/lib/data/finance";
-import { monthRange, today } from "@/lib/dates";
+import { getDueStatements } from "@/lib/data/cards";
+import { daysBetween, formatDay, monthRange, today } from "@/lib/dates";
+import { cn } from "@/lib/utils";
 
 export default function DashboardPage() {
   return (
@@ -31,6 +34,9 @@ export default function DashboardPage() {
         fallback={<div className="h-28 animate-pulse rounded-xl bg-muted" />}
       >
         <Summary />
+      </Suspense>
+      <Suspense fallback={null}>
+        <DuePayments />
       </Suspense>
       <Suspense
         fallback={
@@ -141,6 +147,72 @@ async function Summary() {
         </p>
       )}
     </>
+  );
+}
+
+/** Card statements with money still due, soonest first. */
+async function DuePayments() {
+  await connection();
+  const day = today();
+  const [accounts, locale, t, tCard] = await Promise.all([
+    getAccounts(),
+    getLocale(),
+    getTranslations("Dashboard"),
+    getTranslations("Card"),
+  ]);
+  const due = await getDueStatements(accounts, day);
+  if (due.length === 0) return null;
+  return (
+    <section className="mt-8">
+      <h2 className="mb-3 text-lg font-semibold">{t("upcomingPayments")}</h2>
+      <Card className="divide-y">
+        {due.map(({ card, statement }) => {
+          const daysLeft = daysBetween(day, statement.dueDate);
+          return (
+            <Link
+              key={card.id}
+              href={`/accounts/${card.id}`}
+              className="flex items-center gap-3 px-5 py-3 first:rounded-t-xl last:rounded-b-xl hover:bg-muted/60"
+            >
+              <AccountIcon type="credit_card" />
+              <div className="min-w-0 flex-1">
+                <p className="truncate font-medium">{card.name}</p>
+                <p
+                  className={cn(
+                    "text-sm",
+                    daysLeft < 0 ? "text-destructive" : "text-muted-foreground",
+                  )}
+                >
+                  {tCard("dueDate")}: {formatDay(statement.dueDate, locale)} ·{" "}
+                  {daysLeft < 0
+                    ? tCard("overdue")
+                    : tCard("daysLeft", { days: daysLeft })}
+                </p>
+              </div>
+              <div className="text-right">
+                <Amount
+                  value={statement.remaining}
+                  currency={card.currency}
+                  locale={locale}
+                  className="font-medium"
+                />
+                <p className="text-xs text-muted-foreground">
+                  {tCard("minimumPayment")}:{" "}
+                  <Amount
+                    value={Math.max(
+                      0,
+                      statement.minimumPayment - statement.paidSince,
+                    )}
+                    currency={card.currency}
+                    locale={locale}
+                  />
+                </p>
+              </div>
+            </Link>
+          );
+        })}
+      </Card>
+    </section>
   );
 }
 

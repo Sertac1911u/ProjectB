@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { CURRENCIES, type CurrencyCode } from "./currency";
+import { MAX_INSTALLMENTS } from "./card";
 import { ACCOUNT_TYPES, CATEGORY_KINDS, TRANSACTION_KINDS } from "./finance";
 import { type MinorUnits, parseMoney } from "./money";
 import { error, type ValidationError } from "./validation";
@@ -24,13 +25,56 @@ const optionalId = (message: ValidationError) =>
     .transform((v) => v || null)
     .pipe(z.uuid(error(message)).nullable());
 
-export const accountSchema = z.object({
-  name: name(60),
-  type: z.enum(ACCOUNT_TYPES, error("invalidAccountType")),
-  currency: z.enum(currencyCodes, error("invalidCurrency")),
-  /** Typed by the user in their locale's notation; parsed with parseAmount. */
-  openingBalance: z.string().optional().default(""),
-});
+const day = z.coerce
+  .number(error("invalidDay"))
+  .int(error("invalidDay"))
+  .min(1, error("invalidDay"))
+  .max(31, error("invalidDay"));
+
+export const accountSchema = z
+  .object({
+    name: name(60),
+    type: z.enum(ACCOUNT_TYPES, error("invalidAccountType")),
+    currency: z.enum(currencyCodes, error("invalidCurrency")),
+    /** Typed by the user in their locale's notation; parsed with parseAmount. */
+    openingBalance: z.string().optional().default(""),
+    // Credit cards only.
+    creditLimit: z.string().optional().default(""),
+    statementDay: z.string().optional().default(""),
+    dueDay: z.string().optional().default(""),
+    minPaymentRate: z.string().optional().default("20"),
+  })
+  .transform((data, ctx) => {
+    const { statementDay, dueDay, minPaymentRate, ...rest } = data;
+    if (data.type !== "credit_card") {
+      return { ...rest, card: null };
+    }
+    const parse = (schema: z.ZodType<number>, value: string, path: string) => {
+      const result = schema.safeParse(value);
+      if (!result.success) {
+        ctx.addIssue({
+          code: "custom",
+          path: [path],
+          message: result.error.issues[0]!.message,
+        });
+      }
+      return result.data ?? 0;
+    };
+    const card = {
+      statementDay: parse(day, statementDay, "statementDay"),
+      dueDay: parse(day, dueDay, "dueDay"),
+      minPaymentRate: parse(
+        z.coerce
+          .number(error("invalidRate"))
+          .int(error("invalidRate"))
+          .min(0, error("invalidRate"))
+          .max(100, error("invalidRate")),
+        minPaymentRate,
+        "minPaymentRate",
+      ),
+    };
+    return { ...rest, card };
+  });
 
 export const categorySchema = z.object({
   name: name(40),
@@ -82,8 +126,22 @@ export const transactionSchema = z
       .optional()
       .transform((v) => v || null),
     tags: tagList,
+    installments: z.coerce
+      .number(error("invalidInstallments"))
+      .int(error("invalidInstallments"))
+      .min(1, error("invalidInstallments"))
+      .max(MAX_INSTALLMENTS, error("invalidInstallments"))
+      .optional()
+      .default(1),
   })
   .superRefine((data, ctx) => {
+    if (data.installments > 1 && data.kind !== "expense") {
+      ctx.addIssue({
+        code: "custom",
+        path: ["installments"],
+        ...error("invalidInstallments"),
+      });
+    }
     if (data.kind !== "transfer") return;
     if (!data.toAccountId) {
       ctx.addIssue({

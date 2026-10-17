@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatDay, monthRange, today } from "./dates";
+import { daysBetween, formatDay, monthRange, today } from "./dates";
 
 describe("dates", () => {
   it("uses the given time zone for today", () => {
@@ -23,5 +23,13 @@ describe("dates", () => {
   it("formats calendar dates without a time zone shift", () => {
     expect(formatDay("2026-10-01", "tr")).toBe("1 Ekim 2026");
     expect(formatDay("2026-10-01", "en")).toBe("October 1, 2026");
+  });
+});
+
+describe("daysBetween", () => {
+  it("counts calendar days across months", () => {
+    expect(daysBetween("2026-10-17", "2026-10-25")).toBe(8);
+    expect(daysBetween("2026-10-25", "2026-10-17")).toBe(-8);
+    expect(daysBetween("2026-02-27", "2026-03-01")).toBe(2);
   });
 });

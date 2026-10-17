@@ -8,7 +8,7 @@ import {
   type Locale,
 } from "@projectb/core";
 import { useLocale, useTranslations } from "next-intl";
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { useFormErrors } from "@/components/auth/use-form-errors";
 import { Alert } from "@/components/ui/alert";
 import { Field } from "@/components/ui/field";
@@ -25,6 +25,10 @@ type Props = {
     type: string;
     currency: CurrencyCode;
     openingBalance: number;
+    creditLimit: number | null;
+    statementDay: number | null;
+    dueDay: number | null;
+    minPaymentRate: number | null;
   };
   defaultCurrency: CurrencyCode;
   /** The currency cannot change once transactions use the account. */
@@ -54,7 +58,16 @@ export function AccountForm({
     openingBalance: account
       ? formatAmountInput(account.openingBalance, account.currency, locale)
       : "",
+    creditLimit:
+      account?.creditLimit != null
+        ? formatAmountInput(account.creditLimit, account.currency, locale)
+        : "",
+    statementDay: account?.statementDay ? String(account.statementDay) : "",
+    dueDay: account?.dueDay ? String(account.dueDay) : "",
+    minPaymentRate: String(account?.minPaymentRate ?? 20),
   };
+  const [type, setType] = useState(values.type);
+  const days = Array.from({ length: 31 }, (_, i) => String(i + 1));
 
   return (
     // Remount after each attempt so React's form reset keeps submitted values.
@@ -78,7 +91,12 @@ export function AccountForm({
       </Field>
       <div className="grid gap-4 sm:grid-cols-2">
         <Field id={fid("type")} label={t("type")} error={fieldError("type")}>
-          <Select id={fid("type")} name="type" defaultValue={values.type}>
+          <Select
+            id={fid("type")}
+            name="type"
+            value={type}
+            onChange={(e) => setType(e.target.value)}
+          >
             {ACCOUNT_TYPES.map((type) => (
               <option key={type} value={type}>
                 {tTypes(type)}
@@ -125,6 +143,87 @@ export function AccountForm({
           aria-invalid={Boolean(fieldError("openingBalance"))}
         />
       </Field>
+      {type === "credit_card" && (
+        <fieldset className="flex flex-col gap-4 rounded-lg border p-4">
+          <legend className="px-1 text-sm font-medium">
+            {t("cardSettings")}
+          </legend>
+          <p className="-mt-2 text-sm text-muted-foreground">
+            {t("cardSettingsHint")}
+          </p>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Field
+              id={fid("statementDay")}
+              label={t("statementDay")}
+              error={fieldError("statementDay")}
+            >
+              <Select
+                id={fid("statementDay")}
+                name="statementDay"
+                defaultValue={values.statementDay}
+                aria-invalid={Boolean(fieldError("statementDay"))}
+              >
+                <option value="">{t("chooseDay")}</option>
+                {days.map((day) => (
+                  <option key={day} value={day}>
+                    {t("dayOption", { day })}
+                  </option>
+                ))}
+              </Select>
+            </Field>
+            <Field
+              id={fid("dueDay")}
+              label={t("dueDay")}
+              error={fieldError("dueDay")}
+            >
+              <Select
+                id={fid("dueDay")}
+                name="dueDay"
+                defaultValue={values.dueDay}
+                aria-invalid={Boolean(fieldError("dueDay"))}
+              >
+                <option value="">{t("chooseDay")}</option>
+                {days.map((day) => (
+                  <option key={day} value={day}>
+                    {t("dayOption", { day })}
+                  </option>
+                ))}
+              </Select>
+            </Field>
+            <Field
+              id={fid("creditLimit")}
+              label={`${t("creditLimit")} (${tCommon("optional")})`}
+              error={fieldError("creditLimit")}
+            >
+              <Input
+                id={fid("creditLimit")}
+                name="creditLimit"
+                inputMode="decimal"
+                autoComplete="off"
+                placeholder="0,00"
+                defaultValue={values.creditLimit}
+                aria-invalid={Boolean(fieldError("creditLimit"))}
+              />
+            </Field>
+            <Field
+              id={fid("minPaymentRate")}
+              label={t("minPaymentRate")}
+              hint={t("minPaymentRateHint")}
+              error={fieldError("minPaymentRate")}
+            >
+              <Input
+                id={fid("minPaymentRate")}
+                name="minPaymentRate"
+                type="number"
+                min={0}
+                max={100}
+                defaultValue={values.minPaymentRate}
+                aria-invalid={Boolean(fieldError("minPaymentRate"))}
+              />
+            </Field>
+          </div>
+        </fieldset>
+      )}
       <div>
         <SubmitButton>{tCommon("save")}</SubmitButton>
       </div>

@@ -26,7 +26,10 @@ export type ValidationError =
   | "invalidDate"
   | "noteTooLong"
   | "tagTooLong"
-  | "tooManyTags";
+  | "tooManyTags"
+  | "invalidDay"
+  | "invalidRate"
+  | "invalidInstallments";
 
 export const error = (message: ValidationError) => ({ message });
 

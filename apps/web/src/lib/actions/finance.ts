@@ -51,7 +51,8 @@ async function saveAccountUnstamped(
       values: submitted,
     };
   }
-  const { name, type, currency, openingBalance } = parsed.data;
+  const { name, type, currency, openingBalance, creditLimit, card } =
+    parsed.data;
   const opening = openingBalance.trim()
     ? parseAmount(openingBalance, currency, locale, {
         allowNegative: true,
@@ -65,12 +66,35 @@ async function saveAccountUnstamped(
       values: submitted,
     };
   }
+  const limit =
+    card && creditLimit.trim()
+      ? parseAmount(creditLimit, currency, locale, { allowZero: true })
+      : { amount: null };
+  if ("error" in limit) {
+    return {
+      status: "error",
+      fieldErrors: { creditLimit: limit.error },
+      values: submitted,
+    };
+  }
+  // Card settings are stored only for credit cards (a database check
+  // enforces it), so switching the type away clears them.
+  const settings = {
+    creditLimit: limit.amount,
+    statementDay: card?.statementDay ?? null,
+    dueDay: card?.dueDay ?? null,
+    minPaymentRate: card?.minPaymentRate ?? null,
+  };
 
   await withUser(async (tx) => {
     if (!accountId) {
-      await tx
-        .insert(accounts)
-        .values({ name, type, currency, openingBalance: opening.amount });
+      await tx.insert(accounts).values({
+        name,
+        type,
+        currency,
+        openingBalance: opening.amount,
+        ...settings,
+      });
       return;
     }
     // The currency is fixed once transactions use the account.
@@ -90,11 +114,12 @@ async function saveAccountUnstamped(
         name,
         type,
         openingBalance: opening.amount,
+        ...settings,
         ...(used.length === 0 && { currency }),
       })
       .where(eq(accounts.id, accountId));
   });
-  redirect(`/${locale}/accounts`);
+  redirect(`/${locale}/accounts${accountId ? `/${accountId}` : ""}`);
 }
 
 export async function setAccountArchived(
@@ -151,11 +176,13 @@ async function lookUp(
 ) {
   const [row] = await tx.execute<{
     currency: string | null;
+    account_type: string | null;
     to_currency: string | null;
     category_kind: string | null;
   }>(sql`
     select
       (select currency from public.accounts where id = ${ids.accountId}) as currency,
+      (select type from public.accounts where id = ${ids.accountId}) as account_type,
       (select currency from public.accounts where id = ${ids.toAccountId}) as to_currency,
       (select kind from public.categories where id = ${ids.categoryId}) as category_kind
   `);
@@ -163,6 +190,7 @@ async function lookUp(
     code && isCurrencyCode(code) ? code : null;
   return {
     currency: currency(row?.currency),
+    accountType: row?.account_type ?? null,
     toCurrency: currency(row?.to_currency),
     categoryKind: row?.category_kind ?? null,
   };
@@ -192,11 +220,14 @@ async function saveTransactionUnstamped(
   });
 
   const result = await withUser(async (tx): Promise<FormState | null> => {
-    const { currency, toCurrency, categoryKind } = await lookUp(tx, {
-      accountId: data.accountId,
-      toAccountId: isTransfer ? data.toAccountId : null,
-      categoryId: isTransfer ? null : data.categoryId,
-    });
+    const { currency, accountType, toCurrency, categoryKind } = await lookUp(
+      tx,
+      {
+        accountId: data.accountId,
+        toAccountId: isTransfer ? data.toAccountId : null,
+        categoryId: isTransfer ? null : data.categoryId,
+      },
+    );
     if (!currency) return fail("accountId", "invalidAccount");
     if (isTransfer && !toCurrency) return fail("toAccountId", "invalidAccount");
 
@@ -216,6 +247,11 @@ async function saveTransactionUnstamped(
       }
     }
 
+    // Installments are a credit card feature.
+    if (data.installments > 1 && accountType !== "credit_card") {
+      return fail("installments", "invalidInstallments");
+    }
+
     const categoryId = isTransfer ? null : data.categoryId;
     if (categoryId && categoryKind !== data.kind) {
       return fail("categoryId", "invalidCategory");
@@ -229,6 +265,7 @@ async function saveTransactionUnstamped(
       toAmount,
       categoryId,
       occurredOn: data.occurredOn,
+      installmentCount: data.installments,
       note: data.note,
     };
     let id = transactionId;
