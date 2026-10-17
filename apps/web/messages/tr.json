@@ -116,7 +116,8 @@
       "continue": "Panele git"
     },
     "linkError": "Bağlantı geçersiz ya da süresi dolmuş. Lütfen tekrar dene.",
-    "signOut": "Çıkış yap"
+    "signOut": "Çıkış yap",
+    "accountDeleted": "Hesabın ve tüm verilerin silindi."
   },
   "Errors": {
     "invalidEmail": "Geçerli bir e-posta adresi gir.",
@@ -162,7 +163,8 @@
     "unknown": "Bir şeyler ters gitti. Lütfen tekrar dene.",
     "categoryRequired": "Bir kategori seç.",
     "invalidUiMode": "Geçersiz görünüm.",
-    "invalidQuantity": "Miktarı 12,5 biçiminde yaz."
+    "invalidQuantity": "Miktarı 12,5 biçiminde yaz.",
+    "wrongPassword": "Şifre yanlış."
   },
   "Settings": {
     "profileTitle": "Profil",
@@ -194,7 +196,17 @@
     "uiModes": {
       "simple": "Basit",
       "detailed": "Detaylı"
-    }
+    },
+    "dangerTitle": "Verileri sıfırla veya hesabı sil",
+    "resetTitle": "Verileri sıfırla",
+    "resetText": "Tüm hesapların, işlemlerin, tekrarlayan işlemlerin, bütçelerin, hedeflerin ve zarfların silinir; kategoriler varsayılana döner. Girişin ve ayarların (ad, dil, ana para birimi) kalır. Geri alınamaz.",
+    "deleteTitle": "Hesabı sil",
+    "deleteText": "Hesabın ve tüm verilerin kalıcı olarak silinir. Aynı e-postayla daha sonra yeniden kayıt olabilirsin. Geri alınamaz.",
+    "confirmPassword": "Onaylamak için şifreni gir",
+    "resetButton": "Tüm verileri sıfırla",
+    "deleteButton": "Hesabımı kalıcı olarak sil",
+    "confirmReset": "Tüm verilerin silinecek ve uygulama sıfırdan başlayacak. Emin misin?",
+    "confirmDeleteAccount": "Hesabın ve tüm verilerin kalıcı olarak silinecek. Emin misin?"
   },
   "AccountTypes": {
     "cash": "Nakit",

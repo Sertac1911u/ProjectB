@@ -75,6 +75,9 @@ function QueryParams({ hideLinkError }: { hideLinkError: boolean }) {
       {params.get("error") === "link" && !hideLinkError && (
         <Alert>{t("linkError")}</Alert>
       )}
+      {params.get("deleted") === "1" && (
+        <Alert variant="success">{t("accountDeleted")}</Alert>
+      )}
     </>
   );
 }

@@ -36,7 +36,8 @@ export type ValidationError =
   | "invalidOccurrences"
   | "categoryRequired"
   | "invalidUiMode"
-  | "invalidQuantity";
+  | "invalidQuantity"
+  | "wrongPassword";
 
 export const error = (message: ValidationError) => ({ message });
 
