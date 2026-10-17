@@ -721,7 +721,8 @@
     "essentials": "Regular payments, per month",
     "envelopes": "Envelopes",
     "tile": "If income stopped: about {months}",
-    "details": "Details"
+    "details": "Details",
+    "reasonLoans": "Your loan installments come to {amount} a month; they are counted because they continue even without income."
   },
   "Debts": {
     "title": "Debt plan",

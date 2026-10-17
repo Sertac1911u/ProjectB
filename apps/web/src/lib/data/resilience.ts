@@ -16,7 +16,7 @@ import { getCashForecast } from "./cashflow";
 import { getAccounts } from "./finance";
 import { getRates } from "./rates";
 import { getRecurringRules } from "./recurring";
-import { getMonthlyAverages, getNetWorthHistory } from "./reports";
+import { getBalancesOn, getMonthlyAverages } from "./reports";
 
 /** The unexpected expense the resilience page tries out, in Turkish lira. */
 const SHOCK_TRY = 15_000_00;
@@ -33,13 +33,12 @@ const addDays = (day: string, days: number) =>
 export const getResilience = cache(async () => {
   const day = today();
   const lastMonth = periodRange("lastMonth", day);
-  const [accounts, rules, forecast, averages, history, rateInfo, profile] =
+  const [accounts, rules, forecast, averages, rateInfo, profile] =
     await Promise.all([
       getAccounts(),
       getRecurringRules(),
       getCashForecast(),
       getMonthlyAverages(),
-      getNetWorthHistory(lastMonth.from, lastMonth.to),
       getRates(),
       getProfile(),
     ]);
@@ -66,13 +65,22 @@ export const getResilience = cache(async () => {
     .reduce((sum, a) => sum - toBase(a.balance, a.currency), 0);
   const reserve = cash - cardDebt;
 
-  // Regular payments and envelopes, spread over a month.
+  // Regular payments, loan installments and envelopes, spread over a month.
+  // Loan installments are transfers, so the spending history leaves them
+  // out; they go on even if income stops.
+  const isLoan = (id: string | null) => byId.get(id ?? "")?.type === "loan";
   const essentialRules = rules
-    .filter((r) => !r.paused && !r.finished && r.kind === "expense")
+    .filter((r) => !r.paused && !r.finished)
+    .filter(
+      (r) =>
+        r.kind === "expense" ||
+        (r.kind === "transfer" && isLoan(r.toAccountId)),
+    )
     .map((r) => ({
       id: r.id,
       note: r.note,
       categoryId: r.categoryId,
+      loan: r.kind === "transfer",
       monthly: toBase(
         monthlyEquivalent(
           r.amount,
@@ -94,15 +102,31 @@ export const getResilience = cache(async () => {
     .filter((e) => e.on <= soon && e.amount < 0)
     .reduce((sum, e) => sum - e.amount, 0);
 
+  const loanMonthly = essentialRules
+    .filter((r) => r.loan)
+    .reduce((sum, r) => sum + r.monthly, 0);
   const result = resilience({
     reserve,
     upcoming30,
     averageIncome: averages?.income ?? 0,
-    averageExpense: averages?.expense ?? 0,
+    averageExpense: averages ? averages.expense + loanMonthly : 0,
     essentialMonthly,
     shock: toBase(SHOCK_TRY, "TRY"),
   });
-  const previous = history.points.at(-1)?.value ?? null;
+  // The change since last month compares only accounts that existed then,
+  // so an account added today does not look like money gained. Gold is
+  // revalued by hand, so its value has no history.
+  const then = await getBalancesOn(lastMonth.to);
+  let change: number | null = null;
+  for (const a of active) {
+    if (a.type === "loan" || a.type === "gold") continue;
+    const before = then.get(a.id);
+    if (before == null) continue;
+    change =
+      (change ?? 0) +
+      toBase(a.balance, a.currency) -
+      toBase(before, a.currency);
+  }
 
   return {
     ...result,
@@ -114,7 +138,8 @@ export const getResilience = cache(async () => {
     envelopeMonthly,
     essentialRules: essentialRules.sort((a, b) => b.monthly - a.monthly),
     averages,
-    /** Reserve at the end of last month, to explain the change. */
-    previousReserve: previous,
+    loanMonthly,
+    /** How the reserve changed since the end of last month. */
+    change,
   };
 });

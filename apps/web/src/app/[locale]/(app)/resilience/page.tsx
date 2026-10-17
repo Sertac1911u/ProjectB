@@ -54,8 +54,7 @@ async function ResilienceDetails() {
         v,
       ),
     });
-  const change =
-    r.previousReserve === null ? null : r.reserve - r.previousReserve;
+  const { change } = r;
 
   const reasons = [
     t("reasonReserve", { amount: money(r.reserve) }),
@@ -65,6 +64,7 @@ async function ResilienceDetails() {
         count: r.averages.months,
         amount: money(r.averages.expense),
       }),
+    r.loanMonthly > 0 && t("reasonLoans", { amount: money(r.loanMonthly) }),
     r.averages &&
       (r.averages.saving >= 0
         ? t("reasonSaving", { amount: money(r.averages.saving) })
