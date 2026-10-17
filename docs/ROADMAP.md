@@ -47,7 +47,7 @@ CSV dışa aktarma, fiş fotoğrafı, gelecek nakit akışı tahmini.
 - [x] **3. Kredi kartı:** ekstre ve taksitler.
 - [x] **4. Döviz kurları ve çevrim.**
 - [x] **5. Tekrarlayan işlemler.**
-- [ ] **6. Bütçeler ve birikim hedefleri.**
+- [x] **6. Bütçeler ve birikim hedefleri.**
 - [ ] **7. Panel ve raporlar.**
 
 ## Teknik kararlar
@@ -64,3 +64,6 @@ CSV dışa aktarma, fiş fotoğrafı, gelecek nakit akışı tahmini.
   çekilir; TCMB'ye ulaşılamazsa son bilinen kur kullanılır.
 - **Ortak kod** `packages/` altında: web ve mobil aynı tipleri, doğrulamayı ve
   hesaplama mantığını kullanır.
+- **Bütçe limitleri** ay bazında saklanır: bir limit kendi ayından, aynı kategorinin sonraki
+  kaydına kadar geçerlidir; değişiklik o aydan itibaren uygulanır, geçmiş aylar korunur.
+  Harcamalar `expense_entries` görünümünden gelir, yani taksitler ödendikleri aya sayılır.

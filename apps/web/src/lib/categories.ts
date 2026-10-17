@@ -23,6 +23,19 @@ export function categoryName(
     : "";
 }
 
+/** "Transport › Fuel" for subcategories, the plain name otherwise. */
+export function categoryPath(
+  category: Pick<CategoryLike, "name" | "systemKey" | "parentId">,
+  categories: Pick<CategoryLike, "id" | "name" | "systemKey">[],
+  t: Translate,
+): string {
+  const name = categoryName(category, t);
+  const parent = category.parentId
+    ? categories.find((c) => c.id === category.parentId)
+    : undefined;
+  return parent ? `${categoryName(parent, t)} › ${name}` : name;
+}
+
 export type CategoryNode<C extends CategoryLike> = C & { children: C[] };
 
 /**

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { categoryName, categoryTree } from "./categories";
+import { categoryName, categoryPath, categoryTree } from "./categories";
 
 type Row = {
   id: string;
@@ -57,5 +57,15 @@ describe("categoryTree", () => {
     expect(
       categoryTree(list, "expense", { includeArchived: true }).map((p) => p.id),
     ).toEqual(["transport", "old"]);
+  });
+});
+
+describe("categoryPath", () => {
+  it("prefixes subcategories with their parent", () => {
+    const t = (key: string) => `t:${key}`;
+    const parent = cat("p", { name: "Ulaşım" });
+    const child = cat("c", { name: "Yakıt", parentId: "p" });
+    expect(categoryPath(child, [parent, child], t)).toBe("Ulaşım › Yakıt");
+    expect(categoryPath(parent, [parent, child], t)).toBe("Ulaşım");
   });
 });

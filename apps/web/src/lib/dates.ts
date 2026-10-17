@@ -34,3 +34,19 @@ export function daysBetween(from: string, to: string): number {
   const ms = Date.parse(`${to}T00:00:00Z`) - Date.parse(`${from}T00:00:00Z`);
   return Math.round(ms / 86_400_000);
 }
+
+/** "Ekim 2026" for the month that contains `day`. */
+export function formatMonth(day: string, locale: string) {
+  return new Intl.DateTimeFormat(locale, {
+    month: "long",
+    year: "numeric",
+    timeZone: "UTC",
+  }).format(new Date(`${day.slice(0, 7)}-01T00:00:00Z`));
+}
+
+/** Reads a "2026-10" (or "2026-10-01") month parameter as its first day. */
+export function parseMonthParam(value: unknown): string | null {
+  if (typeof value !== "string") return null;
+  const match = /^(\d{4})-(0[1-9]|1[0-2])(-01)?$/.exec(value);
+  return match ? `${match[1]}-${match[2]}-01` : null;
+}
