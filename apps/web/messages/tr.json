@@ -495,7 +495,17 @@
     "emptyTitle": "Henüz birikim hedefi yok",
     "emptyDescription": "Bir hedef koy; ne kadar kaldığını ve hedef tarihe yetişmek için ayda ne kadar ayırman gerektiğini gör.",
     "depositEntry": "Katkı",
-    "withdrawEntry": "Çekilen para"
+    "withdrawEntry": "Çekilen para",
+    "forecast": "Tahmin",
+    "forecastHint": "{source, select, account {Bağlı hesabın son 3 aydaki artışına} contributions {Son katkılarına} other {Ortalama aylık birikimine}} göre: ayda {amount}.",
+    "forecastNone": "Birikim hızı bilinmediği için tarih tahmin edilemiyor. Katkı ekledikçe ya da birkaç aylık gelir-gider girdikçe hesaplanır.",
+    "scenarioCurrent": "Mevcut düzenle",
+    "scenarioMore": "Ayda {amount} daha fazla biriktirirsen",
+    "scenarioShock": "Beklenmedik {amount} gider olursa",
+    "unreachable": "Bu hızla ulaşılamıyor",
+    "onTime": "Hedef tarihe yetişir",
+    "late": "Hedef tarihten sonra",
+    "estimate": "Bu hızla {date}"
   },
   "Reports": {
     "title": "Raporlar",
@@ -631,5 +641,45 @@
     "goalDelay": "{name}: yaklaşık {days} gün gecikir",
     "goalUnknown": "{name}: birikim hızın bilinmediği için tahmin edilemiyor",
     "goalHint": "Son aylarda ortalama ne kadar biriktirdiğine göre hesaplanır."
+  },
+  "Resilience": {
+    "title": "Finansal dayanıklılık",
+    "description": "Gelirin bugün kesilse ne kadar idare edebileceğini ve bunu neyin değiştirdiğini gör.",
+    "headline": "Gelirin bugün kesilse yaklaşık {months} idare edersin",
+    "months": "{value} ay",
+    "noData": "Henüz yeterli veri yok. Birkaç aylık gelir ve gider girdikçe ya da düzenli ödemelerini ekledikçe hesaplanır.",
+    "levels": {
+      "weak": "Zayıf",
+      "building": "Gelişiyor",
+      "good": "İyi",
+      "strong": "Güçlü"
+    },
+    "levelHints": {
+      "weak": "1 aydan az: küçük bir aksilik bile zorlayabilir.",
+      "building": "1-3 ay: iyi bir başlangıç, hedef en az 3 ay.",
+      "good": "3-6 ay: çoğu beklenmedik duruma hazırsın.",
+      "strong": "6 ay ve üzeri: sağlam bir güvenlik payın var."
+    },
+    "why": "Neden bu seviye?",
+    "reasonReserve": "Hesaplarındaki para, kart borçları düşülmüş olarak: {amount}",
+    "reasonCardDebt": "Kart borçların rezervini {amount} azaltıyor.",
+    "reasonSpending": "Son {count} ayın ortalama aylık harcaması: {amount}",
+    "reasonEssential": "Düzenli ödemelerin ve zarfların ayda {amount} tutuyor; sadece bunlarla {months} idare edersin.",
+    "reasonUp": "Geçen ay sonundan bu yana rezervin {amount} arttı.",
+    "reasonDown": "Geçen ay sonundan bu yana rezervin {amount} azaldı.",
+    "reasonSaving": "Ayda ortalama {amount} biriktiriyorsun.",
+    "reasonLosing": "Ayda ortalama {amount} fazla harcıyorsun.",
+    "afterUpcoming": "Önümüzdeki 30 gündeki ödemelerden sonra kalan rezerv: {amount}",
+    "scenarios": "Ya şöyle olursa?",
+    "incomeDrop": "Gelirin %20 azalırsa",
+    "incomeDropOk": "Yine de ayda {amount} biriktirirsin.",
+    "incomeDropShort": "Ayda {amount} açık verirsin; rezervin {months} yeter.",
+    "incomeDropUnknown": "Gelir geçmişin olmadığı için hesaplanamıyor.",
+    "shock": "Beklenmedik {amount} gider",
+    "shockResult": "Ödedikten sonra rezervin {months} yeter.",
+    "essentials": "Düzenli ödemeler, aylık",
+    "envelopes": "Zarflar",
+    "tile": "Gelirin kesilse ~{months} idare edersin",
+    "details": "Ayrıntılar"
   }
 }

@@ -286,16 +286,29 @@ export async function getNetWorthHistory(from: string, to: string) {
 }
 
 /**
- * What is typically saved in a month: income minus expenses, averaged over
- * the last three complete months that had any activity. Null without data.
+ * Typical monthly income, expenses and savings: averages over the last three
+ * complete months that had any activity. Null without data.
  */
-export async function getMonthlySaving() {
+export const getMonthlyAverages = cache(async () => {
   const month = monthOf(today());
   const from = addMonths(month, -3);
   const to = periodRange("lastMonth", today()).to;
   const flow = await getCashFlow(from, to);
   const active = flow.rows.filter((r) => r.income > 0 || r.expense > 0);
   if (active.length === 0) return null;
-  const net = active.reduce((sum, r) => sum + r.income - r.expense, 0);
-  return Math.round(net / active.length);
+  const average = (pick: (r: (typeof active)[number]) => number) =>
+    Math.round(active.reduce((sum, r) => sum + pick(r), 0) / active.length);
+  return {
+    income: average((r) => r.income),
+    expense: average((r) => r.expense),
+    saving: average((r) => r.income - r.expense),
+    months: active.length,
+  };
+});
+
+/** Balances of the given accounts at the end of `day`, in their currencies. */
+export async function getBalancesOn(day: string) {
+  const { flows, accounts: list } = await getBalanceFlows(today());
+  const balances = balancesAt(list, flows, [day]);
+  return new Map([...balances].map(([id, [value]]) => [id, value ?? null]));
 }

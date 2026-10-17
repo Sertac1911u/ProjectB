@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { goalDelayDays, goalProgress, monthsLeft } from "./goal";
+import { goalDelayDays, goalForecast, goalProgress, monthsLeft } from "./goal";
 
 describe("monthsLeft", () => {
   it("counts the months left to save, including the current one", () => {
@@ -58,5 +58,30 @@ describe("goalDelayDays", () => {
     expect(goalDelayDays(1_00, 20_000_00)).toBe(1);
     expect(goalDelayDays(8_000_00, 0)).toBeNull();
     expect(goalDelayDays(8_000_00, null)).toBeNull();
+  });
+});
+
+describe("goalForecast", () => {
+  it("dates the goal from the monthly saving", () => {
+    // ₺60.000 left at ₺20.000 a month: about three months.
+    expect(
+      goalForecast(60_000_00, 20_000_00, "2026-10-17", "2026-12-31"),
+    ).toEqual({
+      reachOn: "2027-01-17",
+      onTime: false,
+    });
+    expect(
+      goalForecast(60_000_00, 30_000_00, "2026-10-17", "2026-12-31"),
+    ).toEqual({
+      reachOn: "2026-12-17",
+      onTime: true,
+    });
+    expect(goalForecast(60_000_00, null, "2026-10-17", null)).toEqual({
+      reachOn: null,
+      onTime: null,
+    });
+    expect(goalForecast(0, null, "2026-10-17", null).reachOn).toBe(
+      "2026-10-17",
+    );
   });
 });

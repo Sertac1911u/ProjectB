@@ -60,7 +60,7 @@ Basit ve detaylı görünüm vardır; basit görünüm sadece temel bölümleri 
       ödeme takvimi ve nakit açığı uyarısı, "harcamadan önce dene", basit/detaylı görünüm.
 - [x] **9. Sanal zarflar ve "Bunu alırsam?":** seyrek ödemeler için ayrılan para güvenli
       harcamadan düşer; bir alışverişin hedeflere etkisi.
-- [ ] **10. Dayanıklılık göstergesi ve hedef tahmini:** gelir kesilirse kaç ay idare edilir;
+- [x] **10. Dayanıklılık göstergesi ve hedef tahmini:** gelir kesilirse kaç ay idare edilir;
       hedeflere ulaşma tarihi ve senaryolar.
 - [ ] **11. Borç stratejisi ve gerçek net servet:** kredi hesapları, borç kapatma sıraları,
       altın ve döviz varlıkları.
@@ -93,3 +93,7 @@ Basit ve detaylı görünüm vardır; basit görünüm sadece temel bölümleri 
   gereken pay hesaplanır, maaş gününe kadar ayrılması gereken kısım harcanabilir paradan düşülür.
   "Bunu alırsam?" aynı tahmini alışverişle yeniden hesaplar; hedeflere etkisi son üç ayın
   ortalama birikiminden çıkarılır.
+- **Dayanıklılık** = tüm hesap bakiyeleri (kart borçları düşülmüş) / son üç ayın ortalama aylık
+  harcaması. Harcama geçmişi yoksa düzenli ödemeler ve zarflar kullanılır. Seviye ve gerekçeler
+  aynı girdilerden gösterilir. **Hedef tarihi**, bağlı hesabın son üç aydaki artışından, yoksa
+  katkılardan, o da yoksa ortalama aylık birikimden tahmin edilir.

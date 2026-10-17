@@ -3,6 +3,7 @@ import { isLocale, type Locale } from "@projectb/core";
 const PROTECTED = [
   "/dashboard",
   "/cashflow",
+  "/resilience",
   "/accounts",
   "/transactions",
   "/recurring",

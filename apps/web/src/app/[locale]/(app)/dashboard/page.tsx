@@ -5,7 +5,7 @@ import {
   periodRange,
   sumIn,
 } from "@projectb/core";
-import { Plus } from "lucide-react";
+import { ArrowRight, Plus, ShieldCheck } from "lucide-react";
 import { connection } from "next/server";
 import { getLocale, getTranslations } from "next-intl/server";
 import { Suspense } from "react";
@@ -24,6 +24,7 @@ import { Progress } from "@/components/ui/progress";
 import { Link } from "@/i18n/navigation";
 import { getProfile } from "@/lib/auth";
 import { getCashForecast } from "@/lib/data/cashflow";
+import { getResilience } from "@/lib/data/resilience";
 import { uiModeOf } from "@/lib/ui-mode";
 import { categoryName, categoryPath } from "@/lib/categories";
 import {
@@ -110,7 +111,41 @@ async function CashOutlook() {
           </Card>
         </section>
       )}
+      <Suspense fallback={null}>
+        <ResilienceTile />
+      </Suspense>
     </>
+  );
+}
+
+/** One line on how long the money would last without income. */
+async function ResilienceTile() {
+  const [r, locale, t] = await Promise.all([
+    getResilience(),
+    getLocale(),
+    getTranslations("Resilience"),
+  ]);
+  if (r.months === null) return null;
+  const months = t("months", {
+    value: new Intl.NumberFormat(locale, { maximumFractionDigits: 1 }).format(
+      r.months,
+    ),
+  });
+  return (
+    <Link
+      href="/resilience"
+      className="mt-4 flex items-center gap-3 rounded-xl border bg-card px-5 py-4 transition-colors hover:bg-muted/60"
+    >
+      <ShieldCheck className="size-5 shrink-0 text-primary" />
+      <span className="min-w-0 flex-1 text-sm">
+        <span className="font-medium">{t("tile", { months })}</span>
+        <span className="text-muted-foreground">
+          {" "}
+          · {t(`levels.${r.level}`)}
+        </span>
+      </span>
+      <ArrowRight className="size-4 text-muted-foreground" />
+    </Link>
   );
 }
 

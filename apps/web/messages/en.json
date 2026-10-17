@@ -495,7 +495,17 @@
     "emptyTitle": "No savings goals yet",
     "emptyDescription": "Set a goal to see how much is left and how much to put aside each month to make the target date.",
     "depositEntry": "Contribution",
-    "withdrawEntry": "Withdrawal"
+    "withdrawEntry": "Withdrawal",
+    "forecast": "Forecast",
+    "forecastHint": "Based on {source, select, account {the linked account's growth over 3 months} contributions {your recent contributions} other {your average monthly saving}}: {amount} a month.",
+    "forecastNone": "The date cannot be estimated without a saving history. Add contributions or a few months of income and spending.",
+    "scenarioCurrent": "As things are",
+    "scenarioMore": "Saving {amount} more a month",
+    "scenarioShock": "After an unexpected {amount} expense",
+    "unreachable": "Not reachable at this pace",
+    "onTime": "Makes the target date",
+    "late": "After the target date",
+    "estimate": "At this pace: {date}"
   },
   "Reports": {
     "title": "Reports",
@@ -631,5 +641,45 @@
     "goalDelay": "{name}: about {days} days later",
     "goalUnknown": "{name}: cannot be estimated without a saving history",
     "goalHint": "Based on how much you saved on average in recent months."
+  },
+  "Resilience": {
+    "title": "Financial resilience",
+    "description": "See how long you could manage if your income stopped today, and what changes that.",
+    "headline": "If your income stopped today, you could manage for about {months}",
+    "months": "{value} months",
+    "noData": "Not enough data yet. This is worked out as you add a few months of income and spending, or your regular payments.",
+    "levels": {
+      "weak": "Weak",
+      "building": "Building",
+      "good": "Good",
+      "strong": "Strong"
+    },
+    "levelHints": {
+      "weak": "Under a month: even a small setback could hurt.",
+      "building": "1-3 months: a good start; aim for at least 3.",
+      "good": "3-6 months: ready for most surprises.",
+      "strong": "6 months or more: a solid safety margin."
+    },
+    "why": "Why this level?",
+    "reasonReserve": "Money in your accounts, card debt subtracted: {amount}",
+    "reasonCardDebt": "Card debt lowers your reserve by {amount}.",
+    "reasonSpending": "Average monthly spending over the last {count} months: {amount}",
+    "reasonEssential": "Your regular payments and envelopes come to {amount} a month; with those alone you could manage {months}.",
+    "reasonUp": "Your reserve grew by {amount} since the end of last month.",
+    "reasonDown": "Your reserve shrank by {amount} since the end of last month.",
+    "reasonSaving": "You save {amount} a month on average.",
+    "reasonLosing": "You spend {amount} more than you earn each month on average.",
+    "afterUpcoming": "Reserve left after the payments of the next 30 days: {amount}",
+    "scenarios": "What if…",
+    "incomeDrop": "Your income drops by 20%",
+    "incomeDropOk": "You would still save {amount} a month.",
+    "incomeDropShort": "You would be {amount} short each month; your reserve lasts {months}.",
+    "incomeDropUnknown": "Cannot be worked out without an income history.",
+    "shock": "An unexpected {amount} expense",
+    "shockResult": "After paying it, your reserve lasts {months}.",
+    "essentials": "Regular payments, per month",
+    "envelopes": "Envelopes",
+    "tile": "If income stopped: about {months}",
+    "details": "Details"
   }
 }
