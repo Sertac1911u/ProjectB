@@ -58,7 +58,7 @@ Basit ve detaylı görünüm vardır; basit görünüm sadece temel bölümleri 
 
 - [x] **8. Nakit akışı motoru:** maaşa kadar günlük güvenli harcama, en düşük bakiye,
       ödeme takvimi ve nakit açığı uyarısı, "harcamadan önce dene", basit/detaylı görünüm.
-- [ ] **9. Sanal zarflar ve "Bunu alırsam?":** seyrek ödemeler için ayrılan para güvenli
+- [x] **9. Sanal zarflar ve "Bunu alırsam?":** seyrek ödemeler için ayrılan para güvenli
       harcamadan düşer; bir alışverişin hedeflere etkisi.
 - [ ] **10. Dayanıklılık göstergesi ve hedef tahmini:** gelir kesilirse kaç ay idare edilir;
       hedeflere ulaşma tarihi ve senaryolar.
@@ -89,3 +89,7 @@ Basit ve detaylı görünüm vardır; basit görünüm sadece temel bölümleri 
   başlar; tekrarlayan işlemleri ve kart ekstrelerini (son ödeme gününde tamamı ödenir varsayımıyla)
   günlere yerleştirir. Maaş günü, harcanabilir hesaba gelen en büyük düzenli gelirdir. Maaştan
   önceki en düşük bakiye güvenli harcama tutarıdır.
+- **Zarflar** parayı hesaptan taşımaz: başlangıç ile ödeme tarihi arasında eşit biriktirilmesi
+  gereken pay hesaplanır, maaş gününe kadar ayrılması gereken kısım harcanabilir paradan düşülür.
+  "Bunu alırsam?" aynı tahmini alışverişle yeniden hesaplar; hedeflere etkisi son üç ayın
+  ortalama birikiminden çıkarılır.

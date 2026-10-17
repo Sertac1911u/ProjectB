@@ -92,6 +92,13 @@
       "when": 1792260018588,
       "tag": "0012_spendable_ui_mode",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1792261446632,
+      "tag": "0013_envelopes",
+      "breakpoints": true
     }
   ]
 }

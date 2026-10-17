@@ -7,6 +7,7 @@ import {
   budgets,
   categories,
   createDb,
+  envelopes,
   goalContributions,
   goals,
   type Tx,
@@ -160,5 +161,34 @@ describe.skipIf(!url)("budgets and goals", () => {
     expect(
       await as(alice, (tx) => tx.select().from(goalContributions)),
     ).toEqual([]);
+  });
+
+  it("keeps envelopes private and their dates and repeats valid", async () => {
+    await as(alice, (tx) =>
+      tx.insert(envelopes).values({
+        name: "Kasko",
+        amount: 1_200_000,
+        currency: "TRY",
+        startOn: "2026-10-17",
+        dueOn: "2027-04-17",
+        intervalMonths: 12,
+      }),
+    );
+    expect(await as(bob, (tx) => tx.select().from(envelopes))).toEqual([]);
+    const attempts = [
+      { startOn: "2026-10-17", dueOn: "2026-10-01", intervalMonths: null },
+      { startOn: "2026-10-17", dueOn: "2027-01-01", intervalMonths: 0 },
+      { startOn: "2026-10-17", dueOn: "2027-01-01", intervalMonths: 61 },
+    ];
+    for (const values of attempts) {
+      const result = await as(alice, (tx) =>
+        tx
+          .insert(envelopes)
+          .values({ name: "X", amount: 100, currency: "TRY", ...values }),
+      ).catch(causeOf);
+      expect(result, JSON.stringify(values)).toMatch(
+        /violates check constraint/,
+      );
+    }
   });
 });

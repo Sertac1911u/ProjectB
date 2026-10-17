@@ -1,5 +1,6 @@
 import "server-only";
 import {
+  addMonths,
   balancesAt,
   type BalanceFlow,
   bucketIndex,
@@ -8,6 +9,8 @@ import {
   convert,
   DEFAULT_CURRENCY,
   isCurrencyCode,
+  monthOf,
+  periodRange,
   type Rates,
 } from "@projectb/core";
 import { accounts, expenseEntries, transactions } from "@projectb/db";
@@ -280,4 +283,19 @@ export async function getNetWorthHistory(from: string, to: string) {
     missing: sums.state.missing,
     rateInfo,
   };
+}
+
+/**
+ * What is typically saved in a month: income minus expenses, averaged over
+ * the last three complete months that had any activity. Null without data.
+ */
+export async function getMonthlySaving() {
+  const month = monthOf(today());
+  const from = addMonths(month, -3);
+  const to = periodRange("lastMonth", today()).to;
+  const flow = await getCashFlow(from, to);
+  const active = flow.rows.filter((r) => r.income > 0 || r.expense > 0);
+  if (active.length === 0) return null;
+  const net = active.reduce((sum, r) => sum + r.income - r.expense, 0);
+  return Math.round(net / active.length);
 }

@@ -270,6 +270,24 @@ export const contributionSchema = z.object({
     .transform((v) => v || null),
 });
 
+export const ENVELOPE_REPEATS = [0, 1, 3, 6, 12] as const;
+
+export const envelopeSchema = z.object({
+  name: name(60),
+  amount: z.string().trim().min(1, error("amountRequired")),
+  dueOn: z.iso.date(error("invalidDate")),
+  /** Months between payments; 0 for a one-time payment. */
+  repeat: z.coerce
+    .number(error("invalidFrequency"))
+    .refine(
+      (v) => (ENVELOPE_REPEATS as readonly number[]).includes(v),
+      error("invalidFrequency"),
+    )
+    .optional()
+    .default(0)
+    .transform((v) => v || null),
+});
+
 /**
  * Parses an amount field typed in the user's notation. Returns the amount in
  * minor units, or the error to show next to the field.

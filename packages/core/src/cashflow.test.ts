@@ -1,11 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { CardSettings, CardTransaction } from "./card";
-import {
-  cardPayments,
-  forecast,
-  occurrencesUntil,
-  spendImpact,
-} from "./cashflow";
+import { cardPayments, forecast, occurrencesUntil } from "./cashflow";
 
 const today = "2026-10-17";
 
@@ -59,14 +54,6 @@ describe("forecast", () => {
       ["netflix", false],
     ]);
     expect(result.shortfalls).toEqual([]);
-
-    expect(spendImpact(result, 2_000_00)).toEqual({
-      safeToSpend: 1_360_00,
-      dailyLimit: 113_33,
-      windowEndBalance: 1_360_00,
-      fits: true,
-    });
-    expect(spendImpact(result, 4_000_00).fits).toBe(false);
   });
 
   it("flags the payment that leaves too little money before payday", () => {

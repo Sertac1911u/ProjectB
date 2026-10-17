@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { goalProgress, monthsLeft } from "./goal";
+import { goalDelayDays, goalProgress, monthsLeft } from "./goal";
 
 describe("monthsLeft", () => {
   it("counts the months left to save, including the current one", () => {
@@ -48,5 +48,15 @@ describe("goalProgress", () => {
       overdue: true,
       monthlyNeeded: null,
     });
+  });
+});
+
+describe("goalDelayDays", () => {
+  it("turns money spent into days of saving", () => {
+    // Saving ₺20.000 a month, ₺8.000 takes about 13 days to save again.
+    expect(goalDelayDays(8_000_00, 20_000_00)).toBe(13);
+    expect(goalDelayDays(1_00, 20_000_00)).toBe(1);
+    expect(goalDelayDays(8_000_00, 0)).toBeNull();
+    expect(goalDelayDays(8_000_00, null)).toBeNull();
   });
 });

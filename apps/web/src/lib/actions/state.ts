@@ -18,7 +18,7 @@ export type FormState = {
 };
 
 /** Stamps a response with a fresh nonce; see FormState.nonce. */
-export function respond(state: FormState): FormState {
+export function respond<S extends FormState>(state: S): S {
   return { ...state, nonce: crypto.randomUUID() };
 }
 
