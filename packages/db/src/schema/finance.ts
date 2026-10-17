@@ -2,6 +2,7 @@ import {
   ACCOUNT_TYPES,
   CATEGORY_KINDS,
   CURRENCIES,
+  MAX_INSTALLMENTS,
   TRANSACTION_KINDS,
 } from "@projectb/core";
 import { sql } from "drizzle-orm";
@@ -15,6 +16,7 @@ import {
   pgTable,
   pgView,
   primaryKey,
+  smallint,
   text,
   timestamp,
   unique,
@@ -38,6 +40,12 @@ export const accounts = pgTable(
     currency: text().notNull(),
     /** Balance before the first recorded transaction, in minor units. */
     openingBalance: amount("opening_balance").notNull().default(0),
+    // Credit cards only; null until the user enters the card's settings.
+    creditLimit: amount("credit_limit"),
+    statementDay: smallint("statement_day"),
+    dueDay: smallint("due_day"),
+    /** Minimum payment as a percentage of the statement amount. */
+    minPaymentRate: smallint("min_payment_rate"),
     archivedAt: timestamp("archived_at", { withTimezone: true }),
     ...timestamps(),
   },
@@ -49,6 +57,21 @@ export const accounts = pgTable(
     check(
       "accounts_currency_check",
       sql`${t.currency} in (${inList(Object.keys(CURRENCIES))})`,
+    ),
+    check(
+      "accounts_card_settings_check",
+      sql`${t.type} = 'credit_card' or (${t.creditLimit} is null and ${t.statementDay} is null
+        and ${t.dueDay} is null and ${t.minPaymentRate} is null)`,
+    ),
+    check("accounts_credit_limit_check", sql`${t.creditLimit} >= 0`),
+    check(
+      "accounts_statement_day_check",
+      sql`${t.statementDay} between 1 and 31`,
+    ),
+    check("accounts_due_day_check", sql`${t.dueDay} between 1 and 31`),
+    check(
+      "accounts_min_payment_rate_check",
+      sql`${t.minPaymentRate} between 0 and 100`,
     ),
     ownRowsPolicy("accounts", t.userId),
   ],
@@ -107,6 +130,8 @@ export const transactions = pgTable(
     toAccountId: uuid("to_account_id"),
     toAmount: amount("to_amount"),
     occurredOn: date("occurred_on").notNull(),
+    /** Expenses only: paid in this many monthly installments (1 = at once). */
+    installmentCount: smallint("installment_count").notNull().default(1),
     note: text(),
     ...timestamps(),
   },
@@ -147,6 +172,11 @@ export const transactions = pgTable(
         else ${t.toAccountId} is null and ${t.toAmount} is null end`,
     ),
     check("transactions_note_check", sql`char_length(${t.note}) <= 500`),
+    check(
+      "transactions_installment_count_check",
+      sql`${t.installmentCount} between 1 and ${sql.raw(String(MAX_INSTALLMENTS))}
+        and (${t.installmentCount} = 1 or ${t.kind} = 'expense')`,
+    ),
     ownRowsPolicy("transactions", t.userId),
   ],
 ).enableRLS();
@@ -199,6 +229,22 @@ export const accountBalances = pgView("account_balances", {
   accountId: uuid("account_id").notNull(),
   userId: uuid("user_id").notNull(),
   balance: amount("balance").notNull(),
+}).existing();
+
+/**
+ * Expenses spread over the months they are paid in: an installment purchase
+ * yields one row per installment, a regular expense one row. Created in
+ * migration 0006 with security_invoker. Budgets and reports use this.
+ */
+export const expenseEntries = pgView("expense_entries", {
+  transactionId: uuid("transaction_id").notNull(),
+  userId: uuid("user_id").notNull(),
+  accountId: uuid("account_id").notNull(),
+  categoryId: uuid("category_id"),
+  entryOn: date("entry_on").notNull(),
+  amount: amount("amount").notNull(),
+  installmentNumber: integer("installment_number").notNull(),
+  installmentCount: smallint("installment_count").notNull(),
 }).existing();
 
 export type Account = typeof accounts.$inferSelect;

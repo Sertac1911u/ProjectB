@@ -14,6 +14,10 @@ describe("formatMoney", () => {
     expect(formatMoney(123456, "USD", "en-US")).toBe("$1,234.56");
   });
 
+  it("uses the short currency symbol in every language", () => {
+    expect(formatMoney(250000, "TRY", "en")).toBe("₺2,500.00");
+  });
+
   it("formats negative amounts", () => {
     expect(formatMoney(-50, "EUR", "en-US")).toBe("-€0.50");
   });

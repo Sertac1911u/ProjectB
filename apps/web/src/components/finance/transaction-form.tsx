@@ -3,6 +3,10 @@
 import {
   type CurrencyCode,
   formatAmountInput,
+  formatMoney,
+  INSTALLMENT_OPTIONS,
+  installmentAmounts,
+  parseMoney,
   type Locale,
   parseTags,
   TRANSACTION_KINDS,
@@ -21,7 +25,12 @@ import { categoryName, categoryTree } from "@/lib/categories";
 import { cn } from "@/lib/utils";
 import { useFieldId } from "@/components/ui/use-field-id";
 
-type AccountOption = { id: string; name: string; currency: CurrencyCode };
+type AccountOption = {
+  id: string;
+  name: string;
+  currency: CurrencyCode;
+  type: string;
+};
 type CategoryOption = Parameters<typeof categoryTree>[0][number];
 
 export type TransactionDefaults = {
@@ -34,6 +43,7 @@ export type TransactionDefaults = {
   occurredOn: string;
   note?: string | null;
   tags?: string[];
+  installmentCount?: number;
 };
 
 type Props = {
@@ -107,7 +117,15 @@ function TransactionFields({
     v?.tags ?? defaults.tags?.join(", ") ?? "",
   );
 
+  const [installments, setInstallments] = useState(
+    v?.installments ?? String(defaults.installmentCount ?? 1),
+  );
+
   const isTransfer = kind === "transfer";
+  // Installments are offered for credit card expenses only.
+  const canPayInInstallments =
+    kind === "expense" &&
+    accounts.find((a) => a.id === accountId)?.type === "credit_card";
   const currency = currencyOf(accountId);
   const toCurrency = currencyOf(toAccountId);
   const showToAmount = isTransfer && toCurrency !== currency;
@@ -127,6 +145,21 @@ function TransactionFields({
           locale,
         )
       : "");
+  const [amountText, setAmountText] = useState(amountDefault);
+  const installmentPreview = (() => {
+    const count = Number(installments);
+    const total = parseMoney(amountText, currency, locale);
+    if (!canPayInInstallments || count <= 1 || !total || total <= 0)
+      return undefined;
+    return t("installmentPreview", {
+      count,
+      amount: formatMoney(
+        installmentAmounts(total, count)[0]!,
+        currency,
+        locale,
+      ),
+    });
+  })();
   const toAmountDefault =
     v?.toAmount ??
     (defaults.toAmount && defaults.toAccountId
@@ -213,7 +246,12 @@ function TransactionFields({
         )}
       </div>
 
-      <div className={cn("grid gap-4", showToAmount && "sm:grid-cols-2")}>
+      <div
+        className={cn(
+          "grid gap-4",
+          (showToAmount || canPayInInstallments) && "sm:grid-cols-2",
+        )}
+      >
         <Field
           id={fid("amount")}
           label={`${t("amount")} (${currency})`}
@@ -226,11 +264,36 @@ function TransactionFields({
             autoComplete="off"
             placeholder="0,00"
             defaultValue={amountDefault}
+            onChange={(e) => setAmountText(e.target.value)}
             required
             autoFocus
             aria-invalid={Boolean(fieldError("amount"))}
           />
         </Field>
+        {canPayInInstallments && (
+          <Field
+            id={fid("installments")}
+            label={t("installments")}
+            hint={installmentPreview}
+            error={fieldError("installments")}
+          >
+            <Select
+              id={fid("installments")}
+              name="installments"
+              value={installments}
+              onChange={(e) => setInstallments(e.target.value)}
+              aria-invalid={Boolean(fieldError("installments"))}
+            >
+              {INSTALLMENT_OPTIONS.map((count) => (
+                <option key={count} value={count}>
+                  {count === 1
+                    ? t("singlePayment")
+                    : t("installmentsOption", { count })}
+                </option>
+              ))}
+            </Select>
+          </Field>
+        )}
         {showToAmount && (
           <Field
             id={fid("toAmount")}

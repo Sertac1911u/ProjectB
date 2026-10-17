@@ -70,8 +70,15 @@ export async function TransactionList({
                         .filter(Boolean)
                         .join(" · ")}
                     </p>
-                    {row.tags.length > 0 && (
+                    {(row.tags.length > 0 || row.installmentCount > 1) && (
                       <div className="mt-1 flex flex-wrap gap-1">
+                        {row.installmentCount > 1 && (
+                          <span className="rounded-full bg-accent px-2 py-0.5 text-xs text-accent-foreground">
+                            {t("installmentBadge", {
+                              count: row.installmentCount,
+                            })}
+                          </span>
+                        )}
                         {row.tags.map((tag) => (
                           <span
                             key={tag}

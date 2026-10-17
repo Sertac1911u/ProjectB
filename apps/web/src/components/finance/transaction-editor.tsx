@@ -32,6 +32,7 @@ export async function TransactionEditor({
       id: a.id,
       name: a.name,
       currency: isCurrencyCode(a.currency) ? a.currency : ("TRY" as const),
+      type: a.type,
     }));
 
   if (options.length === 0) {
@@ -48,8 +49,15 @@ export async function TransactionEditor({
     );
   }
 
+  // Without a chosen account, prefer one that is not the transfer target
+  // (and not a credit card, when paying one off).
   const accountId =
-    options.find((a) => a.id === defaults.accountId)?.id ?? options[0]!.id;
+    options.find((a) => a.id === defaults.accountId)?.id ??
+    options.find(
+      (a) => a.id !== defaults.toAccountId && a.type !== "credit_card",
+    )?.id ??
+    options.find((a) => a.id !== defaults.toAccountId)?.id ??
+    options[0]!.id;
   return (
     <Card className="p-6">
       <TransactionForm

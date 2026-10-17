@@ -68,7 +68,8 @@
     "seeAll": "Tümünü gör",
     "otherCurrencies": "Yalnızca {currency} hesapları toplandı. Diğer para birimleri kur desteğiyle (4. aşama) eklenecek.",
     "addAccount": "Hesap ekle",
-    "addTransaction": "İşlem ekle"
+    "addTransaction": "İşlem ekle",
+    "upcomingPayments": "Yaklaşan kart ödemeleri"
   },
   "NotFound": {
     "title": "Sayfa bulunamadı",
@@ -149,6 +150,9 @@
     "tooManyTags": "En fazla 10 etiket ekleyebilirsin.",
     "categoryNesting": "Alt kategorinin altına kategori eklenemez.",
     "accountHasTransactions": "Bu hesapta işlem olduğu için silinemiyor. Bunun yerine arşivleyebilirsin.",
+    "invalidDay": "1 ile 31 arasında bir gün seç.",
+    "invalidRate": "0 ile 100 arasında bir oran yaz.",
+    "invalidInstallments": "Geçersiz taksit. Taksit yalnızca kredi kartıyla yapılan giderlerde seçilebilir.",
     "unknown": "Bir şeyler ters gitti. Lütfen tekrar dene."
   },
   "Settings": {
@@ -202,7 +206,18 @@
     "emptyDescription": "Nakit, banka veya kredi kartı hesabını ekleyerek başla.",
     "addFirst": "İlk hesabını ekle",
     "archiveHint": "Arşivlenen hesap listelerde ve yeni işlem formunda görünmez, geçmiş işlemleri kalır.",
-    "transactions": "İşlemleri gör"
+    "transactions": "İşlemleri gör",
+    "edit": "Düzenle",
+    "recent": "Son işlemler",
+    "cardSettings": "Kart ayarları",
+    "cardSettingsHint": "Ekstre tutarı ve son ödeme tarihi bu bilgilere göre hesaplanır.",
+    "creditLimit": "Kart limiti",
+    "statementDay": "Hesap kesim günü",
+    "dueDay": "Son ödeme günü",
+    "minPaymentRate": "Asgari ödeme oranı (%)",
+    "minPaymentRateHint": "Bankanın ekstrede istediği asgari ödeme yüzdesi, genellikle 20 veya 40.",
+    "dayOption": "Ayın {day}. günü",
+    "chooseDay": "Gün seç"
   },
   "Transactions": {
     "new": "Yeni işlem",
@@ -250,7 +265,12 @@
     "next": "Sonraki",
     "transferLabel": "{from} → {to}",
     "saveAndNew": "Kaydet ve yeni ekle",
-    "saved": "İşlem kaydedildi. Bir sonrakini ekleyebilirsin."
+    "saved": "İşlem kaydedildi. Bir sonrakini ekleyebilirsin.",
+    "installments": "Taksit",
+    "singlePayment": "Peşin",
+    "installmentsOption": "{count} taksit",
+    "installmentPreview": "{count} × {amount}",
+    "installmentBadge": "{count} taksit"
   },
   "Categories": {
     "title": "Kategoriler",
@@ -301,5 +321,34 @@
       "gifts_received": "Gelen hediye",
       "other_income": "Diğer gelir"
     }
+  },
+  "Card": {
+    "limit": "Limit",
+    "available": "Kullanılabilir limit",
+    "totalDebt": "Toplam borç",
+    "setupTitle": "Kart ayarları eksik",
+    "setupDescription": "Ekstre ve son ödeme tarihini görmek için hesap kesim günü ile son ödeme gününü gir.",
+    "setup": "Ayarları gir",
+    "statementOf": "{date} ekstresi",
+    "period": "Dönem: {from} – {to}",
+    "dueDate": "Son ödeme",
+    "statementAmount": "Ekstre borcu",
+    "minimumPayment": "Asgari ödeme",
+    "paid": "Ödenen",
+    "remaining": "Kalan",
+    "pay": "Borcu öde",
+    "paidInFull": "Bu ekstrenin borcu ödendi.",
+    "noDebt": "Bu ekstrede ödenecek borç yok.",
+    "currentPeriod": "Güncel dönem",
+    "currentPeriodHint": "{date} tarihinde kesilecek ekstreye girecek hareketler.",
+    "noLines": "Bu dönemde hareket yok.",
+    "installment": "{number}/{count}. taksit",
+    "payment": "Ödeme / iade",
+    "upcoming": "Gelecek ekstrelerdeki taksitler",
+    "upcomingHint": "Mevcut taksitli alışverişlerden ekstrelere düşecek tutarlar.",
+    "noUpcoming": "Taksitli alışveriş yok.",
+    "previousStatements": "Önceki ekstreler",
+    "overdue": "Son ödeme tarihi geçti",
+    "daysLeft": "{days, plural, =0 {Bugün son gün} one {# gün kaldı} other {# gün kaldı}}"
   }
 }

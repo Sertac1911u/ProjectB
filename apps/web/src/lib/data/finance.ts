@@ -3,6 +3,7 @@ import {
   accountBalances,
   accounts,
   categories,
+  expenseEntries,
   tags,
   transactions,
   transactionTags,
@@ -33,6 +34,10 @@ export const getAccounts = cache(async () =>
         type: accounts.type,
         currency: accounts.currency,
         openingBalance: accounts.openingBalance,
+        creditLimit: accounts.creditLimit,
+        statementDay: accounts.statementDay,
+        dueDay: accounts.dueDay,
+        minPaymentRate: accounts.minPaymentRate,
         archivedAt: accounts.archivedAt,
         balance: accountBalances.balance,
       })
@@ -157,6 +162,7 @@ export async function listTransactions(filters: TransactionFilters, page = 1) {
         amount: transactions.amount,
         toAmount: transactions.toAmount,
         occurredOn: transactions.occurredOn,
+        installmentCount: transactions.installmentCount,
         note: transactions.note,
         categoryId: transactions.categoryId,
         account: {
@@ -199,6 +205,7 @@ export async function getTransaction(id: string) {
         amount: transactions.amount,
         toAmount: transactions.toAmount,
         occurredOn: transactions.occurredOn,
+        installmentCount: transactions.installmentCount,
         note: transactions.note,
         tags: tagNames,
       })
@@ -208,25 +215,78 @@ export async function getTransaction(id: string) {
   return row ?? null;
 }
 
-/** Income and expenses between two dates, per account currency. */
+/**
+ * Income and expenses between two dates, per account currency. Installment
+ * purchases count with the installments that fall in the period.
+ */
 export async function getTotals(from: string, to: string) {
+  return withUser(async (tx) => {
+    const [income, expense] = await Promise.all([
+      tx
+        .select({
+          currency: accounts.currency,
+          total: sql<number>`sum(${transactions.amount})::bigint`.mapWith(
+            Number,
+          ),
+        })
+        .from(transactions)
+        .innerJoin(accounts, eq(accounts.id, transactions.accountId))
+        .where(
+          and(
+            eq(transactions.kind, "income"),
+            gte(transactions.occurredOn, from),
+            lte(transactions.occurredOn, to),
+          ),
+        )
+        .groupBy(accounts.currency),
+      tx
+        .select({
+          currency: accounts.currency,
+          total: sql<number>`sum(${expenseEntries.amount})::bigint`.mapWith(
+            Number,
+          ),
+        })
+        .from(expenseEntries)
+        .innerJoin(accounts, eq(accounts.id, expenseEntries.accountId))
+        .where(
+          and(
+            gte(expenseEntries.entryOn, from),
+            lte(expenseEntries.entryOn, to),
+          ),
+        )
+        .groupBy(accounts.currency),
+    ]);
+    return [
+      ...income.map((row) => ({ ...row, kind: "income" as const })),
+      ...expense.map((row) => ({ ...row, kind: "expense" as const })),
+    ];
+  });
+}
+
+/** Every transaction that moves money on or off a card, oldest first. */
+export async function getCardTransactions(cardId: string) {
   return withUser((tx) =>
     tx
       .select({
-        currency: accounts.currency,
+        id: transactions.id,
         kind: transactions.kind,
-        total: sql<number>`sum(${transactions.amount})::bigint`.mapWith(Number),
+        accountId: transactions.accountId,
+        toAccountId: transactions.toAccountId,
+        amount: transactions.amount,
+        toAmount: transactions.toAmount,
+        occurredOn: transactions.occurredOn,
+        installmentCount: transactions.installmentCount,
+        note: transactions.note,
+        categoryId: transactions.categoryId,
       })
       .from(transactions)
-      .innerJoin(accounts, eq(accounts.id, transactions.accountId))
       .where(
-        and(
-          inArray(transactions.kind, ["income", "expense"]),
-          gte(transactions.occurredOn, from),
-          lte(transactions.occurredOn, to),
+        or(
+          eq(transactions.accountId, cardId),
+          eq(transactions.toAccountId, cardId),
         ),
       )
-      .groupBy(accounts.currency, transactions.kind),
+      .orderBy(asc(transactions.occurredOn), asc(transactions.createdAt)),
   );
 }
 

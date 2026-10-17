@@ -34,7 +34,7 @@ async function NewTransaction({
 }: {
   searchParams: SearchParams;
 }) {
-  const { kind, account } = await searchParams;
+  const { kind, account, to, amount } = await searchParams;
   // The default date is today's, so this renders per request.
   await connection();
   return (
@@ -44,6 +44,12 @@ async function NewTransaction({
           ? kind
           : "expense") as TransactionKind,
         accountId: isUuid(account) ? account : null,
+        // "Pay" on a card statement links here with the card and the amount.
+        toAccountId: isUuid(to) ? to : null,
+        amount:
+          Number.isSafeInteger(Number(amount)) && Number(amount) > 0
+            ? Number(amount)
+            : undefined,
         occurredOn: today(),
       }}
     />

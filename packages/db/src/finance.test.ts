@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { DEFAULT_CATEGORIES } from "@projectb/core";
+import { DEFAULT_CATEGORIES, installmentAmounts } from "@projectb/core";
 import { eq, sql } from "drizzle-orm";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import {
@@ -8,6 +8,7 @@ import {
   asUser,
   categories,
   createDb,
+  expenseEntries,
   setTransactionTags,
   tags,
   transactions,
@@ -289,5 +290,85 @@ describe.skipIf(!url)("finance tables", () => {
     expect(
       names.filter((n) => ["Ev", "ev", "market", "yeni"].includes(n)),
     ).toEqual(["Ev", "market", "yeni"]);
+  });
+
+  it("spreads installment purchases over months exactly like the core split", async () => {
+    const [card] = await as(alice, (tx) =>
+      tx
+        .insert(accounts)
+        .values({
+          name: "Kart",
+          type: "credit_card",
+          currency: "TRY",
+          creditLimit: 5_000_000,
+          statementDay: 15,
+          dueDay: 25,
+          minPaymentRate: 20,
+        })
+        .returning({ id: accounts.id }),
+    );
+    const [purchase] = await as(alice, (tx) =>
+      tx
+        .insert(transactions)
+        .values({
+          kind: "expense",
+          accountId: card!.id,
+          amount: 100_001,
+          installmentCount: 3,
+          occurredOn: "2026-01-31",
+        })
+        .returning({ id: transactions.id }),
+    );
+    const rows = await as(alice, (tx) =>
+      tx
+        .select({
+          entryOn: expenseEntries.entryOn,
+          amount: expenseEntries.amount,
+          number: expenseEntries.installmentNumber,
+        })
+        .from(expenseEntries)
+        .where(eq(expenseEntries.transactionId, purchase!.id))
+        .orderBy(expenseEntries.installmentNumber),
+    );
+    expect(rows.map((r) => r.amount)).toEqual(installmentAmounts(100_001, 3));
+    expect(rows.map((r) => r.entryOn)).toEqual([
+      "2026-01-31",
+      "2026-02-28",
+      "2026-03-31",
+    ]);
+
+    // The full amount is debt right away.
+    const [balance] = await as(alice, (tx) =>
+      tx
+        .select()
+        .from(accountBalances)
+        .where(eq(accountBalances.accountId, card!.id)),
+    );
+    expect(balance?.balance).toBe(-100_001);
+  });
+
+  it("allows card settings only on credit cards and installments only on expenses", async () => {
+    const onBank = await as(alice, (tx) =>
+      tx
+        .insert(accounts)
+        .values({ name: "B", type: "bank", currency: "TRY", statementDay: 5 }),
+    ).catch(causeOf);
+    expect(onBank).toMatch(/accounts_card_settings_check/);
+
+    const income = await as(alice, (tx) =>
+      tx.insert(transactions).values({
+        kind: "income",
+        accountId: aliceCash,
+        amount: 100,
+        installmentCount: 3,
+        occurredOn: "2026-10-01",
+      }),
+    ).catch(causeOf);
+    expect(income).toMatch(/transactions_installment_count_check/);
+  });
+
+  it("does not show other users' installments", async () => {
+    const bobSees = await as(bob, (tx) => tx.select().from(expenseEntries));
+    expect(bobSees.every((r) => r.userId === bob)).toBe(true);
   });
 });

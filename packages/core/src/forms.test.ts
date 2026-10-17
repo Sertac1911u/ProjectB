@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { parseAmount, parseTags, transactionSchema } from "./forms";
+import {
+  accountSchema,
+  parseAmount,
+  parseTags,
+  transactionSchema,
+} from "./forms";
 import { fieldErrors } from "./validation";
 
 const account = "7b0a1c3e-6c8e-4c3a-9b8e-2f1d0c4b5a69";
@@ -33,6 +38,7 @@ describe("transactionSchema", () => {
       toAmount: "",
       note: null,
       tags: [],
+      installments: 1,
     });
   });
 
@@ -93,5 +99,65 @@ describe("parseAmount", () => {
       amount: 0,
     });
     expect(parseAmount("abc", "TRY", "tr")).toEqual({ error: "invalidAmount" });
+  });
+});
+
+describe("accountSchema", () => {
+  const base = { name: "Kart", currency: "TRY" };
+
+  it("ignores card settings for other account types", () => {
+    expect(
+      accountSchema.parse({ ...base, type: "bank", statementDay: "99" }).card,
+    ).toBeNull();
+  });
+
+  it("requires valid statement and due days for credit cards", () => {
+    const result = accountSchema.safeParse({
+      ...base,
+      type: "credit_card",
+      dueDay: "32",
+    });
+    expect(fieldErrors(result.error!)).toEqual({
+      statementDay: "invalidDay",
+      dueDay: "invalidDay",
+    });
+    expect(
+      accountSchema.parse({
+        ...base,
+        type: "credit_card",
+        statementDay: "15",
+        dueDay: "25",
+      }).card,
+    ).toEqual({ statementDay: 15, dueDay: 25, minPaymentRate: 20 });
+  });
+});
+
+describe("transactionSchema installments", () => {
+  const base = { accountId: account, amount: "100", occurredOn: "2026-10-17" };
+
+  it("defaults to a single payment and allows installments only for expenses", () => {
+    expect(
+      transactionSchema.parse({ ...base, kind: "expense" }).installments,
+    ).toBe(1);
+    expect(
+      transactionSchema.parse({ ...base, kind: "expense", installments: "6" })
+        .installments,
+    ).toBe(6);
+    const income = transactionSchema.safeParse({
+      ...base,
+      kind: "income",
+      installments: "3",
+    });
+    expect(fieldErrors(income.error!)).toEqual({
+      installments: "invalidInstallments",
+    });
+    const tooMany = transactionSchema.safeParse({
+      ...base,
+      kind: "expense",
+      installments: "48",
+    });
+    expect(fieldErrors(tooMany.error!)).toEqual({
+      installments: "invalidInstallments",
+    });
   });
 });

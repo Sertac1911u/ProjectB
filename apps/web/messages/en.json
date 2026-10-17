@@ -68,7 +68,8 @@
     "seeAll": "See all",
     "otherCurrencies": "Only {currency} accounts are counted. Other currencies arrive with exchange rates (phase 4).",
     "addAccount": "Add account",
-    "addTransaction": "Add transaction"
+    "addTransaction": "Add transaction",
+    "upcomingPayments": "Upcoming card payments"
   },
   "NotFound": {
     "title": "Page not found",
@@ -149,6 +150,9 @@
     "tooManyTags": "You can add at most 10 tags.",
     "categoryNesting": "Subcategories cannot have their own subcategories.",
     "accountHasTransactions": "This account has transactions and cannot be deleted. You can archive it instead.",
+    "invalidDay": "Choose a day between 1 and 31.",
+    "invalidRate": "Enter a rate between 0 and 100.",
+    "invalidInstallments": "Invalid installments. Installments are only available for credit card expenses.",
     "unknown": "Something went wrong. Please try again."
   },
   "Settings": {
@@ -202,7 +206,18 @@
     "emptyDescription": "Start by adding a cash, bank or credit card account.",
     "addFirst": "Add your first account",
     "archiveHint": "Archived accounts are hidden from lists and the new transaction form; their history stays.",
-    "transactions": "View transactions"
+    "transactions": "View transactions",
+    "edit": "Edit",
+    "recent": "Recent transactions",
+    "cardSettings": "Card settings",
+    "cardSettingsHint": "Statement amounts and due dates are calculated from these.",
+    "creditLimit": "Credit limit",
+    "statementDay": "Statement day",
+    "dueDay": "Payment due day",
+    "minPaymentRate": "Minimum payment (%)",
+    "minPaymentRateHint": "The minimum share of the statement your bank asks for, often 20 or 40.",
+    "dayOption": "Day {day} of the month",
+    "chooseDay": "Choose a day"
   },
   "Transactions": {
     "new": "New transaction",
@@ -250,7 +265,12 @@
     "next": "Next",
     "transferLabel": "{from} → {to}",
     "saveAndNew": "Save and add another",
-    "saved": "Transaction saved. You can add the next one."
+    "saved": "Transaction saved. You can add the next one.",
+    "installments": "Installments",
+    "singlePayment": "Single payment",
+    "installmentsOption": "{count} installments",
+    "installmentPreview": "{count} × {amount}",
+    "installmentBadge": "{count} installments"
   },
   "Categories": {
     "title": "Categories",
@@ -301,5 +321,34 @@
       "gifts_received": "Gifts received",
       "other_income": "Other income"
     }
+  },
+  "Card": {
+    "limit": "Limit",
+    "available": "Available credit",
+    "totalDebt": "Total debt",
+    "setupTitle": "Card settings missing",
+    "setupDescription": "Enter the statement day and payment due day to see statements and due dates.",
+    "setup": "Enter settings",
+    "statementOf": "Statement of {date}",
+    "period": "Period: {from} – {to}",
+    "dueDate": "Due",
+    "statementAmount": "Statement balance",
+    "minimumPayment": "Minimum payment",
+    "paid": "Paid",
+    "remaining": "Remaining",
+    "pay": "Pay",
+    "paidInFull": "This statement is paid.",
+    "noDebt": "Nothing is due on this statement.",
+    "currentPeriod": "Current period",
+    "currentPeriodHint": "Activity that will go on the statement of {date}.",
+    "noLines": "No activity in this period.",
+    "installment": "installment {number} of {count}",
+    "payment": "Payment / refund",
+    "upcoming": "Installments on upcoming statements",
+    "upcomingHint": "What existing installment purchases will add to each statement.",
+    "noUpcoming": "No installment purchases.",
+    "previousStatements": "Previous statements",
+    "overdue": "Payment is overdue",
+    "daysLeft": "{days, plural, =0 {Due today} one {# day left} other {# days left}}"
   }
 }
