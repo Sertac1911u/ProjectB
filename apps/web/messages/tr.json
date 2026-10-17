@@ -113,6 +113,10 @@
     "weakPassword": "Bu şifre çok zayıf, daha güçlü bir şifre seç.",
     "samePassword": "Yeni şifre eskisinden farklı olmalı.",
     "rateLimited": "Çok fazla deneme yaptın. Biraz bekleyip tekrar dene.",
+    "emailRejected": "Bu e-posta adresi kabul edilmedi. Farklı bir adres dene.",
+    "emailNotAuthorized": "Bu adrese doğrulama e-postası gönderilemiyor. Supabase'in yerleşik e-posta servisi yalnızca proje ekibindeki adreslere e-posta gönderir.",
+    "signupDisabled": "Şu anda yeni kayıt alınmıyor.",
+    "userAlreadyExists": "Bu e-posta adresiyle zaten bir hesap var. Giriş yapmayı dene.",
     "unknown": "Bir şeyler ters gitti. Lütfen tekrar dene."
   },
   "Settings": {

@@ -45,7 +45,7 @@ export async function signIn(
   const supabase = await createClient();
   const { data, error } = await supabase.auth.signInWithPassword(parsed.data);
   if (error)
-    return { status: "error", error: authErrorCode(error.code), values };
+    return { status: "error", error: authErrorCode(error, "signIn"), values };
 
   // Continue in the language the user chose in their profile.
   const [profile] = await asUser(
@@ -83,7 +83,7 @@ export async function signUp(
     },
   });
   if (error)
-    return { status: "error", error: authErrorCode(error.code), values };
+    return { status: "error", error: authErrorCode(error, "signUp"), values };
 
   // Without email confirmation Supabase signs the user in right away.
   if (data.session) redirect(`/${locale}/dashboard`);
@@ -109,7 +109,7 @@ export async function requestPasswordReset(
     },
   );
   // Report success even for unknown addresses so accounts cannot be probed.
-  if (error && authErrorCode(error.code) === "rateLimited") {
+  if (error && authErrorCode(error, "requestPasswordReset") === "rateLimited") {
     return { status: "error", error: "rateLimited", values };
   }
   return { status: "success" };
@@ -128,7 +128,8 @@ export async function updatePassword(
   const { error } = await supabase.auth.updateUser({
     password: parsed.data.password,
   });
-  if (error) return { status: "error", error: authErrorCode(error.code) };
+  if (error)
+    return { status: "error", error: authErrorCode(error, "updatePassword") };
   return { status: "success" };
 }
 
