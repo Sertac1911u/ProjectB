@@ -33,6 +33,12 @@ Web ve mobil aynı Supabase veritabanını kullanır.
 Mobil uygulama, Google/Apple ile giriş, ortak bütçe, bildirimler, koyu tema,
 CSV dışa aktarma, fiş fotoğrafı, gelecek nakit akışı tahmini.
 
+### Yayına çıkmadan önce
+
+- Kendi e-posta servisimizi (SMTP, örn. Resend) bağlamak: Supabase'in yerleşik servisi yalnızca
+  proje ekibine ve saatte birkaç e-posta gönderiyor.
+- Doğrulama ve şifre sıfırlama e-postalarını Türkçe/İngilizce şablonlarla göndermek.
+
 ## Aşamalar
 
 - [x] **0. Altyapı:** monorepo, Next.js, Tailwind, çoklu dil, Drizzle, CI.
