@@ -2,12 +2,16 @@ import {
   ACCOUNT_TYPES,
   CATEGORY_KINDS,
   CURRENCIES,
+  FREQUENCIES,
   MAX_INSTALLMENTS,
+  MAX_INTERVAL,
+  MAX_OCCURRENCES,
   TRANSACTION_KINDS,
 } from "@projectb/core";
 import { sql } from "drizzle-orm";
 import {
   bigint,
+  boolean,
   check,
   date,
   foreignKey,
@@ -132,6 +136,12 @@ export const transactions = pgTable(
     occurredOn: date("occurred_on").notNull(),
     /** Expenses only: paid in this many monthly installments (1 = at once). */
     installmentCount: smallint("installment_count").notNull().default(1),
+    /**
+     * The recurring rule that created this transaction. Its foreign key is in
+     * migration 0009 because it uses ON DELETE SET NULL (column), which
+     * Drizzle cannot express: deleting a rule keeps its past transactions.
+     */
+    recurringRuleId: uuid("recurring_rule_id"),
     note: text(),
     ...timestamps(),
   },
@@ -144,6 +154,10 @@ export const transactions = pgTable(
     index("transactions_account_id_idx").on(t.accountId),
     index("transactions_to_account_id_idx").on(t.toAccountId),
     index("transactions_category_id_idx").on(t.categoryId),
+    // A rule creates at most one transaction per day it falls on.
+    uniqueIndex("transactions_recurring_rule_id_occurred_on_idx")
+      .on(t.recurringRuleId, t.occurredOn)
+      .where(sql`${t.recurringRuleId} is not null`),
     foreignKey({
       name: "transactions_account_fk",
       columns: [t.accountId, t.userId],
@@ -221,6 +235,84 @@ export const transactionTags = pgTable(
   ],
 ).enableRLS();
 
+export const recurringRules = pgTable(
+  "recurring_rules",
+  {
+    id: uuid().primaryKey().defaultRandom(),
+    userId: ownerId(),
+    kind: text().notNull(),
+    accountId: uuid("account_id").notNull(),
+    toAccountId: uuid("to_account_id"),
+    amount: amount("amount").notNull(),
+    toAmount: amount("to_amount"),
+    categoryId: uuid("category_id"),
+    note: text(),
+    tagNames: text("tag_names")
+      .array()
+      .notNull()
+      .default(sql`'{}'::text[]`),
+    startOn: date("start_on").notNull(),
+    frequency: text().notNull(),
+    intervalCount: smallint("interval_count").notNull().default(1),
+    endOn: date("end_on"),
+    maxOccurrences: smallint("max_occurrences"),
+    /** How many occurrences are behind us: the index of the next one. */
+    occurrences: integer().notNull().default(0),
+    /** Date of the next occurrence to create. */
+    nextOn: date("next_on").notNull(),
+    paused: boolean().notNull().default(false),
+    /** Set once the schedule has no occurrences left. */
+    finished: boolean().notNull().default(false),
+    ...timestamps(),
+  },
+  (t) => [
+    unique("recurring_rules_id_user_id_key").on(t.id, t.userId),
+    index("recurring_rules_user_id_next_on_idx").on(t.userId, t.nextOn),
+    foreignKey({
+      name: "recurring_rules_account_fk",
+      columns: [t.accountId, t.userId],
+      foreignColumns: [accounts.id, accounts.userId],
+    }).onDelete("cascade"),
+    foreignKey({
+      name: "recurring_rules_to_account_fk",
+      columns: [t.toAccountId, t.userId],
+      foreignColumns: [accounts.id, accounts.userId],
+    }).onDelete("cascade"),
+    foreignKey({
+      name: "recurring_rules_category_fk",
+      columns: [t.categoryId, t.userId],
+      foreignColumns: [categories.id, categories.userId],
+    }),
+    check(
+      "recurring_rules_kind_check",
+      sql`${t.kind} in (${inList(TRANSACTION_KINDS)})`,
+    ),
+    check("recurring_rules_amount_check", sql`${t.amount} > 0`),
+    check(
+      "recurring_rules_transfer_check",
+      sql`case when ${t.kind} = 'transfer'
+        then ${t.toAccountId} is not null and ${t.toAccountId} <> ${t.accountId}
+          and ${t.toAmount} is not null and ${t.toAmount} > 0 and ${t.categoryId} is null
+        else ${t.toAccountId} is null and ${t.toAmount} is null end`,
+    ),
+    check(
+      "recurring_rules_frequency_check",
+      sql`${t.frequency} in (${inList(FREQUENCIES)})`,
+    ),
+    check(
+      "recurring_rules_interval_check",
+      sql`${t.intervalCount} between 1 and ${sql.raw(String(MAX_INTERVAL))}`,
+    ),
+    check(
+      "recurring_rules_max_occurrences_check",
+      sql`${t.maxOccurrences} between 1 and ${sql.raw(String(MAX_OCCURRENCES))}`,
+    ),
+    check("recurring_rules_end_on_check", sql`${t.endOn} >= ${t.startOn}`),
+    check("recurring_rules_note_check", sql`char_length(${t.note}) <= 500`),
+    ownRowsPolicy("recurring_rules", t.userId),
+  ],
+).enableRLS();
+
 /**
  * Current balance per account. Created in migration 0004 with
  * security_invoker, so row level security of the underlying tables applies.
@@ -251,3 +343,4 @@ export type Account = typeof accounts.$inferSelect;
 export type Category = typeof categories.$inferSelect;
 export type Transaction = typeof transactions.$inferSelect;
 export type Tag = typeof tags.$inferSelect;
+export type RecurringRule = typeof recurringRules.$inferSelect;

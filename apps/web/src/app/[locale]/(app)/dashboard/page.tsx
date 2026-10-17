@@ -19,6 +19,7 @@ import {
 } from "@/lib/data/finance";
 import { getDueStatements } from "@/lib/data/cards";
 import { getRates } from "@/lib/data/rates";
+import { getRecurringRules } from "@/lib/data/recurring";
 import { daysBetween, formatDay, monthRange, today } from "@/lib/dates";
 import { cn } from "@/lib/utils";
 
@@ -39,6 +40,9 @@ export default function DashboardPage() {
       </Suspense>
       <Suspense fallback={null}>
         <DuePayments />
+      </Suspense>
+      <Suspense fallback={null}>
+        <UpcomingRecurring />
       </Suspense>
       <Suspense
         fallback={
@@ -224,6 +228,64 @@ async function DuePayments() {
             </Link>
           );
         })}
+      </Card>
+    </section>
+  );
+}
+
+/** Recurring transactions due in the next two weeks. */
+async function UpcomingRecurring() {
+  await connection();
+  const day = today();
+  const horizon = new Date(Date.parse(`${day}T00:00:00Z`) + 14 * 86_400_000)
+    .toISOString()
+    .slice(0, 10);
+  const [rules, accounts, locale, t] = await Promise.all([
+    getRecurringRules(),
+    getAccounts(),
+    getLocale(),
+    getTranslations("Recurring"),
+  ]);
+  const upcoming = rules.filter(
+    (r) => !r.paused && !r.finished && r.nextOn <= horizon,
+  );
+  if (upcoming.length === 0) return null;
+  const account = (id: string) => accounts.find((a) => a.id === id);
+  return (
+    <section className="mt-8">
+      <div className="mb-3 flex items-center justify-between">
+        <h2 className="text-lg font-semibold">{t("upcoming")}</h2>
+        <Link
+          href="/recurring"
+          className="text-sm font-medium text-primary hover:underline"
+        >
+          {t("title")}
+        </Link>
+      </div>
+      <Card className="divide-y">
+        {upcoming.map((rule) => (
+          <Link
+            key={rule.id}
+            href={`/recurring/${rule.id}`}
+            className="flex items-center justify-between gap-3 px-5 py-3 first:rounded-t-xl last:rounded-b-xl hover:bg-muted/60"
+          >
+            <div className="min-w-0">
+              <p className="truncate font-medium">
+                {rule.note || account(rule.accountId)?.name}
+              </p>
+              <p className="text-sm text-muted-foreground">
+                {formatDay(rule.nextOn, locale)}
+              </p>
+            </div>
+            <Amount
+              value={rule.amount}
+              currency={account(rule.accountId)?.currency ?? "TRY"}
+              locale={locale}
+              kind={rule.kind}
+              className="font-medium"
+            />
+          </Link>
+        ))}
       </Card>
     </section>
   );

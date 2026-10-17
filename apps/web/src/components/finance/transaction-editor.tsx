@@ -11,9 +11,13 @@ import { type TransactionDefaults, TransactionForm } from "./transaction-form";
 /** Loads the form's options; shared by the new and edit pages. */
 export async function TransactionEditor({
   transactionId,
+  recurringId,
+  mode = "transaction",
   defaults,
 }: {
   transactionId?: string;
+  recurringId?: string;
+  mode?: "transaction" | "recurring";
   defaults: Omit<TransactionDefaults, "accountId"> & {
     accountId?: string | null;
   };
@@ -65,6 +69,8 @@ export async function TransactionEditor({
     <Card className="p-6">
       <TransactionForm
         transactionId={transactionId}
+        recurringId={recurringId}
+        mode={mode}
         defaults={{ ...defaults, accountId }}
         accounts={options}
         categories={categories}

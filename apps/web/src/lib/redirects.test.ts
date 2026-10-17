@@ -9,6 +9,9 @@ describe("authRedirect", () => {
     expect(authRedirect("/en/settings", "?tab=1", false)).toBe(
       "/en/login?next=%2Fen%2Fsettings%3Ftab%3D1",
     );
+    expect(authRedirect("/tr/recurring/new", "", false)).toBe(
+      "/tr/login?next=%2Ftr%2Frecurring%2Fnew",
+    );
   });
 
   it("sends signed-in users away from guest pages", () => {

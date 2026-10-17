@@ -29,7 +29,11 @@ export type ValidationError =
   | "tooManyTags"
   | "invalidDay"
   | "invalidRate"
-  | "invalidInstallments";
+  | "invalidInstallments"
+  | "invalidFrequency"
+  | "invalidInterval"
+  | "invalidEndDate"
+  | "invalidOccurrences";
 
 export const error = (message: ValidationError) => ({ message });
 
