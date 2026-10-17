@@ -15,6 +15,13 @@
       "when": 1792237932302,
       "tag": "0001_handle_new_user",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1792239386149,
+      "tag": "0002_grants",
+      "breakpoints": true
     }
   ]
 }

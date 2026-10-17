@@ -68,6 +68,31 @@ describe.skipIf(!url)("profiles row level security", () => {
       { sub: alice, role: "authenticated" },
       (tx) => tx.insert(profiles).values({ id: randomUUID() }),
     ).catch((e: Error) => e);
-    expect(String((error as Error).cause)).toMatch(/row-level security/);
+    expect(String((error as Error).cause)).toMatch(
+      /permission denied|row-level security/,
+    );
+  });
+
+  it("does not let users change protected columns", async () => {
+    const error = await asUser(
+      db,
+      { sub: alice, role: "authenticated" },
+      (tx) =>
+        tx
+          .update(profiles)
+          .set({ createdAt: new Date(0) })
+          .where(eq(profiles.id, alice)),
+    ).catch((e: Error) => e);
+    expect(String((error as Error).cause)).toMatch(/permission denied/);
+  });
+
+  it("gives signed-out visitors no access", async () => {
+    const error = await db
+      .transaction(async (tx) => {
+        await tx.execute(sql`set local role anon`);
+        return tx.select().from(profiles);
+      })
+      .catch((e: Error) => e);
+    expect(String((error as Error).cause)).toMatch(/permission denied/);
   });
 });
