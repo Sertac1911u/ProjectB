@@ -22,6 +22,20 @@
       "when": 1792239386149,
       "tag": "0002_grants",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1792245773529,
+      "tag": "0003_finance",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1792245792630,
+      "tag": "0004_finance_access",
+      "breakpoints": true
     }
   ]
 }

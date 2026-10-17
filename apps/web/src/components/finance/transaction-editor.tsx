@@ -1,0 +1,64 @@
+import { isCurrencyCode } from "@projectb/core";
+import { getTranslations } from "next-intl/server";
+import { Plus } from "lucide-react";
+import { buttonVariants } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Link } from "@/i18n/navigation";
+import { getAccounts, getCategories, getTags } from "@/lib/data/finance";
+import { type TransactionDefaults, TransactionForm } from "./transaction-form";
+
+/** Loads the form's options; shared by the new and edit pages. */
+export async function TransactionEditor({
+  transactionId,
+  defaults,
+}: {
+  transactionId?: string;
+  defaults: Omit<TransactionDefaults, "accountId"> & {
+    accountId?: string | null;
+  };
+}) {
+  const [accounts, categories, tags, t, tAccounts] = await Promise.all([
+    getAccounts(),
+    getCategories(),
+    getTags(),
+    getTranslations("Transactions"),
+    getTranslations("Accounts"),
+  ]);
+  // Archived accounts stay selectable on transactions that already use them.
+  const used = [defaults.accountId, defaults.toAccountId];
+  const options = accounts
+    .filter((a) => !a.archivedAt || used.includes(a.id))
+    .map((a) => ({
+      id: a.id,
+      name: a.name,
+      currency: isCurrencyCode(a.currency) ? a.currency : ("TRY" as const),
+    }));
+
+  if (options.length === 0) {
+    return (
+      <Card className="flex flex-col items-center gap-3 px-6 py-12 text-center">
+        <p className="max-w-sm text-sm text-muted-foreground">
+          {t("needAccount")}
+        </p>
+        <Link href="/accounts/new" className={buttonVariants()}>
+          <Plus />
+          {tAccounts("addFirst")}
+        </Link>
+      </Card>
+    );
+  }
+
+  const accountId =
+    options.find((a) => a.id === defaults.accountId)?.id ?? options[0]!.id;
+  return (
+    <Card className="p-6">
+      <TransactionForm
+        transactionId={transactionId}
+        defaults={{ ...defaults, accountId }}
+        accounts={options}
+        categories={categories}
+        tags={tags.map((tag) => tag.name)}
+      />
+    </Card>
+  );
+}

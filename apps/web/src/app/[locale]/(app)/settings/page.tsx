@@ -1,5 +1,5 @@
 import { isCurrencyCode, isLocale } from "@projectb/core";
-import { LogOut } from "lucide-react";
+import { LogOut, Tags } from "lucide-react";
 import { getLocale, getTranslations } from "next-intl/server";
 import { Suspense } from "react";
 import { PageHeader } from "@/components/page-header";
@@ -37,6 +37,21 @@ export default async function SettingsPage() {
             >
               <ProfileSection />
             </Suspense>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>{t("categoriesTitle")}</CardTitle>
+            <CardDescription>{t("categoriesDescription")}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Link
+              href="/settings/categories"
+              className={buttonVariants({ variant: "outline" })}
+            >
+              <Tags />
+              {(await getTranslations("Categories"))("manage")}
+            </Link>
           </CardContent>
         </Card>
         <Card>

@@ -1,20 +1,23 @@
-import { DEFAULT_CURRENCY, formatMoney, isCurrencyCode } from "@projectb/core";
-import { ChartPie } from "lucide-react";
+import { DEFAULT_CURRENCY, isCurrencyCode } from "@projectb/core";
+import { Plus, Wallet } from "lucide-react";
+import { connection } from "next/server";
 import { getLocale, getTranslations } from "next-intl/server";
 import { Suspense } from "react";
-import {
-  Card,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Amount } from "@/components/finance/amount";
+import { TransactionList } from "@/components/finance/transaction-list";
+import { buttonVariants } from "@/components/ui/button";
+import { Card, CardDescription, CardHeader } from "@/components/ui/card";
+import { Link } from "@/i18n/navigation";
 import { getProfile } from "@/lib/auth";
+import {
+  getAccounts,
+  getCategories,
+  getTotals,
+  listTransactions,
+} from "@/lib/data/finance";
+import { monthRange, today } from "@/lib/dates";
 
-const SUMMARY = ["netWorth", "income", "expense"] as const;
-
-export default async function DashboardPage() {
-  const t = await getTranslations("Dashboard");
-
+export default function DashboardPage() {
   return (
     <>
       <Suspense
@@ -24,58 +27,142 @@ export default async function DashboardPage() {
       >
         <Greeting />
       </Suspense>
-      <div className="grid gap-4 sm:grid-cols-3">
-        {SUMMARY.map((key) => (
-          <Card key={key}>
-            <CardHeader>
-              <CardDescription>{t(key)}</CardDescription>
-              <Suspense
-                fallback={
-                  <div className="h-8 w-24 animate-pulse rounded bg-muted" />
-                }
-              >
-                <ZeroAmount />
-              </Suspense>
-            </CardHeader>
-          </Card>
-        ))}
-      </div>
-      <Card className="mt-4 flex flex-col items-center gap-3 px-6 py-16 text-center">
-        <span className="flex size-12 items-center justify-center rounded-full bg-accent text-accent-foreground">
-          <ChartPie className="size-5" />
-        </span>
-        <p className="font-medium">{t("emptyTitle")}</p>
-        <p className="max-w-sm text-sm text-muted-foreground">
-          {t("emptyDescription")}
-        </p>
-      </Card>
+      <Suspense
+        fallback={<div className="h-28 animate-pulse rounded-xl bg-muted" />}
+      >
+        <Summary />
+      </Suspense>
+      <Suspense
+        fallback={
+          <div className="mt-6 h-64 animate-pulse rounded-xl bg-muted" />
+        }
+      >
+        <Recent />
+      </Suspense>
     </>
   );
 }
 
 async function Greeting() {
-  const [profile, t] = await Promise.all([
+  const [profile, t, tTransactions] = await Promise.all([
     getProfile(),
     getTranslations("Dashboard"),
+    getTranslations("Transactions"),
   ]);
   return (
-    <h1 className="mb-6 text-2xl font-semibold tracking-tight">
-      {profile.displayName
-        ? t("greeting", { name: profile.displayName })
-        : t("greetingNoName")}
-    </h1>
+    <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+      <h1 className="text-2xl font-semibold tracking-tight">
+        {profile.displayName
+          ? t("greeting", { name: profile.displayName })
+          : t("greetingNoName")}
+      </h1>
+      <Link href="/transactions/new" className={buttonVariants()}>
+        <Plus />
+        {tTransactions("new")}
+      </Link>
+    </div>
   );
 }
 
-/** Placeholder until accounts exist; shown in the user's main currency. */
-async function ZeroAmount() {
-  const [profile, locale] = await Promise.all([getProfile(), getLocale()]);
+async function Summary() {
+  // "This month" depends on the current date, so it is computed per request.
+  await connection();
+  const { from, to } = monthRange(today());
+  const [profile, accounts, totals, locale, t] = await Promise.all([
+    getProfile(),
+    getAccounts(),
+    getTotals(from, to),
+    getLocale(),
+    getTranslations("Dashboard"),
+  ]);
   const currency = isCurrencyCode(profile.baseCurrency)
     ? profile.baseCurrency
     : DEFAULT_CURRENCY;
+  const active = accounts.filter((a) => !a.archivedAt);
+
+  if (active.length === 0) {
+    const tAccounts = await getTranslations("Accounts");
+    return (
+      <Card className="flex flex-col items-center gap-3 px-6 py-12 text-center">
+        <span className="flex size-12 items-center justify-center rounded-full bg-accent text-accent-foreground">
+          <Wallet className="size-5" />
+        </span>
+        <p className="font-medium">{tAccounts("emptyTitle")}</p>
+        <p className="max-w-sm text-sm text-muted-foreground">
+          {tAccounts("emptyDescription")}
+        </p>
+        <Link
+          href="/accounts/new"
+          className={buttonVariants({ className: "mt-2" })}
+        >
+          <Plus />
+          {tAccounts("addFirst")}
+        </Link>
+      </Card>
+    );
+  }
+
+  // Until exchange rates exist (phase 4), only the main currency is summed.
+  const netWorth = active
+    .filter((a) => a.currency === currency)
+    .reduce((sum, a) => sum + a.balance, 0);
+  const total = (kind: string) =>
+    totals.find((row) => row.currency === currency && row.kind === kind)
+      ?.total ?? 0;
+  const otherCurrencies = active.some((a) => a.currency !== currency);
+
+  const cards = [
+    { key: "netWorth", value: netWorth, kind: undefined },
+    { key: "income", value: total("income"), kind: "income" },
+    { key: "expense", value: total("expense"), kind: "expense" },
+  ] as const;
+
   return (
-    <CardTitle className="text-2xl tabular-nums">
-      {formatMoney(0, currency, locale)}
-    </CardTitle>
+    <>
+      <div className="grid gap-4 sm:grid-cols-3">
+        {cards.map((card) => (
+          <Card key={card.key}>
+            <CardHeader>
+              <CardDescription>{t(card.key)}</CardDescription>
+              <Amount
+                value={card.value}
+                currency={currency}
+                locale={locale}
+                kind={card.kind}
+                className="text-2xl font-semibold"
+              />
+            </CardHeader>
+          </Card>
+        ))}
+      </div>
+      {otherCurrencies && (
+        <p className="mt-2 text-xs text-muted-foreground">
+          {t("otherCurrencies", { currency })}
+        </p>
+      )}
+    </>
+  );
+}
+
+async function Recent() {
+  const [{ rows }, categories, t] = await Promise.all([
+    listTransactions({}, 1),
+    getCategories(),
+    getTranslations("Dashboard"),
+  ]);
+  if (rows.length === 0) return null;
+  return (
+    <section className="mt-8">
+      <div className="mb-3 flex items-center justify-between">
+        <h2 className="text-lg font-semibold">{t("recent")}</h2>
+        <Link
+          href="/transactions"
+          className="text-sm font-medium text-primary hover:underline"
+        >
+          {t("seeAll")}
+        </Link>
+      </div>
+      <TransactionList rows={rows.slice(0, 5)} categories={categories} />
+    </section>
   );
 }

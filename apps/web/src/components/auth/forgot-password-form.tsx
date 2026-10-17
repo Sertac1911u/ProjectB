@@ -9,8 +9,10 @@ import { SubmitButton } from "@/components/ui/submit-button";
 import { requestPasswordReset } from "@/lib/actions/auth";
 import { initialFormState } from "@/lib/actions/state";
 import { useFormErrors } from "./use-form-errors";
+import { useFieldId } from "@/components/ui/use-field-id";
 
 export function ForgotPasswordForm() {
+  const fid = useFieldId();
   const t = useTranslations("Auth");
   const locale = useLocale();
   const [state, action] = useActionState(
@@ -27,9 +29,9 @@ export function ForgotPasswordForm() {
     <form action={action} className="flex flex-col gap-4" noValidate>
       <input type="hidden" name="locale" value={locale} />
       {formError && <Alert>{formError}</Alert>}
-      <Field id="email" label={t("email")} error={fieldError("email")}>
+      <Field id={fid("email")} label={t("email")} error={fieldError("email")}>
         <Input
-          id="email"
+          id={fid("email")}
           name="email"
           type="email"
           autoComplete="email"

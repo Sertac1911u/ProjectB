@@ -11,8 +11,10 @@ import { Link } from "@/i18n/navigation";
 import { signIn } from "@/lib/actions/auth";
 import { initialFormState } from "@/lib/actions/state";
 import { useFormErrors } from "./use-form-errors";
+import { useFieldId } from "@/components/ui/use-field-id";
 
 export function LoginForm() {
+  const fid = useFieldId();
   const t = useTranslations("Auth");
   const locale = useLocale();
   const [state, action] = useActionState(signIn, initialFormState);
@@ -27,9 +29,9 @@ export function LoginForm() {
       <Suspense fallback={null}>
         <QueryParams hideLinkError={Boolean(formError)} />
       </Suspense>
-      <Field id="email" label={t("email")} error={fieldError("email")}>
+      <Field id={fid("email")} label={t("email")} error={fieldError("email")}>
         <Input
-          id="email"
+          id={fid("email")}
           name="email"
           type="email"
           autoComplete="email"
@@ -38,9 +40,13 @@ export function LoginForm() {
           aria-invalid={Boolean(fieldError("email"))}
         />
       </Field>
-      <Field id="password" label={t("password")} error={fieldError("password")}>
+      <Field
+        id={fid("password")}
+        label={t("password")}
+        error={fieldError("password")}
+      >
         <Input
-          id="password"
+          id={fid("password")}
           name="password"
           type="password"
           autoComplete="current-password"

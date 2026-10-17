@@ -14,9 +14,7 @@ import {
   uuid,
 } from "drizzle-orm/pg-core";
 import { authenticatedRole, authUid, authUsers } from "drizzle-orm/supabase";
-
-const list = (values: readonly string[]) =>
-  sql.raw(values.map((v) => `'${v}'`).join(", "));
+import { inList as list } from "./helpers";
 
 /** One row per user, created by a trigger when the user signs up. */
 export const profiles = pgTable(

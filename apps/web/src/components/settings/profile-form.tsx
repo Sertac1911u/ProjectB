@@ -15,6 +15,7 @@ import { Input, Select } from "@/components/ui/input";
 import { SubmitButton } from "@/components/ui/submit-button";
 import { updateProfile } from "@/lib/actions/profile";
 import { initialFormState } from "@/lib/actions/state";
+import { useFieldId } from "@/components/ui/use-field-id";
 
 type Props = {
   profile: {
@@ -25,6 +26,7 @@ type Props = {
 };
 
 export function ProfileForm({ profile }: Props) {
+  const fid = useFieldId();
   const t = useTranslations("Settings");
   const locale = useLocale();
   const [state, action] = useActionState(
@@ -44,12 +46,12 @@ export function ProfileForm({ profile }: Props) {
     >
       {formError && <Alert>{formError}</Alert>}
       <Field
-        id="displayName"
+        id={fid("displayName")}
         label={t("displayName")}
         error={fieldError("displayName")}
       >
         <Input
-          id="displayName"
+          id={fid("displayName")}
           name="displayName"
           autoComplete="nickname"
           placeholder={t("displayNamePlaceholder")}
@@ -58,8 +60,16 @@ export function ProfileForm({ profile }: Props) {
         />
       </Field>
       <div className="grid gap-4 sm:grid-cols-2">
-        <Field id="locale" label={t("language")} error={fieldError("locale")}>
-          <Select id="locale" name="locale" defaultValue={profile.locale}>
+        <Field
+          id={fid("locale")}
+          label={t("language")}
+          error={fieldError("locale")}
+        >
+          <Select
+            id={fid("locale")}
+            name="locale"
+            defaultValue={profile.locale}
+          >
             {LOCALES.map((value) => (
               <option key={value} value={value}>
                 {t(`languages.${value}`)}
@@ -68,13 +78,13 @@ export function ProfileForm({ profile }: Props) {
           </Select>
         </Field>
         <Field
-          id="baseCurrency"
+          id={fid("baseCurrency")}
           label={t("baseCurrency")}
           hint={t("baseCurrencyHint")}
           error={fieldError("baseCurrency")}
         >
           <Select
-            id="baseCurrency"
+            id={fid("baseCurrency")}
             name="baseCurrency"
             defaultValue={profile.baseCurrency}
           >
