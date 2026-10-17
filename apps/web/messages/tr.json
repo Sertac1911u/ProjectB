@@ -12,9 +12,7 @@
   "Landing": {
     "title": "Paranın nereye gittiğini bil.",
     "subtitle": "Hesaplarını, kredi kartı taksitlerini ve aylık bütçeni tek yerden takip et.",
-    "openPreview": "Paneli önizle",
     "signIn": "Giriş yap",
-    "signInSoon": "Giriş ve kayıt bir sonraki aşamada geliyor.",
     "features": {
       "accounts": {
         "title": "Tüm hesaplar tek yerde",
@@ -32,7 +30,9 @@
         "title": "Çoklu para birimi",
         "description": "TL, dolar, euro ve sterlin hesapları güncel kurlarla tek toplamda."
       }
-    }
+    },
+    "getStarted": "Ücretsiz başla",
+    "openDashboard": "Panele git"
   },
   "Nav": {
     "dashboard": "Panel",
@@ -51,11 +51,92 @@
     "income": "Bu ay gelir",
     "expense": "Bu ay gider",
     "emptyTitle": "Henüz veri yok",
-    "emptyDescription": "Hesaplar ve işlemler eklendiğinde özetin burada görünecek."
+    "emptyDescription": "Hesaplar ve işlemler eklendiğinde özetin burada görünecek.",
+    "greeting": "Merhaba, {name}",
+    "greetingNoName": "Merhaba"
   },
   "NotFound": {
     "title": "Sayfa bulunamadı",
     "description": "Aradığın sayfa taşınmış ya da hiç var olmamış olabilir.",
     "back": "Ana sayfaya dön"
+  },
+  "Auth": {
+    "email": "E-posta",
+    "password": "Şifre",
+    "newPassword": "Yeni şifre",
+    "confirmPassword": "Yeni şifre (tekrar)",
+    "passwordHint": "En az 8 karakter.",
+    "login": {
+      "title": "Giriş yap",
+      "description": "Hesabına giriş yap.",
+      "submit": "Giriş yap",
+      "forgot": "Şifreni mi unuttun?",
+      "noAccount": "Hesabın yok mu?",
+      "signUpLink": "Kayıt ol"
+    },
+    "signup": {
+      "title": "Hesap oluştur",
+      "description": "Birkaç saniyede ücretsiz hesabını oluştur.",
+      "submit": "Kayıt ol",
+      "haveAccount": "Zaten hesabın var mı?",
+      "loginLink": "Giriş yap",
+      "checkEmailTitle": "E-postanı kontrol et",
+      "checkEmail": "{email} adresine bir doğrulama bağlantısı gönderdik. Bağlantıya tıklayınca hesabın açılacak."
+    },
+    "forgot": {
+      "title": "Şifreni sıfırla",
+      "description": "E-posta adresini yaz, sana bir sıfırlama bağlantısı gönderelim.",
+      "submit": "Bağlantı gönder",
+      "back": "Girişe dön",
+      "sent": "Bu adrese kayıtlı bir hesap varsa sıfırlama bağlantısı gönderdik. Gelen kutunu kontrol et."
+    },
+    "reset": {
+      "title": "Yeni şifre belirle",
+      "description": "Hesabın için yeni bir şifre seç.",
+      "submit": "Şifreyi kaydet",
+      "done": "Şifren güncellendi.",
+      "continue": "Panele git"
+    },
+    "linkError": "Bağlantı geçersiz ya da süresi dolmuş. Lütfen tekrar dene.",
+    "signOut": "Çıkış yap"
+  },
+  "Errors": {
+    "invalidEmail": "Geçerli bir e-posta adresi gir.",
+    "passwordTooShort": "Şifre en az 8 karakter olmalı.",
+    "passwordTooLong": "Şifre en fazla 72 karakter olabilir.",
+    "passwordsDoNotMatch": "Şifreler eşleşmiyor.",
+    "displayNameTooLong": "İsim en fazla 60 karakter olabilir.",
+    "invalidLocale": "Geçersiz dil.",
+    "invalidCurrency": "Geçersiz para birimi.",
+    "invalidCredentials": "E-posta veya şifre hatalı.",
+    "emailNotConfirmed": "E-posta adresin henüz doğrulanmamış. Gelen kutundaki bağlantıya tıkla.",
+    "weakPassword": "Bu şifre çok zayıf, daha güçlü bir şifre seç.",
+    "samePassword": "Yeni şifre eskisinden farklı olmalı.",
+    "rateLimited": "Çok fazla deneme yaptın. Biraz bekleyip tekrar dene.",
+    "unknown": "Bir şeyler ters gitti. Lütfen tekrar dene."
+  },
+  "Settings": {
+    "profileTitle": "Profil",
+    "profileDescription": "Adın, arayüz dilin ve raporlarda kullanılacak ana para birimin.",
+    "displayName": "Görünen ad",
+    "displayNamePlaceholder": "Örn. Ayşe",
+    "language": "Dil",
+    "baseCurrency": "Ana para birimi",
+    "baseCurrencyHint": "Farklı para birimindeki hesaplar raporlarda bu birime çevrilir.",
+    "save": "Kaydet",
+    "saved": "Kaydedildi.",
+    "securityTitle": "Güvenlik",
+    "securityDescription": "Giriş yaptığın e-posta: {email}",
+    "changePassword": "Şifreyi değiştir",
+    "languages": {
+      "tr": "Türkçe",
+      "en": "English"
+    },
+    "currencies": {
+      "TRY": "Türk lirası (TRY)",
+      "USD": "ABD doları (USD)",
+      "EUR": "Euro (EUR)",
+      "GBP": "İngiliz sterlini (GBP)"
+    }
   }
 }

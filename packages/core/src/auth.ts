@@ -1,0 +1,71 @@
+import { z } from "zod";
+import { CURRENCIES, type CurrencyCode } from "./currency";
+import { LOCALES } from "./locale";
+
+/**
+ * Validation messages are translation keys (see the `Errors` namespace in the
+ * web app's messages) so every client can show them in the user's language.
+ */
+export type ValidationError =
+  | "invalidEmail"
+  | "passwordTooShort"
+  | "passwordTooLong"
+  | "passwordsDoNotMatch"
+  | "displayNameTooLong"
+  | "invalidLocale"
+  | "invalidCurrency";
+
+const error = (message: ValidationError) => ({ message });
+
+export const PASSWORD_MIN_LENGTH = 8;
+
+const email = z
+  .string()
+  .trim()
+  .toLowerCase()
+  .pipe(z.email(error("invalidEmail")));
+const password = z
+  .string()
+  .min(PASSWORD_MIN_LENGTH, error("passwordTooShort"))
+  .max(72, error("passwordTooLong"));
+
+export const signInSchema = z.object({
+  email,
+  password: z.string().min(1, error("passwordTooShort")),
+});
+
+export const signUpSchema = z.object({ email, password });
+
+export const forgotPasswordSchema = z.object({ email });
+
+export const updatePasswordSchema = z
+  .object({ password, confirmPassword: z.string() })
+  .refine((data) => data.password === data.confirmPassword, {
+    ...error("passwordsDoNotMatch"),
+    path: ["confirmPassword"],
+  });
+
+export const profileSchema = z.object({
+  displayName: z
+    .string()
+    .trim()
+    .max(60, error("displayNameTooLong"))
+    .transform((value) => value || null),
+  locale: z.enum(LOCALES, error("invalidLocale")),
+  baseCurrency: z.enum(
+    Object.keys(CURRENCIES) as [CurrencyCode, ...CurrencyCode[]],
+    error("invalidCurrency"),
+  ),
+});
+
+export type FieldErrors = Partial<Record<string, ValidationError>>;
+
+/** Flattens a Zod error into the first message per field. */
+export function fieldErrors(error: z.ZodError): FieldErrors {
+  const result: FieldErrors = {};
+  for (const issue of error.issues) {
+    const field = String(issue.path[0] ?? "form");
+    result[field] ??= issue.message as ValidationError;
+  }
+  return result;
+}

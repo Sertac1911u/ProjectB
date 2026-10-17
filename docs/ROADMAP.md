@@ -36,7 +36,7 @@ CSV dışa aktarma, fiş fotoğrafı, gelecek nakit akışı tahmini.
 ## Aşamalar
 
 - [x] **0. Altyapı:** monorepo, Next.js, Tailwind, çoklu dil, Drizzle, CI.
-- [ ] **1. Supabase ve giriş:** kayıt, giriş, şifre sıfırlama, profil (dil, ana para birimi).
+- [x] **1. Supabase ve giriş:** kayıt, giriş, şifre sıfırlama, profil (dil, ana para birimi).
 - [ ] **2. Hesaplar, işlemler, kategoriler:** etiketler, arama ve filtre dahil.
 - [ ] **3. Kredi kartı:** ekstre ve taksitler.
 - [ ] **4. Döviz kurları ve çevrim.**
@@ -50,5 +50,8 @@ CSV dışa aktarma, fiş fotoğrafı, gelecek nakit akışı tahmini.
   (12,50 TL → `1250`). Ondalık sayı kullanılmaz. Bkz. `packages/core/src/money.ts`.
 - **Veri erişimi:** Her tabloda Supabase Row Level Security açık; kullanıcı yalnızca
   kendi satırlarını görür. Tablolar ileride ortak bütçeye geçişe uygun tasarlanır.
+- **Veritabanı şeması** `packages/db/src/schema` altında Drizzle ile tanımlı; migration'lar
+  `pnpm db:generate` ile üretilip `pnpm db:migrate` ile uygulanır. Web sunucusu sorguları
+  `asUser()` ile kullanıcının yetkisiyle çalıştırır, böylece RLS kuralları web ve mobilde aynıdır.
 - **Ortak kod** `packages/` altında: web ve mobil aynı tipleri, doğrulamayı ve
   hesaplama mantığını kullanır.
