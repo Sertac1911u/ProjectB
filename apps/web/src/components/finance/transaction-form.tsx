@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  convert,
   type CurrencyCode,
   formatAmountInput,
   formatMoney,
@@ -9,11 +10,12 @@ import {
   parseMoney,
   type Locale,
   parseTags,
+  type Rates,
   TRANSACTION_KINDS,
   type TransactionKind,
 } from "@projectb/core";
 import { useLocale, useTranslations } from "next-intl";
-import { useActionState, useState } from "react";
+import { useActionState, useRef, useState } from "react";
 import { useFormErrors } from "@/components/auth/use-form-errors";
 import { Alert } from "@/components/ui/alert";
 import { Field } from "@/components/ui/field";
@@ -48,6 +50,8 @@ export type TransactionDefaults = {
 
 type Props = {
   transactionId?: string;
+  /** Latest exchange rates, to suggest the received amount of transfers. */
+  rates: Rates;
   defaults: TransactionDefaults;
   accounts: AccountOption[];
   categories: CategoryOption[];
@@ -86,6 +90,7 @@ function TransactionFields({
   accounts,
   categories,
   tags,
+  rates,
   isNew,
 }: Omit<Props, "transactionId"> & {
   state: FormState;
@@ -96,6 +101,7 @@ function TransactionFields({
   const t = useTranslations("Transactions");
   const tCategories = useTranslations("Categories");
   const tCommon = useTranslations("Common");
+  const tRates = useTranslations("Rates");
   const { formError, fieldError } = useFormErrors(state);
 
   const currencyOf = (id: string | null | undefined) =>
@@ -159,6 +165,14 @@ function TransactionFields({
         locale,
       ),
     });
+  })();
+  const toAmountRef = useRef<HTMLInputElement>(null);
+  const estimate = (() => {
+    if (!showToAmount) return null;
+    const amount = parseMoney(amountText, currency, locale);
+    if (!amount || amount <= 0) return null;
+    const converted = convert(amount, currency, toCurrency, rates);
+    return converted && converted > 0 ? converted : null;
   })();
   const toAmountDefault =
     v?.toAmount ??
@@ -308,8 +322,31 @@ function TransactionFields({
               autoComplete="off"
               placeholder="0,00"
               defaultValue={toAmountDefault}
+              ref={toAmountRef}
               aria-invalid={Boolean(fieldError("toAmount"))}
             />
+            {estimate !== null && (
+              <p className="flex flex-wrap items-center gap-x-2 text-xs text-muted-foreground">
+                {tRates("estimate", {
+                  amount: formatMoney(estimate, toCurrency, locale),
+                })}
+                <button
+                  type="button"
+                  className="font-medium text-primary hover:underline"
+                  onClick={() => {
+                    if (toAmountRef.current) {
+                      toAmountRef.current.value = formatAmountInput(
+                        estimate,
+                        toCurrency,
+                        locale,
+                      );
+                    }
+                  }}
+                >
+                  {tRates("useEstimate")}
+                </button>
+              </p>
+            )}
           </Field>
         )}
       </div>

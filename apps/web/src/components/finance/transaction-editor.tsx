@@ -5,6 +5,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Link } from "@/i18n/navigation";
 import { getAccounts, getCategories, getTags } from "@/lib/data/finance";
+import { getRates } from "@/lib/data/rates";
 import { type TransactionDefaults, TransactionForm } from "./transaction-form";
 
 /** Loads the form's options; shared by the new and edit pages. */
@@ -17,13 +18,15 @@ export async function TransactionEditor({
     accountId?: string | null;
   };
 }) {
-  const [accounts, categories, tags, t, tAccounts] = await Promise.all([
-    getAccounts(),
-    getCategories(),
-    getTags(),
-    getTranslations("Transactions"),
-    getTranslations("Accounts"),
-  ]);
+  const [accounts, categories, tags, rateInfo, t, tAccounts] =
+    await Promise.all([
+      getAccounts(),
+      getCategories(),
+      getTags(),
+      getRates(),
+      getTranslations("Transactions"),
+      getTranslations("Accounts"),
+    ]);
   // Archived accounts stay selectable on transactions that already use them.
   const used = [defaults.accountId, defaults.toAccountId];
   const options = accounts
@@ -66,6 +69,7 @@ export async function TransactionEditor({
         accounts={options}
         categories={categories}
         tags={tags.map((tag) => tag.name)}
+        rates={rateInfo.rates}
       />
     </Card>
   );

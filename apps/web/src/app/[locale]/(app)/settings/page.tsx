@@ -1,7 +1,13 @@
-import { isCurrencyCode, isLocale } from "@projectb/core";
+import {
+  CURRENCIES,
+  type CurrencyCode,
+  isCurrencyCode,
+  isLocale,
+} from "@projectb/core";
 import { LogOut, Tags } from "lucide-react";
 import { getLocale, getTranslations } from "next-intl/server";
 import { Suspense } from "react";
+import { RatesNote } from "@/components/finance/rates-note";
 import { PageHeader } from "@/components/page-header";
 import { ProfileForm } from "@/components/settings/profile-form";
 import { buttonVariants } from "@/components/ui/button";
@@ -15,6 +21,7 @@ import {
 import { Link } from "@/i18n/navigation";
 import { signOut } from "@/lib/actions/auth";
 import { getProfile } from "@/lib/auth";
+import { getRates } from "@/lib/data/rates";
 
 export default async function SettingsPage() {
   const t = await getTranslations("Settings");
@@ -54,6 +61,11 @@ export default async function SettingsPage() {
             </Link>
           </CardContent>
         </Card>
+        <Suspense
+          fallback={<div className="h-40 animate-pulse rounded-xl bg-muted" />}
+        >
+          <RatesCard />
+        </Suspense>
         <Card>
           <CardHeader>
             <CardTitle>{t("securityTitle")}</CardTitle>
@@ -115,5 +127,46 @@ async function SignOutButton() {
         {t("signOut")}
       </button>
     </form>
+  );
+}
+
+async function RatesCard() {
+  const [info, locale, t] = await Promise.all([
+    getRates(),
+    getLocale(),
+    getTranslations("Rates"),
+  ]);
+  const currencies = (Object.keys(CURRENCIES) as CurrencyCode[]).filter(
+    (c) => c !== "TRY",
+  );
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>{t("title")}</CardTitle>
+        <CardDescription>{t("description")}</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <dl className="grid grid-cols-3 gap-3">
+          {currencies.map((currency) => (
+            <div key={currency} className="rounded-lg bg-muted/60 p-3">
+              <dt className="text-xs text-muted-foreground">
+                {t("unit", { currency })}
+              </dt>
+              <dd className="font-medium tabular-nums">
+                {info.rates[currency]
+                  ? new Intl.NumberFormat(locale, {
+                      style: "currency",
+                      currency: "TRY",
+                      currencyDisplay: "narrowSymbol",
+                      maximumFractionDigits: 4,
+                    }).format(info.rates[currency])
+                  : "—"}
+              </dd>
+            </div>
+          ))}
+        </dl>
+        <RatesNote info={info} />
+      </CardContent>
+    </Card>
   );
 }

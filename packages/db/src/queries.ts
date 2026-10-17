@@ -1,5 +1,6 @@
 import { sql } from "drizzle-orm";
-import type { Tx } from "./index";
+import type { Db, Tx } from "./index";
+import { exchangeRates } from "./schema";
 
 /**
  * Makes the transaction's tags exactly `names` in one statement: creates
@@ -39,4 +40,48 @@ export async function setTransactionTags(
     select ${transactionId}::uuid, id from created
     on conflict do nothing
   `);
+}
+
+/**
+ * The latest known rate of each currency on or before `day` (TRY per unit).
+ * Rates are shared data, so this runs with the server's own connection.
+ */
+export async function ratesOn(db: Db, day: string) {
+  const rows = await db.execute<{
+    currency: string;
+    rate_on: string;
+    try_per_unit: string;
+  }>(sql`
+    select distinct on (currency) currency, rate_on::text, try_per_unit::text
+    from public.exchange_rates
+    where rate_on <= ${day}
+    order by currency, rate_on desc
+  `);
+  return rows.map((row) => ({
+    currency: row.currency,
+    rateOn: row.rate_on,
+    tryPerUnit: Number(row.try_per_unit),
+  }));
+}
+
+/** Stores one day's rates; a day that is already stored is left as is. */
+export async function saveRates(
+  db: Db,
+  rateOn: string,
+  rates: Record<string, number>,
+) {
+  const entries = Object.entries(rates).filter(
+    ([currency]) => currency !== "TRY",
+  );
+  if (entries.length === 0) return;
+  await db
+    .insert(exchangeRates)
+    .values(
+      entries.map(([currency, tryPerUnit]) => ({
+        rateOn,
+        currency,
+        tryPerUnit,
+      })),
+    )
+    .onConflictDoNothing();
 }

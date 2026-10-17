@@ -5,4 +5,5 @@ export * from "./finance";
 export * from "./forms";
 export * from "./locale";
 export * from "./money";
+export * from "./rates";
 export * from "./validation";
