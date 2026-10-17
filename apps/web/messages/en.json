@@ -1,0 +1,61 @@
+{
+  "Metadata": {
+    "title": "ProjectB · Personal finance and budgeting",
+    "description": "Track your accounts, credit card instalments and monthly budget in one place."
+  },
+  "Common": {
+    "appName": "ProjectB",
+    "language": "Language",
+    "comingSoon": "Coming soon",
+    "phase": "Phase {phase}"
+  },
+  "Landing": {
+    "title": "Know where your money goes.",
+    "subtitle": "Track your accounts, credit card instalments and monthly budget in one place.",
+    "openPreview": "Preview the dashboard",
+    "signIn": "Sign in",
+    "signInSoon": "Sign in and sign up are coming in the next phase.",
+    "features": {
+      "accounts": {
+        "title": "All accounts in one place",
+        "description": "See cash, bank, credit card and savings balances side by side."
+      },
+      "cards": {
+        "title": "Instalments and statements",
+        "description": "Instalment purchases are split across months; statement and due dates are tracked."
+      },
+      "budgets": {
+        "title": "Budgets by category",
+        "description": "Set a monthly limit per category and see what is left at a glance."
+      },
+      "currencies": {
+        "title": "Multiple currencies",
+        "description": "Lira, dollar, euro and pound accounts combined at current exchange rates."
+      }
+    }
+  },
+  "Nav": {
+    "dashboard": "Dashboard",
+    "accounts": "Accounts",
+    "transactions": "Transactions",
+    "budgets": "Budgets",
+    "goals": "Goals",
+    "reports": "Reports",
+    "settings": "Settings"
+  },
+  "Placeholder": {
+    "description": "This section arrives in phase {phase}."
+  },
+  "Dashboard": {
+    "netWorth": "Net worth",
+    "income": "Income this month",
+    "expense": "Spending this month",
+    "emptyTitle": "No data yet",
+    "emptyDescription": "Your summary will appear here once you add accounts and transactions."
+  },
+  "NotFound": {
+    "title": "Page not found",
+    "description": "The page you are looking for may have moved or never existed.",
+    "back": "Back to home"
+  }
+}

@@ -1,0 +1,61 @@
+{
+  "Metadata": {
+    "title": "ProjectB · Kişisel finans ve bütçe",
+    "description": "Hesaplarını, kredi kartı taksitlerini ve aylık bütçeni tek yerden takip et."
+  },
+  "Common": {
+    "appName": "ProjectB",
+    "language": "Dil",
+    "comingSoon": "Yakında",
+    "phase": "Aşama {phase}"
+  },
+  "Landing": {
+    "title": "Paranın nereye gittiğini bil.",
+    "subtitle": "Hesaplarını, kredi kartı taksitlerini ve aylık bütçeni tek yerden takip et.",
+    "openPreview": "Paneli önizle",
+    "signIn": "Giriş yap",
+    "signInSoon": "Giriş ve kayıt bir sonraki aşamada geliyor.",
+    "features": {
+      "accounts": {
+        "title": "Tüm hesaplar tek yerde",
+        "description": "Nakit, banka, kredi kartı ve birikim hesaplarının bakiyelerini birlikte gör."
+      },
+      "cards": {
+        "title": "Taksit ve ekstre takibi",
+        "description": "Taksitli alışverişler aylara bölünür, ekstre ve son ödeme günleri hatırlanır."
+      },
+      "budgets": {
+        "title": "Kategori bazlı bütçe",
+        "description": "Her kategoriye aylık limit koy, ne kadar kaldığını anında gör."
+      },
+      "currencies": {
+        "title": "Çoklu para birimi",
+        "description": "TL, dolar, euro ve sterlin hesapları güncel kurlarla tek toplamda."
+      }
+    }
+  },
+  "Nav": {
+    "dashboard": "Panel",
+    "accounts": "Hesaplar",
+    "transactions": "İşlemler",
+    "budgets": "Bütçeler",
+    "goals": "Hedefler",
+    "reports": "Raporlar",
+    "settings": "Ayarlar"
+  },
+  "Placeholder": {
+    "description": "Bu bölüm {phase}. aşamada eklenecek."
+  },
+  "Dashboard": {
+    "netWorth": "Net varlık",
+    "income": "Bu ay gelir",
+    "expense": "Bu ay gider",
+    "emptyTitle": "Henüz veri yok",
+    "emptyDescription": "Hesaplar ve işlemler eklendiğinde özetin burada görünecek."
+  },
+  "NotFound": {
+    "title": "Sayfa bulunamadı",
+    "description": "Aradığın sayfa taşınmış ya da hiç var olmamış olabilir.",
+    "back": "Ana sayfaya dön"
+  }
+}
