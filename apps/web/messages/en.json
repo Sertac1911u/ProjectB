@@ -116,7 +116,8 @@
       "continue": "Open dashboard"
     },
     "linkError": "This link is invalid or has expired. Please try again.",
-    "signOut": "Sign out"
+    "signOut": "Sign out",
+    "accountDeleted": "Your account and all your data have been deleted."
   },
   "Errors": {
     "invalidEmail": "Enter a valid email address.",
@@ -162,7 +163,8 @@
     "unknown": "Something went wrong. Please try again.",
     "categoryRequired": "Choose a category.",
     "invalidUiMode": "Invalid interface.",
-    "invalidQuantity": "Write the quantity as 12.5."
+    "invalidQuantity": "Write the quantity as 12.5.",
+    "wrongPassword": "Wrong password."
   },
   "Settings": {
     "profileTitle": "Profile",
@@ -194,7 +196,17 @@
     "uiModes": {
       "simple": "Simple",
       "detailed": "Detailed"
-    }
+    },
+    "dangerTitle": "Reset data or delete account",
+    "resetTitle": "Reset data",
+    "resetText": "All your accounts, transactions, recurring transactions, budgets, goals and envelopes are deleted and categories go back to the defaults. Your sign-in and settings (name, language, main currency) stay. This cannot be undone.",
+    "deleteTitle": "Delete account",
+    "deleteText": "Your account and all your data are deleted for good. You can sign up again with the same email later. This cannot be undone.",
+    "confirmPassword": "Enter your password to confirm",
+    "resetButton": "Reset all data",
+    "deleteButton": "Delete my account for good",
+    "confirmReset": "All your data will be deleted and the app starts over. Are you sure?",
+    "confirmDeleteAccount": "Your account and all your data will be deleted for good. Are you sure?"
   },
   "AccountTypes": {
     "cash": "Cash",

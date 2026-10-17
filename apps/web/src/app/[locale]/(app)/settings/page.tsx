@@ -9,6 +9,7 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { Suspense } from "react";
 import { RatesNote } from "@/components/finance/rates-note";
 import { PageHeader } from "@/components/page-header";
+import { DangerZone } from "@/components/settings/danger-zone";
 import { ProfileForm } from "@/components/settings/profile-form";
 import { uiModeOf } from "@/lib/ui-mode";
 import { buttonVariants } from "@/components/ui/button";
@@ -84,6 +85,14 @@ export default async function SettingsPage() {
               {t("changePassword")}
             </Link>
             <SignOutButton />
+          </CardContent>
+        </Card>
+        <Card className="border-destructive/30">
+          <CardHeader>
+            <CardTitle>{t("dangerTitle")}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <DangerZone />
           </CardContent>
         </Card>
       </div>
