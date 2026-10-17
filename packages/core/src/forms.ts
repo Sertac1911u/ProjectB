@@ -226,6 +226,44 @@ export const recurringSchema = z
     return { ...rest, ...end };
   });
 
+const month = z.iso
+  .date(error("invalidDate"))
+  .refine((v) => v.endsWith("-01"), error("invalidDate"));
+
+export const budgetSchema = z.object({
+  categoryId: z.uuid(error("categoryRequired")),
+  amount: z.string().trim().min(1, error("amountRequired")),
+  /** First day of the month the limit applies from. */
+  month,
+});
+
+export const goalSchema = z.object({
+  name: name(60),
+  targetAmount: z.string().trim().min(1, error("amountRequired")),
+  currency: z.enum(currencyCodes, error("invalidCurrency")),
+  targetDate: z
+    .string()
+    .optional()
+    .transform((v) => v || null)
+    .pipe(z.iso.date(error("invalidDate")).nullable()),
+  /** Progress follows this account's balance instead of contributions. */
+  accountId: optionalId("invalidAccount"),
+});
+
+export const CONTRIBUTION_DIRECTIONS = ["deposit", "withdraw"] as const;
+
+export const contributionSchema = z.object({
+  direction: z.enum(CONTRIBUTION_DIRECTIONS, error("invalidKind")),
+  amount: z.string().trim().min(1, error("amountRequired")),
+  occurredOn: z.iso.date(error("invalidDate")),
+  note: z
+    .string()
+    .trim()
+    .max(200, error("noteTooLong"))
+    .optional()
+    .transform((v) => v || null),
+});
+
 /**
  * Parses an amount field typed in the user's notation. Returns the amount in
  * minor units, or the error to show next to the field.

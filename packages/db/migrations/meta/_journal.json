@@ -71,6 +71,20 @@
       "when": 1792255110894,
       "tag": "0009_recurring_functions",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1792256650694,
+      "tag": "0010_budgets_goals",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1792256659688,
+      "tag": "0011_budgets_goals_access",
+      "breakpoints": true
     }
   ]
 }

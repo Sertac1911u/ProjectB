@@ -9,6 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
 import { Link } from "@/i18n/navigation";
 import { categoryName } from "@/lib/categories";
 import { type CardAccount, getCardOverview } from "@/lib/data/cards";
@@ -67,22 +68,11 @@ export async function CardOverview({
           <Card className="flex flex-col gap-2 p-5">
             <p className="text-sm text-muted-foreground">{t("available")}</p>
             {money(card.creditLimit - used, "text-2xl font-semibold")}
-            <div
-              className="h-2 overflow-hidden rounded-full bg-muted"
-              role="meter"
-              aria-valuemin={0}
-              aria-valuemax={100}
-              aria-valuenow={Math.round(usage ?? 0)}
-              aria-label={t("limit")}
-            >
-              <div
-                className={cn(
-                  "h-full rounded-full bg-primary",
-                  (usage ?? 0) > 90 && "bg-destructive",
-                )}
-                style={{ width: `${usage}%` }}
-              />
-            </div>
+            <Progress
+              value={usage ?? 0}
+              label={t("limit")}
+              tone={(usage ?? 0) > 90 ? "danger" : "default"}
+            />
             <p className="text-xs text-muted-foreground">
               {t("limit")}: {money(card.creditLimit)}
             </p>

@@ -1,16 +1,24 @@
-import { DEFAULT_CURRENCY, isCurrencyCode, sumIn } from "@projectb/core";
+import {
+  DEFAULT_CURRENCY,
+  isCurrencyCode,
+  monthOf,
+  sumIn,
+} from "@projectb/core";
 import { Plus, Wallet } from "lucide-react";
 import { connection } from "next/server";
 import { getLocale, getTranslations } from "next-intl/server";
 import { Suspense } from "react";
 import { AccountIcon } from "@/components/finance/account-icon";
 import { Amount } from "@/components/finance/amount";
+import { GoalSummary } from "@/components/finance/goal-card";
 import { RatesNote } from "@/components/finance/rates-note";
 import { TransactionList } from "@/components/finance/transaction-list";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardDescription, CardHeader } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
 import { Link } from "@/i18n/navigation";
 import { getProfile } from "@/lib/auth";
+import { categoryPath } from "@/lib/categories";
 import {
   getAccounts,
   getCategories,
@@ -18,6 +26,7 @@ import {
   listTransactions,
 } from "@/lib/data/finance";
 import { getDueStatements } from "@/lib/data/cards";
+import { getBudgetOverview, getGoals } from "@/lib/data/planning";
 import { getRates } from "@/lib/data/rates";
 import { getRecurringRules } from "@/lib/data/recurring";
 import { daysBetween, formatDay, monthRange, today } from "@/lib/dates";
@@ -42,7 +51,13 @@ export default function DashboardPage() {
         <DuePayments />
       </Suspense>
       <Suspense fallback={null}>
+        <BudgetAlerts />
+      </Suspense>
+      <Suspense fallback={null}>
         <UpcomingRecurring />
+      </Suspense>
+      <Suspense fallback={null}>
+        <Goals />
       </Suspense>
       <Suspense
         fallback={
@@ -287,6 +302,118 @@ async function UpcomingRecurring() {
           </Link>
         ))}
       </Card>
+    </section>
+  );
+}
+
+/** Budgets of this month that are close to or over their limit. */
+async function BudgetAlerts() {
+  await connection();
+  const month = monthOf(today());
+  const [{ lines }, categories, locale, t, tCategories] = await Promise.all([
+    getBudgetOverview(month),
+    getCategories(),
+    getLocale(),
+    getTranslations("Budgets"),
+    getTranslations("Categories"),
+  ]);
+  const alerts = lines
+    .filter((line) => line.status !== "ok")
+    .sort((a, b) => b.spent / b.amount - a.spent / a.amount);
+  if (alerts.length === 0) return null;
+  return (
+    <section className="mt-8">
+      <div className="mb-3 flex items-center justify-between">
+        <h2 className="text-lg font-semibold">{t("alerts")}</h2>
+        <Link
+          href="/budgets"
+          className="text-sm font-medium text-primary hover:underline"
+        >
+          {t("title")}
+        </Link>
+      </div>
+      <Card className="divide-y">
+        {alerts.map((line) => {
+          const label = categoryPath(line.category, categories, tCategories);
+          return (
+            <Link
+              key={line.category.id}
+              href={`/budgets/${line.category.id}`}
+              className="flex flex-col gap-2 px-5 py-3 first:rounded-t-xl last:rounded-b-xl hover:bg-muted/60"
+            >
+              <div className="flex items-baseline justify-between gap-3">
+                <p className="min-w-0 truncate font-medium">{label}</p>
+                <p
+                  className={cn(
+                    "text-sm whitespace-nowrap",
+                    line.status === "over"
+                      ? "text-destructive"
+                      : "text-warning-foreground",
+                  )}
+                >
+                  {line.status === "over"
+                    ? t("statusOver")
+                    : t("statusWarning")}
+                </p>
+              </div>
+              <Progress
+                value={(line.spent / line.amount) * 100}
+                label={label}
+                tone={line.status === "over" ? "danger" : "warning"}
+              />
+              <p className="text-xs text-muted-foreground tabular-nums">
+                <Amount
+                  value={line.spent}
+                  currency={line.currency}
+                  locale={locale}
+                />
+                {" / "}
+                <Amount
+                  value={line.amount}
+                  currency={line.currency}
+                  locale={locale}
+                />
+              </p>
+            </Link>
+          );
+        })}
+      </Card>
+    </section>
+  );
+}
+
+/** Active savings goals that are not reached yet. */
+async function Goals() {
+  await connection();
+  const [goals, t] = await Promise.all([
+    getGoals(),
+    getTranslations("Dashboard"),
+  ]);
+  const open = goals.filter((g) => !g.archivedAt && !g.progress.reached);
+  if (open.length === 0) return null;
+  return (
+    <section className="mt-8">
+      <div className="mb-3 flex items-center justify-between">
+        <h2 className="text-lg font-semibold">{t("goals")}</h2>
+        <Link
+          href="/goals"
+          className="text-sm font-medium text-primary hover:underline"
+        >
+          {t("seeAll")}
+        </Link>
+      </div>
+      <div className="grid gap-4 sm:grid-cols-2">
+        {open.slice(0, 4).map((goal) => (
+          <Link
+            key={goal.id}
+            href={`/goals/${goal.id}`}
+            className="block rounded-xl border bg-card p-5 transition-colors hover:bg-muted/60"
+          >
+            <p className="mb-3 truncate font-medium">{goal.name}</p>
+            <GoalSummary goal={goal} />
+          </Link>
+        ))}
+      </div>
     </section>
   );
 }

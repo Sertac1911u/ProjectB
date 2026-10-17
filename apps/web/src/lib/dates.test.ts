@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { daysBetween, formatDay, monthRange, today } from "./dates";
+import {
+  daysBetween,
+  formatDay,
+  formatMonth,
+  monthRange,
+  parseMonthParam,
+  today,
+} from "./dates";
 
 describe("dates", () => {
   it("uses the given time zone for today", () => {
@@ -31,5 +38,23 @@ describe("daysBetween", () => {
     expect(daysBetween("2026-10-17", "2026-10-25")).toBe(8);
     expect(daysBetween("2026-10-25", "2026-10-17")).toBe(-8);
     expect(daysBetween("2026-02-27", "2026-03-01")).toBe(2);
+  });
+});
+
+describe("months", () => {
+  it("formats and parses months", () => {
+    expect(formatMonth("2026-10-17", "tr")).toBe("Ekim 2026");
+    expect(formatMonth("2026-01-01", "en")).toBe("January 2026");
+    expect(parseMonthParam("2026-10")).toBe("2026-10-01");
+    expect(parseMonthParam("2026-10-01")).toBe("2026-10-01");
+    for (const bad of [
+      "2026-13",
+      "2026-10-17",
+      "abc",
+      undefined,
+      ["2026-10"],
+    ]) {
+      expect(parseMonthParam(bad)).toBeNull();
+    }
   });
 });

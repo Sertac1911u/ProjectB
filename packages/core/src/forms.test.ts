@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
   accountSchema,
+  budgetSchema,
+  contributionSchema,
+  goalSchema,
   parseAmount,
   parseTags,
   recurringSchema,
@@ -225,5 +228,82 @@ describe("recurringSchema", () => {
       toAccountId: account,
     });
     expect(fieldErrors(same.error!)).toEqual({ toAccountId: "sameAccount" });
+  });
+});
+
+describe("budgetSchema", () => {
+  it("needs a category and the first day of a month", () => {
+    expect(
+      budgetSchema.parse({
+        categoryId: account,
+        amount: "5.000",
+        month: "2026-10-01",
+      }),
+    ).toEqual({ categoryId: account, amount: "5.000", month: "2026-10-01" });
+    const result = budgetSchema.safeParse({
+      categoryId: "",
+      amount: "",
+      month: "2026-10-17",
+    });
+    expect(fieldErrors(result.error!)).toEqual({
+      categoryId: "categoryRequired",
+      amount: "amountRequired",
+      month: "invalidDate",
+    });
+  });
+});
+
+describe("goalSchema", () => {
+  it("makes the target date and account optional", () => {
+    expect(
+      goalSchema.parse({
+        name: " Tatil ",
+        targetAmount: "30.000",
+        currency: "TRY",
+        targetDate: "",
+        accountId: "",
+      }),
+    ).toEqual({
+      name: "Tatil",
+      targetAmount: "30.000",
+      currency: "TRY",
+      targetDate: null,
+      accountId: null,
+    });
+    const result = goalSchema.safeParse({
+      name: "",
+      targetAmount: "1",
+      currency: "XYZ",
+      targetDate: "31.12.2026",
+    });
+    expect(fieldErrors(result.error!)).toEqual({
+      name: "nameRequired",
+      currency: "invalidCurrency",
+      targetDate: "invalidDate",
+    });
+  });
+});
+
+describe("contributionSchema", () => {
+  it("accepts deposits and withdrawals", () => {
+    expect(
+      contributionSchema.parse({
+        direction: "withdraw",
+        amount: "500",
+        occurredOn: "2026-10-17",
+      }),
+    ).toEqual({
+      direction: "withdraw",
+      amount: "500",
+      occurredOn: "2026-10-17",
+      note: null,
+    });
+    expect(
+      contributionSchema.safeParse({
+        direction: "steal",
+        amount: "500",
+        occurredOn: "2026-10-17",
+      }).success,
+    ).toBe(false);
   });
 });

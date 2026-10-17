@@ -33,7 +33,8 @@ export type ValidationError =
   | "invalidFrequency"
   | "invalidInterval"
   | "invalidEndDate"
-  | "invalidOccurrences";
+  | "invalidOccurrences"
+  | "categoryRequired";
 
 export const error = (message: ValidationError) => ({ message });
 
