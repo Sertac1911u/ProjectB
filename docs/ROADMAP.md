@@ -30,8 +30,9 @@ Web ve mobil aynı Supabase veritabanını kullanır.
 
 ### Sonraya kalanlar
 
-Mobil uygulama, Google/Apple ile giriş, ortak bütçe, bildirimler, koyu tema,
-CSV dışa aktarma, fiş fotoğrafı, gelecek nakit akışı tahmini.
+Mobil uygulama (widget dahil), Google/Apple ile giriş, ortak bütçe, bildirimler, koyu tema,
+CSV/Excel içe ve dışa aktarma, fiş fotoğrafı, harcama anomalileri, ay sonu değerlendirmesi.
+Şimdilik yapılmayacaklar: kural motoru, yapay zekâ koçu, yalnızca yerel veri saklama.
 
 ### Yayına çıkmadan önce
 
@@ -49,6 +50,20 @@ CSV dışa aktarma, fiş fotoğrafı, gelecek nakit akışı tahmini.
 - [x] **5. Tekrarlayan işlemler.**
 - [x] **6. Bütçeler ve birikim hedefleri.**
 - [x] **7. Panel ve raporlar.**
+
+### İkinci sürüm: nakit akışına dayalı planlama
+
+Uygulamanın farkı geleceğe bakması: "bugünden maaşa kadar" ne olacağını gösterir.
+Basit ve detaylı görünüm vardır; basit görünüm sadece temel bölümleri gösterir.
+
+- [x] **8. Nakit akışı motoru:** maaşa kadar günlük güvenli harcama, en düşük bakiye,
+      ödeme takvimi ve nakit açığı uyarısı, "harcamadan önce dene", basit/detaylı görünüm.
+- [ ] **9. Sanal zarflar ve "Bunu alırsam?":** seyrek ödemeler için ayrılan para güvenli
+      harcamadan düşer; bir alışverişin hedeflere etkisi.
+- [ ] **10. Dayanıklılık göstergesi ve hedef tahmini:** gelir kesilirse kaç ay idare edilir;
+      hedeflere ulaşma tarihi ve senaryolar.
+- [ ] **11. Borç stratejisi ve gerçek net servet:** kredi hesapları, borç kapatma sıraları,
+      altın ve döviz varlıkları.
 
 ## Teknik kararlar
 
@@ -70,3 +85,7 @@ CSV dışa aktarma, fiş fotoğrafı, gelecek nakit akışı tahmini.
 - **Raporlar** seçilen dönemi tam aylar olarak alır; tek aylık dönemler günlük, daha uzunlar aylık
   gösterilir. Net varlık geçmişi hesapların açılış bakiyesi ve işlemlerinden hesaplanır, dövizler
   güncel kurla çevrilir. Grafikler harici kütüphane olmadan SVG ile çizilir.
+- **Nakit akışı tahmini** (`packages/core/src/cashflow.ts`) harcanabilir hesapların bakiyesinden
+  başlar; tekrarlayan işlemleri ve kart ekstrelerini (son ödeme gününde tamamı ödenir varsayımıyla)
+  günlere yerleştirir. Maaş günü, harcanabilir hesaba gelen en büyük düzenli gelirdir. Maaştan
+  önceki en düşük bakiye güvenli harcama tutarıdır.

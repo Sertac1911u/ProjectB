@@ -29,7 +29,7 @@ export function isConfiguredCard(
   );
 }
 
-const settingsOf = (card: CardAccount): CardSettings => ({
+export const settingsOf = (card: CardAccount): CardSettings => ({
   openingBalance: card.openingBalance,
   statementDay: card.statementDay,
   dueDay: card.dueDay,
@@ -89,28 +89,4 @@ export async function getCardOverview(
     latest,
     debt: debtOn(settings, transactions, card.id, today),
   };
-}
-
-/** The latest closed statement of each configured card that still has money due. */
-export async function getDueStatements(
-  accounts: AccountWithBalance[],
-  today: string,
-) {
-  const cards = accounts.filter((a) => !a.archivedAt).filter(isConfiguredCard);
-  const results = await Promise.all(
-    cards.map(async (card) => {
-      const transactions = await getCardTransactions(card.id);
-      const statement = buildStatement(
-        settingsOf(card),
-        transactions,
-        card.id,
-        lastStatementOn(today, card.statementDay),
-        today,
-      );
-      return { card, statement };
-    }),
-  );
-  return results
-    .filter(({ statement }) => statement.remaining > 0)
-    .sort((a, b) => a.statement.dueDate.localeCompare(b.statement.dueDate));
 }

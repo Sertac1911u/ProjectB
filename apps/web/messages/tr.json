@@ -43,6 +43,7 @@
   },
   "Nav": {
     "dashboard": "Panel",
+    "cashflow": "Nakit akışı",
     "accounts": "Hesaplar",
     "transactions": "İşlemler",
     "budgets": "Bütçeler",
@@ -158,7 +159,8 @@
     "invalidEndDate": "Bitiş tarihi başlangıçtan önce olamaz.",
     "invalidOccurrences": "1 ile 360 arasında bir sayı yaz.",
     "unknown": "Bir şeyler ters gitti. Lütfen tekrar dene.",
-    "categoryRequired": "Bir kategori seç."
+    "categoryRequired": "Bir kategori seç.",
+    "invalidUiMode": "Geçersiz görünüm."
   },
   "Settings": {
     "profileTitle": "Profil",
@@ -184,7 +186,13 @@
       "GBP": "İngiliz sterlini (GBP)"
     },
     "categoriesTitle": "Kategoriler ve etiketler",
-    "categoriesDescription": "Gelir ve gider kategorilerini, etiketleri düzenle."
+    "categoriesDescription": "Gelir ve gider kategorilerini, etiketleri düzenle.",
+    "uiMode": "Görünüm",
+    "uiModeHint": "Basit görünümde sadece temel bölümler görünür; verilerin silinmez.",
+    "uiModes": {
+      "simple": "Basit",
+      "detailed": "Detaylı"
+    }
   },
   "AccountTypes": {
     "cash": "Nakit",
@@ -223,7 +231,9 @@
     "minPaymentRateHint": "Bankanın ekstrede istediği asgari ödeme yüzdesi, genellikle 20 veya 40.",
     "dayOption": "Ayın {day}. günü",
     "chooseDay": "Gün seç",
-    "totalIn": "Toplam varlık ({currency})"
+    "totalIn": "Toplam varlık ({currency})",
+    "spendable": "Harcanabilir para",
+    "spendableHint": "Maaşa kadar güvenli harcama hesabına dahil edilir. Birikim hesaplarını genelde dışarıda bırakırsın."
   },
   "Transactions": {
     "new": "Yeni işlem",
@@ -522,5 +532,58 @@
     "share": "Pay",
     "amount": "Tutar",
     "seeTransactions": "İşlemleri gör"
+  },
+  "CashFlow": {
+    "title": "Nakit akışı",
+    "description": "Maaşa kadar ne kadar harcayabileceğini ve yaklaşan ödemelerden sonra paranın ne olacağını gör.",
+    "daysToPayday": "{days, plural, =1 {Maaşa 1 gün var} other {Maaşa # gün var}}",
+    "daysToMonthEnd": "{days, plural, =1 {Ay sonuna 1 gün var} other {Ay sonuna # gün var}}",
+    "perDay": "Günde {amount}",
+    "perDayHint": "güvenle harcayabilirsin",
+    "safeTotal": "Maaşa kadar toplam {amount}",
+    "safeTotalMonth": "Ay sonuna kadar toplam {amount}",
+    "shortfall": "Maaşa kadar {amount} eksik kalıyor",
+    "shortfallMonth": "Ay sonuna kadar {amount} eksik kalıyor",
+    "shortfallAt": "{date}: {label} sonrası bakiye {amount} olur.",
+    "lowest": "En düşük bakiye {date} tarihinde {amount}",
+    "available": "Şu an kullanılabilir: {amount}",
+    "noPayday": "Maaşını düzenli gelir olarak eklersen hesap maaş gününe göre yapılır.",
+    "addSalary": "Maaşını ekle",
+    "addPayment": "Düzenli ödeme ekle",
+    "noAccounts": "Harcanabilir para hesabı yok. Bir nakit veya banka hesabı ekle ya da bir hesabı harcanabilir yap.",
+    "details": "Ayrıntılar",
+    "upcoming": "Yaklaşan ödemeler",
+    "upcomingEmpty": "Önümüzdeki günlerde planlı bir ödeme yok.",
+    "calendar": "Ödeme takvimi",
+    "calendarHint": "Önümüzdeki {days} gündeki düzenli gelir ve ödemeler ile kart ödemeleri. Her satırda o işlemden sonraki tahmini bakiye görünür.",
+    "after": "Sonra {amount}",
+    "payday": "Maaş günü",
+    "cardPayment": "{card} kart ödemesi",
+    "overdue": "Gecikmiş",
+    "calculator": "Harcamadan önce dene",
+    "calculatorHint": "Bugün yapacağın bir harcamanın maaşa kadar olan duruma etkisini gör.",
+    "spendAmount": "Tutar ({currency})",
+    "impactFits": "Harcarsan günlük limitin {daily} olur, maaştan önceki bakiyen {balance} kalır.",
+    "impactFitsMonth": "Harcarsan günlük limitin {daily} olur, ay sonu bakiyen {balance} kalır.",
+    "impactShort": "Bu harcama maaşa kadar {amount} açık yaratır.",
+    "impactShortMonth": "Bu harcama ay sonuna kadar {amount} açık yaratır.",
+    "accounts": "Hesaba katılan hesaplar",
+    "accountsHint": "Sadece bu hesaplardaki para harcanabilir sayılır. Değiştirmek için hesabı düzenle.",
+    "notCounted": "Hesaba katılmayanlar",
+    "regular": "Düzenli gelir ve ödemeler",
+    "regularHint": "Maaş, kira, fatura ve abonelikler tahminin temelini oluşturur.",
+    "seeAll": "Tümünü gör",
+    "missingRates": "Bazı tutarların kuru bilinmediği için hesaba katılmadı.",
+    "howItWorks": "Planlı ödemeler düşüldükten sonra maaşa kadar göreceğin en düşük bakiye, güvenle harcayabileceğin tutardır. Planlamadığın harcamalar tahmin edilmez.",
+    "goToAccounts": "Hesaplara git"
+  },
+  "Welcome": {
+    "title": "Uygulamayı nasıl kullanmak istersin?",
+    "description": "İstediğin zaman Ayarlar'dan değiştirebilirsin; verilerin etkilenmez.",
+    "simple": "Basit",
+    "simpleText": "Harcayabileceğin tutar, yaklaşan ödemeler, işlemler ve hedefler. Gerisi gizli kalır.",
+    "detailed": "Detaylı",
+    "detailedText": "Bunlara ek olarak bütçeler, raporlar, tekrarlayan işlemler ve tüm ayrıntılar.",
+    "choose": "Bunu seç"
   }
 }

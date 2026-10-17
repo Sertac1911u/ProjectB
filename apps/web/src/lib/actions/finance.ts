@@ -51,7 +51,7 @@ async function saveAccountUnstamped(
       values: submitted,
     };
   }
-  const { name, type, currency, openingBalance, creditLimit, card } =
+  const { name, type, currency, openingBalance, creditLimit, card, spendable } =
     parsed.data;
   const opening = openingBalance.trim()
     ? parseAmount(openingBalance, currency, locale, {
@@ -93,6 +93,7 @@ async function saveAccountUnstamped(
         type,
         currency,
         openingBalance: opening.amount,
+        spendable,
         ...settings,
       });
       return;
@@ -114,6 +115,7 @@ async function saveAccountUnstamped(
         name,
         type,
         openingBalance: opening.amount,
+        spendable,
         ...settings,
         ...(used.length === 0 && { currency }),
       })

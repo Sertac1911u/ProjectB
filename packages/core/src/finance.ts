@@ -47,3 +47,12 @@ export const DEFAULT_CATEGORIES: Record<
 export function isAccountType(value: unknown): value is AccountType {
   return ACCOUNT_TYPES.includes(value as AccountType);
 }
+
+/** How much of the app is shown: the essentials, or every feature. */
+export const UI_MODES = ["simple", "detailed"] as const;
+export type UiMode = (typeof UI_MODES)[number];
+export const isUiMode = (value: unknown): value is UiMode =>
+  UI_MODES.includes(value as UiMode);
+
+/** Account types counted as money to spend by default. */
+export const SPENDABLE_BY_DEFAULT: readonly AccountType[] = ["cash", "bank"];

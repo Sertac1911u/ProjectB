@@ -3,6 +3,7 @@
 import {
   fieldErrors,
   isLocale,
+  isUiMode,
   type Locale,
   profileSchema,
 } from "@projectb/core";
@@ -50,4 +51,17 @@ export async function saveLocale(locale: string) {
   await asUser(getDb(), claims, (tx) =>
     tx.update(profiles).set({ locale }).where(eq(profiles.id, claims.sub)),
   );
+}
+
+/** Saves the answer to "how do you want to use the app?". */
+export async function chooseUiMode(locale: Locale, mode: string) {
+  const claims = await claimsOrSignIn(locale);
+  if (!isUiMode(mode)) return;
+  await asUser(getDb(), claims, (tx) =>
+    tx
+      .update(profiles)
+      .set({ uiMode: mode })
+      .where(eq(profiles.id, claims.sub)),
+  );
+  refresh();
 }

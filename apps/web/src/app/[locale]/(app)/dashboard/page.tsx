@@ -5,14 +5,16 @@ import {
   periodRange,
   sumIn,
 } from "@projectb/core";
-import { Plus, Wallet } from "lucide-react";
+import { Plus } from "lucide-react";
 import { connection } from "next/server";
 import { getLocale, getTranslations } from "next-intl/server";
 import { Suspense } from "react";
-import { AccountIcon } from "@/components/finance/account-icon";
 import { CashFlowChart } from "@/components/charts/cash-flow-chart";
 import { Sparkline } from "@/components/charts/sparkline";
 import { Amount } from "@/components/finance/amount";
+import { CashTimeline } from "@/components/finance/cash-timeline";
+import { SafeToSpend } from "@/components/finance/safe-to-spend";
+import { WelcomeMode } from "@/components/welcome-mode";
 import { GoalSummary } from "@/components/finance/goal-card";
 import { RatesNote } from "@/components/finance/rates-note";
 import { TransactionList } from "@/components/finance/transaction-list";
@@ -21,6 +23,8 @@ import { Card, CardDescription, CardHeader } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Link } from "@/i18n/navigation";
 import { getProfile } from "@/lib/auth";
+import { getCashForecast } from "@/lib/data/cashflow";
+import { uiModeOf } from "@/lib/ui-mode";
 import { categoryName, categoryPath } from "@/lib/categories";
 import {
   getAccounts,
@@ -28,7 +32,6 @@ import {
   getTotals,
   listTransactions,
 } from "@/lib/data/finance";
-import { getDueStatements } from "@/lib/data/cards";
 import { getBudgetOverview, getGoals } from "@/lib/data/planning";
 import { getRates } from "@/lib/data/rates";
 import {
@@ -36,8 +39,7 @@ import {
   getCategoryBreakdown,
   getNetWorthHistory,
 } from "@/lib/data/reports";
-import { getRecurringRules } from "@/lib/data/recurring";
-import { daysBetween, formatDay, monthRange, today } from "@/lib/dates";
+import { monthRange, today } from "@/lib/dates";
 import { cn } from "@/lib/utils";
 
 export default function DashboardPage() {
@@ -50,22 +52,16 @@ export default function DashboardPage() {
       >
         <Greeting />
       </Suspense>
+      <Suspense fallback={null}>
+        <Welcome />
+      </Suspense>
       <Suspense
-        fallback={<div className="h-28 animate-pulse rounded-xl bg-muted" />}
+        fallback={<div className="h-44 animate-pulse rounded-xl bg-muted" />}
       >
-        <Summary />
+        <CashOutlook />
       </Suspense>
       <Suspense fallback={null}>
-        <Insights />
-      </Suspense>
-      <Suspense fallback={null}>
-        <DuePayments />
-      </Suspense>
-      <Suspense fallback={null}>
-        <BudgetAlerts />
-      </Suspense>
-      <Suspense fallback={null}>
-        <UpcomingRecurring />
+        <DetailedSections />
       </Suspense>
       <Suspense fallback={null}>
         <Goals />
@@ -76,6 +72,66 @@ export default function DashboardPage() {
         }
       >
         <Recent />
+      </Suspense>
+    </>
+  );
+}
+
+/** Asks once how the user wants to use the app. */
+async function Welcome() {
+  const profile = await getProfile();
+  return profile.uiMode ? null : <WelcomeMode />;
+}
+
+/** What can be spent until payday and the payments coming up. */
+async function CashOutlook() {
+  // The forecast starts from today's date.
+  await connection();
+  const [forecast, t] = await Promise.all([
+    getCashForecast(),
+    getTranslations("CashFlow"),
+  ]);
+  return (
+    <>
+      <SafeToSpend forecast={forecast} detailsLink />
+      {forecast.spendable.length > 0 && (
+        <section className="mt-8">
+          <div className="mb-3 flex items-center justify-between">
+            <h2 className="text-lg font-semibold">{t("upcoming")}</h2>
+            <Link
+              href="/cashflow"
+              className="text-sm font-medium text-primary hover:underline"
+            >
+              {t("calendar")}
+            </Link>
+          </div>
+          <Card>
+            <CashTimeline forecast={forecast} limit={5} />
+          </Card>
+        </section>
+      )}
+    </>
+  );
+}
+
+/** Totals, budget alerts and charts, for the detailed interface only. */
+async function DetailedSections() {
+  const profile = await getProfile();
+  if (uiModeOf(profile) !== "detailed") return null;
+  return (
+    <>
+      <section className="mt-8">
+        <Suspense
+          fallback={<div className="h-28 animate-pulse rounded-xl bg-muted" />}
+        >
+          <Summary />
+        </Suspense>
+      </section>
+      <Suspense fallback={null}>
+        <BudgetAlerts />
+      </Suspense>
+      <Suspense fallback={null}>
+        <Insights />
       </Suspense>
     </>
   );
@@ -122,27 +178,8 @@ async function Summary() {
     : DEFAULT_CURRENCY;
   const active = accounts.filter((a) => !a.archivedAt);
 
-  if (active.length === 0) {
-    const tAccounts = await getTranslations("Accounts");
-    return (
-      <Card className="flex flex-col items-center gap-3 px-6 py-12 text-center">
-        <span className="flex size-12 items-center justify-center rounded-full bg-accent text-accent-foreground">
-          <Wallet className="size-5" />
-        </span>
-        <p className="font-medium">{tAccounts("emptyTitle")}</p>
-        <p className="max-w-sm text-sm text-muted-foreground">
-          {tAccounts("emptyDescription")}
-        </p>
-        <Link
-          href="/accounts/new"
-          className={buttonVariants({ className: "mt-2" })}
-        >
-          <Plus />
-          {tAccounts("addFirst")}
-        </Link>
-      </Card>
-    );
-  }
+  // The cash flow card above already invites the user to add an account.
+  if (active.length === 0) return null;
 
   // Everything is converted to the main currency at the latest TCMB rates.
   const { rates } = rateInfo;
@@ -293,130 +330,6 @@ async function Insights() {
             chart: tReports("cashFlowChart"),
           }}
         />
-      </Card>
-    </section>
-  );
-}
-
-/** Card statements with money still due, soonest first. */
-async function DuePayments() {
-  await connection();
-  const day = today();
-  const [accounts, locale, t, tCard] = await Promise.all([
-    getAccounts(),
-    getLocale(),
-    getTranslations("Dashboard"),
-    getTranslations("Card"),
-  ]);
-  const due = await getDueStatements(accounts, day);
-  if (due.length === 0) return null;
-  return (
-    <section className="mt-8">
-      <h2 className="mb-3 text-lg font-semibold">{t("upcomingPayments")}</h2>
-      <Card className="divide-y">
-        {due.map(({ card, statement }) => {
-          const daysLeft = daysBetween(day, statement.dueDate);
-          return (
-            <Link
-              key={card.id}
-              href={`/accounts/${card.id}`}
-              className="flex items-center gap-3 px-5 py-3 first:rounded-t-xl last:rounded-b-xl hover:bg-muted/60"
-            >
-              <AccountIcon type="credit_card" />
-              <div className="min-w-0 flex-1">
-                <p className="truncate font-medium">{card.name}</p>
-                <p
-                  className={cn(
-                    "text-sm",
-                    daysLeft < 0 ? "text-destructive" : "text-muted-foreground",
-                  )}
-                >
-                  {tCard("dueDate")}: {formatDay(statement.dueDate, locale)} ·{" "}
-                  {daysLeft < 0
-                    ? tCard("overdue")
-                    : tCard("daysLeft", { days: daysLeft })}
-                </p>
-              </div>
-              <div className="text-right">
-                <Amount
-                  value={statement.remaining}
-                  currency={card.currency}
-                  locale={locale}
-                  className="font-medium"
-                />
-                <p className="text-xs text-muted-foreground">
-                  {tCard("minimumPayment")}:{" "}
-                  <Amount
-                    value={Math.max(
-                      0,
-                      statement.minimumPayment - statement.paidSince,
-                    )}
-                    currency={card.currency}
-                    locale={locale}
-                  />
-                </p>
-              </div>
-            </Link>
-          );
-        })}
-      </Card>
-    </section>
-  );
-}
-
-/** Recurring transactions due in the next two weeks. */
-async function UpcomingRecurring() {
-  await connection();
-  const day = today();
-  const horizon = new Date(Date.parse(`${day}T00:00:00Z`) + 14 * 86_400_000)
-    .toISOString()
-    .slice(0, 10);
-  const [rules, accounts, locale, t] = await Promise.all([
-    getRecurringRules(),
-    getAccounts(),
-    getLocale(),
-    getTranslations("Recurring"),
-  ]);
-  const upcoming = rules.filter(
-    (r) => !r.paused && !r.finished && r.nextOn <= horizon,
-  );
-  if (upcoming.length === 0) return null;
-  const account = (id: string) => accounts.find((a) => a.id === id);
-  return (
-    <section className="mt-8">
-      <div className="mb-3 flex items-center justify-between">
-        <h2 className="text-lg font-semibold">{t("upcoming")}</h2>
-        <Link
-          href="/recurring"
-          className="text-sm font-medium text-primary hover:underline"
-        >
-          {t("title")}
-        </Link>
-      </div>
-      <Card className="divide-y">
-        {upcoming.map((rule) => (
-          <Link
-            key={rule.id}
-            href={`/recurring/${rule.id}`}
-            className="flex items-center justify-between gap-3 px-5 py-3 first:rounded-t-xl last:rounded-b-xl hover:bg-muted/60"
-          >
-            <div className="min-w-0">
-              <p className="truncate font-medium">
-                {rule.note || account(rule.accountId)?.name}
-              </p>
-              <p className="text-sm text-muted-foreground">
-                {formatDay(rule.nextOn, locale)}
-              </p>
-            </div>
-            <Amount
-              value={rule.amount}
-              currency={account(rule.accountId)?.currency ?? "TRY"}
-              locale={locale}
-              kind={rule.kind}
-              className="font-medium"
-            />
-          </Link>
-        ))}
       </Card>
     </section>
   );

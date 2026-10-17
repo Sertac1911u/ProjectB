@@ -44,12 +44,18 @@ export const accountSchema = z
     statementDay: z.string().optional().default(""),
     dueDay: z.string().optional().default(""),
     minPaymentRate: z.string().optional().default("20"),
+    /** A checkbox: present when ticked. Never set for credit cards. */
+    spendable: z
+      .string()
+      .optional()
+      .transform((v) => v === "on" || v === "true"),
   })
   .transform((data, ctx) => {
     const { statementDay, dueDay, minPaymentRate, ...rest } = data;
     if (data.type !== "credit_card") {
       return { ...rest, card: null };
     }
+    rest.spendable = false;
     const parse = (schema: z.ZodType<number>, value: string, path: string) => {
       const result = schema.safeParse(value);
       if (!result.success) {

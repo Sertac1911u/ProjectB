@@ -3,6 +3,8 @@ import { AppNav } from "@/components/app-nav";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { Logo } from "@/components/logo";
 import { UserMenu, UserMenuSkeleton } from "@/components/user-menu";
+import { getProfile } from "@/lib/auth";
+import { uiModeOf } from "@/lib/ui-mode";
 
 export default function AppLayout({ children }: LayoutProps<"/[locale]">) {
   return (
@@ -14,7 +16,10 @@ export default function AppLayout({ children }: LayoutProps<"/[locale]">) {
             <LanguageSwitcher persist />
           </div>
         </div>
-        <AppNav />
+        {/* Until the profile loads, the menu shows the simple set of links. */}
+        <Suspense fallback={<AppNav mode="simple" />}>
+          <ModeNav />
+        </Suspense>
         <div className="mt-auto hidden flex-col gap-3 border-t pt-4 md:flex">
           <Suspense fallback={<UserMenuSkeleton />}>
             <UserMenu />
@@ -27,4 +32,9 @@ export default function AppLayout({ children }: LayoutProps<"/[locale]">) {
       </main>
     </div>
   );
+}
+
+async function ModeNav() {
+  const profile = await getProfile();
+  return <AppNav mode={uiModeOf(profile)} />;
 }

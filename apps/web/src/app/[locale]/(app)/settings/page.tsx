@@ -10,6 +10,7 @@ import { Suspense } from "react";
 import { RatesNote } from "@/components/finance/rates-note";
 import { PageHeader } from "@/components/page-header";
 import { ProfileForm } from "@/components/settings/profile-form";
+import { uiModeOf } from "@/lib/ui-mode";
 import { buttonVariants } from "@/components/ui/button";
 import {
   Card,
@@ -100,6 +101,7 @@ async function ProfileSection() {
         baseCurrency: isCurrencyCode(profile.baseCurrency)
           ? profile.baseCurrency
           : "TRY",
+        uiMode: uiModeOf(profile),
       }}
     />
   );

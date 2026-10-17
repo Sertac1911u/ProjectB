@@ -6,6 +6,8 @@ import { Card } from "@/components/ui/card";
 import { Link } from "@/i18n/navigation";
 import { getAccounts, getCategories, getTags } from "@/lib/data/finance";
 import { getRates } from "@/lib/data/rates";
+import { getProfile } from "@/lib/auth";
+import { uiModeOf } from "@/lib/ui-mode";
 import { type TransactionDefaults, TransactionForm } from "./transaction-form";
 
 /** Loads the form's options; shared by the new and edit pages. */
@@ -22,12 +24,13 @@ export async function TransactionEditor({
     accountId?: string | null;
   };
 }) {
-  const [accounts, categories, tags, rateInfo, t, tAccounts] =
+  const [accounts, categories, tags, rateInfo, profile, t, tAccounts] =
     await Promise.all([
       getAccounts(),
       getCategories(),
       getTags(),
       getRates(),
+      getProfile(),
       getTranslations("Transactions"),
       getTranslations("Accounts"),
     ]);
@@ -76,6 +79,7 @@ export async function TransactionEditor({
         categories={categories}
         tags={tags.map((tag) => tag.name)}
         rates={rateInfo.rates}
+        simple={uiModeOf(profile) === "simple"}
       />
     </Card>
   );

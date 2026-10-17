@@ -5,6 +5,8 @@ import {
   type CurrencyCode,
   LOCALES,
   type Locale,
+  UI_MODES,
+  type UiMode,
 } from "@projectb/core";
 import { useLocale, useTranslations } from "next-intl";
 import { useActionState } from "react";
@@ -22,6 +24,7 @@ type Props = {
     displayName: string | null;
     locale: Locale;
     baseCurrency: CurrencyCode;
+    uiMode: UiMode;
   };
 };
 
@@ -96,6 +99,20 @@ export function ProfileForm({ profile }: Props) {
           </Select>
         </Field>
       </div>
+      <Field
+        id={fid("uiMode")}
+        label={t("uiMode")}
+        hint={t("uiModeHint")}
+        error={fieldError("uiMode")}
+      >
+        <Select id={fid("uiMode")} name="uiMode" defaultValue={profile.uiMode}>
+          {UI_MODES.map((mode) => (
+            <option key={mode} value={mode}>
+              {t(`uiModes.${mode}`)}
+            </option>
+          ))}
+        </Select>
+      </Field>
       <div className="flex items-center gap-3">
         <SubmitButton>{t("save")}</SubmitButton>
         {state.status === "success" && (

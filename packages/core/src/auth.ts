@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { CURRENCIES, type CurrencyCode } from "./currency";
+import { UI_MODES } from "./finance";
 import { LOCALES } from "./locale";
 import { error } from "./validation";
 
@@ -42,4 +43,5 @@ export const profileSchema = z.object({
     Object.keys(CURRENCIES) as [CurrencyCode, ...CurrencyCode[]],
     error("invalidCurrency"),
   ),
+  uiMode: z.enum(UI_MODES, error("invalidUiMode")),
 });

@@ -34,7 +34,8 @@ export type ValidationError =
   | "invalidInterval"
   | "invalidEndDate"
   | "invalidOccurrences"
-  | "categoryRequired";
+  | "categoryRequired"
+  | "invalidUiMode";
 
 export const error = (message: ValidationError) => ({ message });
 

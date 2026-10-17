@@ -307,3 +307,24 @@ describe("contributionSchema", () => {
     ).toBe(false);
   });
 });
+
+describe("accountSchema spendable", () => {
+  it("reads the checkbox and never counts credit cards", () => {
+    const base = { name: "Hesap", currency: "TRY" };
+    expect(
+      accountSchema.parse({ ...base, type: "bank", spendable: "on" }).spendable,
+    ).toBe(true);
+    expect(accountSchema.parse({ ...base, type: "savings" }).spendable).toBe(
+      false,
+    );
+    expect(
+      accountSchema.parse({
+        ...base,
+        type: "credit_card",
+        statementDay: "15",
+        dueDay: "25",
+        spendable: "on",
+      }).spendable,
+    ).toBe(false);
+  });
+});

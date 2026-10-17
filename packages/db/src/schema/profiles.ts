@@ -3,6 +3,7 @@ import {
   DEFAULT_CURRENCY,
   DEFAULT_LOCALE,
   LOCALES,
+  UI_MODES,
 } from "@projectb/core";
 import { sql } from "drizzle-orm";
 import {
@@ -26,6 +27,8 @@ export const profiles = pgTable(
     displayName: text("display_name"),
     locale: text().notNull().default(DEFAULT_LOCALE),
     baseCurrency: text("base_currency").notNull().default(DEFAULT_CURRENCY),
+    /** Simple or detailed interface; null until the user has picked one. */
+    uiMode: text("ui_mode"),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),
@@ -40,6 +43,7 @@ export const profiles = pgTable(
       "profiles_base_currency_check",
       sql`${t.baseCurrency} in (${list(Object.keys(CURRENCIES))})`,
     ),
+    check("profiles_ui_mode_check", sql`${t.uiMode} in (${list(UI_MODES)})`),
     pgPolicy("profiles_select_own", {
       for: "select",
       to: authenticatedRole,

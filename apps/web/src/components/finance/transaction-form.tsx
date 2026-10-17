@@ -71,6 +71,8 @@ type Props = {
   accounts: AccountOption[];
   categories: CategoryOption[];
   tags: string[];
+  /** The simple interface leaves out tags (existing ones are kept). */
+  simple?: boolean;
 };
 
 export function TransactionForm({
@@ -116,6 +118,7 @@ function TransactionFields({
   rates,
   isNew,
   recurring,
+  simple = false,
 }: Omit<Props, "transactionId" | "recurringId" | "mode"> & {
   state: FormState;
   locale: Locale;
@@ -488,53 +491,59 @@ function TransactionFields({
         />
       </Field>
 
-      <Field
-        id={fid("tags")}
-        label={`${t("tags")} (${tCommon("optional")})`}
-        hint={t("tagsHint")}
-        error={fieldError("tags")}
-      >
-        <Input
-          id={fid("tags")}
-          name="tags"
-          autoComplete="off"
-          value={tagText}
-          onChange={(e) => setTagText(e.target.value)}
-          aria-invalid={Boolean(fieldError("tags"))}
-        />
-      </Field>
-      {tags.length > 0 && (
-        <div className="-mt-2 flex flex-wrap gap-1.5">
-          {tags.map((tag) => {
-            const chosen = chosenTags.has(tag.toLocaleLowerCase(locale));
-            return (
-              <button
-                key={tag}
-                type="button"
-                aria-pressed={chosen}
-                onClick={() => {
-                  const list = parseTags(tagText);
-                  const next = chosen
-                    ? list.filter(
-                        (x) =>
-                          x.toLocaleLowerCase(locale) !==
-                          tag.toLocaleLowerCase(locale),
-                      )
-                    : [...list, tag];
-                  setTagText(next.join(", "));
-                }}
-                className={cn(
-                  "rounded-full border px-2.5 py-0.5 text-xs transition-colors",
-                  chosen
-                    ? "border-primary bg-accent text-accent-foreground"
-                    : "text-muted-foreground hover:text-foreground",
-                )}
-              >
-                {tag}
-              </button>
-            );
-          })}
-        </div>
+      {simple ? (
+        <input type="hidden" name="tags" value={tagText} />
+      ) : (
+        <>
+          <Field
+            id={fid("tags")}
+            label={`${t("tags")} (${tCommon("optional")})`}
+            hint={t("tagsHint")}
+            error={fieldError("tags")}
+          >
+            <Input
+              id={fid("tags")}
+              name="tags"
+              autoComplete="off"
+              value={tagText}
+              onChange={(e) => setTagText(e.target.value)}
+              aria-invalid={Boolean(fieldError("tags"))}
+            />
+          </Field>
+          {tags.length > 0 && (
+            <div className="-mt-2 flex flex-wrap gap-1.5">
+              {tags.map((tag) => {
+                const chosen = chosenTags.has(tag.toLocaleLowerCase(locale));
+                return (
+                  <button
+                    key={tag}
+                    type="button"
+                    aria-pressed={chosen}
+                    onClick={() => {
+                      const list = parseTags(tagText);
+                      const next = chosen
+                        ? list.filter(
+                            (x) =>
+                              x.toLocaleLowerCase(locale) !==
+                              tag.toLocaleLowerCase(locale),
+                          )
+                        : [...list, tag];
+                      setTagText(next.join(", "));
+                    }}
+                    className={cn(
+                      "rounded-full border px-2.5 py-0.5 text-xs transition-colors",
+                      chosen
+                        ? "border-primary bg-accent text-accent-foreground"
+                        : "text-muted-foreground hover:text-foreground",
+                    )}
+                  >
+                    {tag}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </>
       )}
 
       <div className="flex flex-wrap gap-2">
