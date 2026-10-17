@@ -18,16 +18,16 @@ Borç planı, Raporlar, Ayarlar.
 
 ## 1. Hesaplar (Hesaplar → Yeni hesap)
 
-| Ad              | Tür               | Ayrıntı                                                              |
-| --------------- | ----------------- | -------------------------------------------------------------------- |
-| Maaş Hesabı     | Banka hesabı      | Açılış 10.000 · Harcanabilir ✓ (kendiliğinden işaretli)              |
-| Cüzdan          | Nakit             | Açılış 1.500 · Harcanabilir ✓                                        |
-| Birikim         | Birikim / yatırım | Açılış 40.000 · Harcanabilir ✗ (kendiliğinden boş)                   |
-| Dolar Hesabı    | Banka hesabı      | Para birimi USD · Açılış 500 · **Harcanabilir işaretini kaldır**     |
-| Bonus Kart      | Kredi kartı       | Kesim günü 10 · Son ödeme 20 · Limit 50.000 · Asgari %20 · Faiz 4,25 |
-| İhtiyaç Kredisi | Kredi / borç      | Kalan borç 90.000 · Taksit 4.500 · Faiz 3,05                         |
-| Kardeşime borç  | Kredi / borç      | Kalan borç 10.000 · Taksit 1.000 · Faiz boş                          |
-| Altın           | Altın             | Birim gram · Miktar 15 · Birim fiyat 4.200                           |
+| Ad              | Tür               | Ayrıntı                                                                                 |
+| --------------- | ----------------- | --------------------------------------------------------------------------------------- |
+| Maaş Hesabı     | Banka hesabı      | Açılış 10.000 · Harcanabilir ✓ (kendiliğinden işaretli)                                 |
+| Cüzdan          | Nakit             | Açılış 1.500 · Harcanabilir ✓                                                           |
+| Birikim         | Birikim / yatırım | Açılış 40.000 · Harcanabilir ✗ (kendiliğinden boş)                                      |
+| Dolar Hesabı    | Banka hesabı      | Para birimi USD · Açılış 500 · **Harcanabilir işaretini kaldır**                        |
+| Bonus Kart      | Kredi kartı       | Açılış borcu boş · Kesim günü 10 · Son ödeme 20 · Limit 50.000 · Asgari %20 · Faiz 4,25 |
+| İhtiyaç Kredisi | Kredi / borç      | Kalan borç 90.000 · Taksit 4.500 · Faiz 3,05                                            |
+| Kardeşime borç  | Kredi / borç      | Kalan borç 10.000 · Taksit 1.000 · Faiz boş                                             |
+| Altın           | Altın             | Birim gram · Miktar 15 · Birim fiyat 4.200                                              |
 
 Kontrol:
 

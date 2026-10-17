@@ -148,7 +148,10 @@ async function saveAccountUnstamped(
         (current ? current.balance - current.openingBalance : 0)
       : gold
         ? 0
-        : opening.amount;
+        : card
+          ? // Typed as the debt the card already had, with or without a minus.
+            -Math.abs(opening.amount)
+          : opening.amount;
     // The price date moves only when the price changes.
     const priceOn = gold
       ? current?.priceOn && current.unitPrice === unitPrice
