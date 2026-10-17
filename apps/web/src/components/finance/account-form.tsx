@@ -68,9 +68,14 @@ export function AccountForm({
     name: account?.name ?? "",
     type: account?.type ?? "bank",
     currency: account?.currency ?? defaultCurrency,
-    openingBalance: account
-      ? formatAmountInput(account.openingBalance, account.currency, locale)
-      : "",
+    // A card's opening balance is typed as the debt it already had.
+    openingBalance: !account
+      ? ""
+      : account.type === "credit_card"
+        ? account.openingBalance < 0
+          ? formatAmountInput(-account.openingBalance, account.currency, locale)
+          : ""
+        : formatAmountInput(account.openingBalance, account.currency, locale),
     creditLimit:
       account?.creditLimit != null
         ? formatAmountInput(account.creditLimit, account.currency, locale)
@@ -193,7 +198,7 @@ export function AccountForm({
           </span>
         </label>
       )}
-      {type !== "loan" && type !== "gold" && (
+      {!["credit_card", "loan", "gold"].includes(type) && (
         <Field
           id={fid("openingBalance")}
           label={`${t("openingBalance")} (${tCommon("optional")})`}
@@ -318,6 +323,22 @@ export function AccountForm({
           <p className="-mt-2 text-sm text-muted-foreground">
             {t("cardSettingsHint")}
           </p>
+          <Field
+            id={fid("openingBalance")}
+            label={`${t("cardOpeningDebt")} (${tCommon("optional")})`}
+            hint={t("cardOpeningDebtHint")}
+            error={fieldError("openingBalance")}
+          >
+            <Input
+              id={fid("openingBalance")}
+              name="openingBalance"
+              inputMode="decimal"
+              autoComplete="off"
+              placeholder="0,00"
+              defaultValue={values.openingBalance}
+              aria-invalid={Boolean(fieldError("openingBalance"))}
+            />
+          </Field>
           <div className="grid gap-4 sm:grid-cols-2">
             <Field
               id={fid("statementDay")}
