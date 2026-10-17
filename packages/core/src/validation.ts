@@ -35,7 +35,8 @@ export type ValidationError =
   | "invalidEndDate"
   | "invalidOccurrences"
   | "categoryRequired"
-  | "invalidUiMode";
+  | "invalidUiMode"
+  | "invalidQuantity";
 
 export const error = (message: ValidationError) => ({ message });
 

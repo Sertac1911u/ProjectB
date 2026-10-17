@@ -13,6 +13,7 @@ import {
   type ValidationError,
 } from "@projectb/core";
 import {
+  accountBalances,
   accounts,
   categories,
   tags,
@@ -25,6 +26,7 @@ import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { withUser } from "@/lib/auth";
 import { categoryName } from "@/lib/categories";
+import { today } from "@/lib/dates";
 import { type FormState, respond } from "./state";
 
 const values = (formData: FormData) =>
@@ -43,7 +45,7 @@ async function saveAccountUnstamped(
   formData: FormData,
 ): Promise<FormState> {
   const submitted = values(formData);
-  const parsed = accountSchema.safeParse(submitted);
+  const parsed = accountSchema.safeParse({ ...submitted, locale });
   if (!parsed.success) {
     return {
       status: "error",
@@ -51,8 +53,40 @@ async function saveAccountUnstamped(
       values: submitted,
     };
   }
-  const { name, type, currency, openingBalance, creditLimit, card, spendable } =
-    parsed.data;
+  const {
+    name,
+    type,
+    currency,
+    openingBalance,
+    creditLimit,
+    card,
+    spendable,
+    rateBp,
+    loan,
+    gold,
+  } = parsed.data;
+  const fail = (field: string, error: ValidationError): FormState => ({
+    status: "error",
+    fieldErrors: { [field]: error },
+    values: submitted,
+  });
+  // Loans: what is owed today and the monthly installment.
+  let loanFields: { remaining: number; payment: number } | null = null;
+  if (loan) {
+    const remaining = parseAmount(loan.remaining, currency, locale, {
+      allowZero: true,
+    });
+    if ("error" in remaining) return fail("loanRemaining", remaining.error);
+    const payment = parseAmount(loan.payment, currency, locale);
+    if ("error" in payment) return fail("loanPayment", payment.error);
+    loanFields = { remaining: remaining.amount, payment: payment.amount };
+  }
+  let unitPrice: number | null = null;
+  if (gold) {
+    const price = parseAmount(gold.unitPrice, currency, locale);
+    if ("error" in price) return fail("unitPrice", price.error);
+    unitPrice = price.amount;
+  }
   const opening = openingBalance.trim()
     ? parseAmount(openingBalance, currency, locale, {
         allowNegative: true,
@@ -84,17 +118,52 @@ async function saveAccountUnstamped(
     statementDay: card?.statementDay ?? null,
     dueDay: card?.dueDay ?? null,
     minPaymentRate: card?.minPaymentRate ?? null,
+    interestRateBp: rateBp,
+    loanPayment: loanFields?.payment ?? null,
+    goldUnit: gold?.unit ?? null,
+    goldQuantity: gold?.quantityMilli ?? null,
+    unitPrice,
   };
 
   await withUser(async (tx) => {
+    const [current] = accountId
+      ? await tx
+          .select({
+            openingBalance: accounts.openingBalance,
+            unitPrice: accounts.unitPrice,
+            priceOn: accounts.priceOn,
+            balance: accountBalances.balance,
+          })
+          .from(accounts)
+          .innerJoin(
+            accountBalances,
+            eq(accountBalances.accountId, accounts.id),
+          )
+          .where(eq(accounts.id, accountId))
+      : [];
+    // A loan's balance is what is owed: the opening balance is set so the
+    // balance after its transactions equals the remaining debt typed in.
+    const openingAmount = loanFields
+      ? -loanFields.remaining -
+        (current ? current.balance - current.openingBalance : 0)
+      : gold
+        ? 0
+        : opening.amount;
+    // The price date moves only when the price changes.
+    const priceOn = gold
+      ? current?.priceOn && current.unitPrice === unitPrice
+        ? current.priceOn
+        : today()
+      : null;
     if (!accountId) {
       await tx.insert(accounts).values({
         name,
         type,
         currency,
-        openingBalance: opening.amount,
+        openingBalance: openingAmount,
         spendable,
         ...settings,
+        priceOn,
       });
       return;
     }
@@ -114,9 +183,10 @@ async function saveAccountUnstamped(
       .set({
         name,
         type,
-        openingBalance: opening.amount,
+        openingBalance: openingAmount,
         spendable,
         ...settings,
+        priceOn,
         ...(used.length === 0 && { currency }),
       })
       .where(eq(accounts.id, accountId));

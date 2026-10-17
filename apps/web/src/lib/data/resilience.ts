@@ -56,8 +56,10 @@ export const getResilience = cache(async () => {
   const byId = new Map(accounts.map((a) => [a.id, a]));
 
   const active = accounts.filter((a) => !a.archivedAt);
+  // Loans are paid off over years through their installments (counted as
+  // regular payments), so they do not reduce the reserve.
   const cash = active
-    .filter((a) => a.type !== "credit_card")
+    .filter((a) => a.type !== "credit_card" && a.type !== "loan")
     .reduce((sum, a) => sum + toBase(a.balance, a.currency), 0);
   const cardDebt = active
     .filter((a) => a.type === "credit_card")

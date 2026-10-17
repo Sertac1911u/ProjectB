@@ -1,5 +1,6 @@
 import {
   ACCOUNT_TYPES,
+  GOLD_UNITS,
   CATEGORY_KINDS,
   CURRENCIES,
   FREQUENCIES,
@@ -52,6 +53,17 @@ export const accounts = pgTable(
     dueDay: smallint("due_day"),
     /** Minimum payment as a percentage of the statement amount. */
     minPaymentRate: smallint("min_payment_rate"),
+    /** Cards and loans: monthly interest in hundredths of a percent (349 = 3,49%). */
+    interestRateBp: smallint("interest_rate_bp"),
+    /** Loans only: the monthly installment. */
+    loanPayment: amount("loan_payment"),
+    // Gold only: worth quantity × unit price, whatever the transactions say.
+    goldUnit: text("gold_unit"),
+    /** In thousandths of the unit: 12,5 gram is 12500. */
+    goldQuantity: bigint("gold_quantity", { mode: "number" }),
+    unitPrice: amount("unit_price"),
+    /** When the unit price was last updated. */
+    priceOn: date("price_on"),
     archivedAt: timestamp("archived_at", { withTimezone: true }),
     ...timestamps(),
   },
@@ -78,6 +90,23 @@ export const accounts = pgTable(
     check(
       "accounts_min_payment_rate_check",
       sql`${t.minPaymentRate} between 0 and 100`,
+    ),
+    check(
+      "accounts_interest_rate_check",
+      sql`${t.interestRateBp} is null or (${t.type} in ('credit_card', 'loan')
+        and ${t.interestRateBp} between 0 and 10000)`,
+    ),
+    check(
+      "accounts_loan_check",
+      sql`${t.loanPayment} is null or (${t.type} = 'loan' and ${t.loanPayment} > 0)`,
+    ),
+    check(
+      "accounts_gold_check",
+      sql`case when ${t.type} = 'gold'
+        then ${t.goldUnit} in (${inList(GOLD_UNITS)}) and ${t.goldQuantity} >= 0
+          and ${t.unitPrice} > 0 and ${t.priceOn} is not null
+        else ${t.goldUnit} is null and ${t.goldQuantity} is null
+          and ${t.unitPrice} is null and ${t.priceOn} is null end`,
     ),
     ownRowsPolicy("accounts", t.userId),
   ],

@@ -1,4 +1,5 @@
 import "server-only";
+import { goldValue } from "@projectb/core";
 import {
   accountBalances,
   accounts,
@@ -28,7 +29,7 @@ import { materializeRecurring } from "./recurring";
 
 export const getAccounts = cache(async () => {
   await materializeRecurring();
-  return withUser((tx) =>
+  const rows = await withUser((tx) =>
     tx
       .select({
         id: accounts.id,
@@ -41,12 +42,27 @@ export const getAccounts = cache(async () => {
         statementDay: accounts.statementDay,
         dueDay: accounts.dueDay,
         minPaymentRate: accounts.minPaymentRate,
+        interestRateBp: accounts.interestRateBp,
+        loanPayment: accounts.loanPayment,
+        goldUnit: accounts.goldUnit,
+        goldQuantity: accounts.goldQuantity,
+        unitPrice: accounts.unitPrice,
+        priceOn: accounts.priceOn,
         archivedAt: accounts.archivedAt,
         balance: accountBalances.balance,
       })
       .from(accounts)
       .innerJoin(accountBalances, eq(accountBalances.accountId, accounts.id))
       .orderBy(asc(accounts.createdAt)),
+  );
+  // Gold is worth its quantity at the latest price, not its transactions.
+  return rows.map((row) =>
+    row.type === "gold"
+      ? {
+          ...row,
+          balance: goldValue(row.goldQuantity ?? 0, row.unitPrice ?? 0),
+        }
+      : row,
   );
 });
 

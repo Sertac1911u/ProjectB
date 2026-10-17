@@ -328,3 +328,55 @@ describe("accountSchema spendable", () => {
     ).toBe(false);
   });
 });
+
+describe("accountSchema loans and gold", () => {
+  const base = { name: "Hesap", currency: "TRY", locale: "tr" };
+
+  it("reads a loan's rate, installment and remaining debt", () => {
+    const loan = accountSchema.parse({
+      ...base,
+      type: "loan",
+      interestRate: "3,49",
+      loanPayment: "5.000",
+      loanRemaining: "120.000",
+      spendable: "on",
+    });
+    expect(loan).toMatchObject({
+      rateBp: 349,
+      loan: { payment: "5.000", remaining: "120.000" },
+      gold: null,
+      spendable: false,
+    });
+    const missing = accountSchema.safeParse({
+      ...base,
+      type: "loan",
+      interestRate: "abc",
+    });
+    expect(fieldErrors(missing.error!)).toEqual({
+      interestRate: "invalidRate",
+      loanRemaining: "amountRequired",
+      loanPayment: "amountRequired",
+    });
+  });
+
+  it("reads gold holdings in thousandths", () => {
+    expect(
+      accountSchema.parse({
+        ...base,
+        type: "gold",
+        goldUnit: "quarter",
+        goldQuantity: "2,5",
+        unitPrice: "10.500",
+      }).gold,
+    ).toEqual({ unit: "quarter", quantityMilli: 2500, unitPrice: "10.500" });
+    const bad = accountSchema.safeParse({
+      ...base,
+      type: "gold",
+      goldQuantity: "1,2345",
+    });
+    expect(fieldErrors(bad.error!)).toEqual({
+      goldQuantity: "invalidQuantity",
+      unitPrice: "amountRequired",
+    });
+  });
+});

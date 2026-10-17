@@ -100,8 +100,64 @@ async function AccountList() {
     rateInfo.rates,
   );
 
+  // Assets and debts side by side, in the main currency.
+  const inMain = (a: AccountWithBalance) =>
+    convert(a.balance, code(a.currency), base, rateInfo.rates) ?? 0;
+  const assets = active
+    .filter((a) => a.balance > 0)
+    .reduce((sum, a) => sum + inMain(a), 0);
+  const debts = active
+    .filter((a) => a.balance < 0)
+    .reduce((sum, a) => sum - inMain(a), 0);
+  const hasDebtPlan = active.some(
+    (a) => (a.type === "loan" || a.type === "credit_card") && a.balance < 0,
+  );
+
   return (
     <div className="flex flex-col gap-4">
+      {debts > 0 && (
+        <Card className="flex flex-wrap items-center gap-x-8 gap-y-3 p-5">
+          <div>
+            <p className="text-sm text-muted-foreground">{t("assets")}</p>
+            <Amount
+              value={assets}
+              currency={base}
+              locale={locale}
+              className="text-xl font-semibold"
+            />
+          </div>
+          <div>
+            <p className="text-sm text-muted-foreground">{t("debts")}</p>
+            <Amount
+              value={-debts}
+              currency={base}
+              locale={locale}
+              className="text-xl font-semibold"
+            />
+          </div>
+          <div>
+            <p className="text-sm text-muted-foreground">{t("netWorth")}</p>
+            <Amount
+              value={assets - debts}
+              currency={base}
+              locale={locale}
+              className="text-xl font-semibold"
+            />
+          </div>
+          {hasDebtPlan && (
+            <Link
+              href="/debts"
+              className={buttonVariants({
+                variant: "outline",
+                size: "sm",
+                className: "ml-auto",
+              })}
+            >
+              {t("debtPlan")}
+            </Link>
+          )}
+        </Card>
+      )}
       {totals.length > 0 && (
         <div>
           <div className="grid gap-4 sm:grid-cols-3">

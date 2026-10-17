@@ -9,6 +9,7 @@ const PROTECTED = [
   "/recurring",
   "/budgets",
   "/goals",
+  "/debts",
   "/reports",
   "/settings",
   "/reset-password",
