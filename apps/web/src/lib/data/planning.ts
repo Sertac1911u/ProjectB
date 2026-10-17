@@ -43,7 +43,7 @@ export const getBudgetVersions = cache(async () =>
 );
 
 /** Expenses per category and account currency between two dates. */
-const getCategorySpending = cache(async (from: string, to: string) => {
+export const getCategorySpending = cache(async (from: string, to: string) => {
   await materializeRecurring();
   return withUser((tx) =>
     tx

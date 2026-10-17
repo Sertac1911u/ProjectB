@@ -6,8 +6,6 @@
   "Common": {
     "appName": "ProjectB",
     "language": "Dil",
-    "comingSoon": "Yakında",
-    "phase": "Aşama {phase}",
     "save": "Kaydet",
     "cancel": "Vazgeç",
     "delete": "Sil",
@@ -54,9 +52,6 @@
     "categories": "Kategoriler",
     "recurring": "Tekrarlayan"
   },
-  "Placeholder": {
-    "description": "Bu bölüm {phase}. aşamada eklenecek."
-  },
   "Dashboard": {
     "netWorth": "Net varlık",
     "income": "Bu ay gelir",
@@ -70,7 +65,11 @@
     "addAccount": "Hesap ekle",
     "addTransaction": "İşlem ekle",
     "upcomingPayments": "Yaklaşan kart ödemeleri",
-    "goals": "Birikim hedefleri"
+    "goals": "Birikim hedefleri",
+    "spendingThisMonth": "Bu ayın harcamaları",
+    "lastSixMonths": "Son 6 ay",
+    "seeReports": "Raporlar",
+    "netWorthTrend": "Son 12 ayda net varlık"
   },
   "NotFound": {
     "title": "Sayfa bulunamadı",
@@ -487,5 +486,41 @@
     "emptyDescription": "Bir hedef koy; ne kadar kaldığını ve hedef tarihe yetişmek için ayda ne kadar ayırman gerektiğini gör.",
     "depositEntry": "Katkı",
     "withdrawEntry": "Çekilen para"
+  },
+  "Reports": {
+    "title": "Raporlar",
+    "description": "Gelirin, giderin ve net varlığın zaman içinde nasıl değiştiğini gör.",
+    "period": "Dönem",
+    "periods": {
+      "thisMonth": "Bu ay",
+      "lastMonth": "Geçen ay",
+      "3m": "Son 3 ay",
+      "6m": "Son 6 ay",
+      "12m": "Son 12 ay",
+      "thisYear": "Bu yıl",
+      "lastYear": "Geçen yıl"
+    },
+    "income": "Gelir",
+    "expense": "Gider",
+    "net": "Net",
+    "savingsRate": "Birikim oranı",
+    "vsPrevious": "Önceki döneme göre {change}",
+    "noPrevious": "Önceki dönemde veri yok",
+    "savingsRateHint": "Gelirin ne kadarı harcanmadan kaldı",
+    "cashFlow": "Gelir ve gider",
+    "cashFlowHint": "{granularity, select, day {Günlük} other {Aylık}} toplamlar. Taksitler ödendiği aya sayılır, transferler dahil değildir.",
+    "cashFlowChart": "Gelir ve gider grafiği",
+    "expenseByCategory": "Kategorilere göre gider",
+    "incomeByCategory": "Kategorilere göre gelir",
+    "uncategorized": "Kategorisiz",
+    "noData": "Bu dönemde işlem yok.",
+    "netWorth": "Net varlık",
+    "netWorthHint": "Tüm hesap bakiyelerinin toplamı, kart borçları düşülmüş olarak. Dövizler güncel kurla çevrilir.",
+    "netWorthChart": "Net varlık grafiği",
+    "showTable": "Tablo olarak göster",
+    "date": "Tarih",
+    "share": "Pay",
+    "amount": "Tutar",
+    "seeTransactions": "İşlemleri gör"
   }
 }
