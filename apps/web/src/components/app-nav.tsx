@@ -11,6 +11,7 @@ import {
   Wallet,
 } from "lucide-react";
 import { type Messages, useTranslations } from "next-intl";
+import { Suspense } from "react";
 import { Link, usePathname } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 
@@ -29,13 +30,28 @@ const items: {
 ];
 
 export function AppNav() {
+  // The current path is only known per request; until then the links render
+  // without the active highlight, so the static shell already has the menu.
+  return (
+    <Suspense fallback={<NavLinks pathname={null} />}>
+      <ActiveNav />
+    </Suspense>
+  );
+}
+
+function ActiveNav() {
+  return <NavLinks pathname={usePathname()} />;
+}
+
+function NavLinks({ pathname }: { pathname: string | null }) {
   const t = useTranslations("Nav");
-  const pathname = usePathname();
 
   return (
     <nav className="flex gap-1 overflow-x-auto md:flex-col md:overflow-visible">
       {items.map(({ href, key, icon: Icon }) => {
-        const active = pathname === href || pathname.startsWith(`${href}/`);
+        const active =
+          pathname !== null &&
+          (pathname === href || pathname.startsWith(`${href}/`));
         return (
           <Link
             key={href}

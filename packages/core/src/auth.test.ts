@@ -1,10 +1,6 @@
 import { describe, expect, it } from "vitest";
-import {
-  fieldErrors,
-  profileSchema,
-  signUpSchema,
-  updatePasswordSchema,
-} from "./auth";
+import { profileSchema, signUpSchema, updatePasswordSchema } from "./auth";
+import { fieldErrors } from "./validation";
 
 describe("signUpSchema", () => {
   it("normalizes the email address", () => {

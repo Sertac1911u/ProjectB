@@ -43,7 +43,7 @@ CSV dışa aktarma, fiş fotoğrafı, gelecek nakit akışı tahmini.
 
 - [x] **0. Altyapı:** monorepo, Next.js, Tailwind, çoklu dil, Drizzle, CI.
 - [x] **1. Supabase ve giriş:** kayıt, giriş, şifre sıfırlama, profil (dil, ana para birimi).
-- [ ] **2. Hesaplar, işlemler, kategoriler:** etiketler, arama ve filtre dahil.
+- [x] **2. Hesaplar, işlemler, kategoriler:** etiketler, arama ve filtre dahil.
 - [ ] **3. Kredi kartı:** ekstre ve taksitler.
 - [ ] **4. Döviz kurları ve çevrim.**
 - [ ] **5. Tekrarlayan işlemler.**

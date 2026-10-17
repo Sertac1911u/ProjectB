@@ -11,8 +11,10 @@ import { Link } from "@/i18n/navigation";
 import { updatePassword } from "@/lib/actions/auth";
 import { initialFormState } from "@/lib/actions/state";
 import { useFormErrors } from "./use-form-errors";
+import { useFieldId } from "@/components/ui/use-field-id";
 
 export function ResetPasswordForm() {
+  const fid = useFieldId();
   const t = useTranslations("Auth");
   const [state, action] = useActionState(updatePassword, initialFormState);
   const { formError, fieldError } = useFormErrors(state);
@@ -32,13 +34,13 @@ export function ResetPasswordForm() {
     <form action={action} className="flex flex-col gap-4" noValidate>
       {formError && <Alert>{formError}</Alert>}
       <Field
-        id="password"
+        id={fid("password")}
         label={t("newPassword")}
         hint={t("passwordHint")}
         error={fieldError("password")}
       >
         <Input
-          id="password"
+          id={fid("password")}
           name="password"
           type="password"
           autoComplete="new-password"
@@ -47,12 +49,12 @@ export function ResetPasswordForm() {
         />
       </Field>
       <Field
-        id="confirmPassword"
+        id={fid("confirmPassword")}
         label={t("confirmPassword")}
         error={fieldError("confirmPassword")}
       >
         <Input
-          id="confirmPassword"
+          id={fid("confirmPassword")}
           name="confirmPassword"
           type="password"
           autoComplete="new-password"

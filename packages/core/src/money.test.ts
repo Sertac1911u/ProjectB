@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatMoney, parseMoney } from "./money";
+import { formatAmountInput, formatMoney, parseMoney } from "./money";
 
 const normalizeSpaces = (s: string) => s.replace(/\s/g, " ");
 
@@ -51,4 +51,18 @@ describe("parseMoney", () => {
       expect(parseMoney(input, "TRY", "tr-TR")).toBeNull();
     },
   );
+});
+
+describe("formatAmountInput", () => {
+  it("round-trips through parseMoney", () => {
+    for (const [locale, amount] of [
+      ["tr", 125050],
+      ["en", -99],
+      ["tr", 0],
+    ] as const) {
+      const text = formatAmountInput(amount, "TRY", locale);
+      expect(parseMoney(text, "TRY", locale)).toBe(amount);
+    }
+    expect(formatAmountInput(125050, "TRY", "tr")).toBe("1.250,50");
+  });
 });

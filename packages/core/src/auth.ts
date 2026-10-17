@@ -1,21 +1,7 @@
 import { z } from "zod";
 import { CURRENCIES, type CurrencyCode } from "./currency";
 import { LOCALES } from "./locale";
-
-/**
- * Validation messages are translation keys (see the `Errors` namespace in the
- * web app's messages) so every client can show them in the user's language.
- */
-export type ValidationError =
-  | "invalidEmail"
-  | "passwordTooShort"
-  | "passwordTooLong"
-  | "passwordsDoNotMatch"
-  | "displayNameTooLong"
-  | "invalidLocale"
-  | "invalidCurrency";
-
-const error = (message: ValidationError) => ({ message });
+import { error } from "./validation";
 
 export const PASSWORD_MIN_LENGTH = 8;
 
@@ -57,15 +43,3 @@ export const profileSchema = z.object({
     error("invalidCurrency"),
   ),
 });
-
-export type FieldErrors = Partial<Record<string, ValidationError>>;
-
-/** Flattens a Zod error into the first message per field. */
-export function fieldErrors(error: z.ZodError): FieldErrors {
-  const result: FieldErrors = {};
-  for (const issue of error.issues) {
-    const field = String(issue.path[0] ?? "form");
-    result[field] ??= issue.message as ValidationError;
-  }
-  return result;
-}

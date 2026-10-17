@@ -1,5 +1,5 @@
 import "server-only";
-import { asUser, type JwtClaims, profiles } from "@projectb/db";
+import { asUser, type JwtClaims, profiles, type Tx } from "@projectb/db";
 import { eq } from "drizzle-orm";
 import { getLocale } from "next-intl/server";
 import { cache } from "react";
@@ -34,3 +34,11 @@ export const getProfile = cache(async () => {
     email: typeof claims.email === "string" ? claims.email : "",
   };
 });
+
+/** Runs queries as the signed-in user (row level security applies). */
+export async function withUser<T>(
+  run: (tx: Tx, claims: JwtClaims) => Promise<T>,
+) {
+  const claims = await requireClaims();
+  return asUser(getDb(), claims, (tx) => run(tx, claims));
+}

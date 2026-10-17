@@ -10,8 +10,10 @@ import { SubmitButton } from "@/components/ui/submit-button";
 import { signUp } from "@/lib/actions/auth";
 import { initialFormState } from "@/lib/actions/state";
 import { useFormErrors } from "./use-form-errors";
+import { useFieldId } from "@/components/ui/use-field-id";
 
 export function SignupForm() {
+  const fid = useFieldId();
   const t = useTranslations("Auth");
   const locale = useLocale();
   const [state, action] = useActionState(signUp, initialFormState);
@@ -35,9 +37,9 @@ export function SignupForm() {
     <form action={action} className="flex flex-col gap-4" noValidate>
       <input type="hidden" name="locale" value={locale} />
       {formError && <Alert>{formError}</Alert>}
-      <Field id="email" label={t("email")} error={fieldError("email")}>
+      <Field id={fid("email")} label={t("email")} error={fieldError("email")}>
         <Input
-          id="email"
+          id={fid("email")}
           name="email"
           type="email"
           autoComplete="email"
@@ -47,13 +49,13 @@ export function SignupForm() {
         />
       </Field>
       <Field
-        id="password"
+        id={fid("password")}
         label={t("password")}
         hint={t("passwordHint")}
         error={fieldError("password")}
       >
         <Input
-          id="password"
+          id={fid("password")}
           name="password"
           type="password"
           autoComplete="new-password"

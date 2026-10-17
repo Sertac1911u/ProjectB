@@ -79,3 +79,17 @@ export function parseMoney(
 function escapeRegExp(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
+
+/** Formats minor units for an input field: "1.250,50" in Turkish, no symbol. */
+export function formatAmountInput(
+  amount: MinorUnits,
+  currency: CurrencyCode,
+  locale: string,
+): string {
+  assertMinorUnits(amount);
+  const { minorUnits } = CURRENCIES[currency];
+  return new Intl.NumberFormat(locale, {
+    minimumFractionDigits: minorUnits,
+    maximumFractionDigits: minorUnits,
+  }).format(amount / 10 ** minorUnits);
+}
