@@ -14,21 +14,32 @@ export type FormState = {
 
 export const initialFormState: FormState = { status: "idle" };
 
-/** Maps Supabase Auth error codes to translated messages. */
-export function authErrorCode(code: string | undefined): ErrorCode {
-  switch (code) {
-    case "invalid_credentials":
-      return "invalidCredentials";
-    case "email_not_confirmed":
-      return "emailNotConfirmed";
-    case "weak_password":
-      return "weakPassword";
-    case "same_password":
-      return "samePassword";
-    case "over_request_rate_limit":
-    case "over_email_send_rate_limit":
-      return "rateLimited";
-    default:
-      return "unknown";
-  }
+const AUTH_ERRORS: Record<string, ErrorCode> = {
+  invalid_credentials: "invalidCredentials",
+  email_not_confirmed: "emailNotConfirmed",
+  weak_password: "weakPassword",
+  same_password: "samePassword",
+  over_request_rate_limit: "rateLimited",
+  over_email_send_rate_limit: "rateLimited",
+  email_address_invalid: "emailRejected",
+  email_address_not_authorized: "emailNotAuthorized",
+  signup_disabled: "signupDisabled",
+  user_already_exists: "userAlreadyExists",
+  email_exists: "userAlreadyExists",
+};
+
+/**
+ * Maps a Supabase Auth error to a translated message. Unexpected errors are
+ * logged to the server console, since the user only sees a generic message.
+ */
+export function authErrorCode(
+  error: { code?: string; status?: number; message: string },
+  action: string,
+): ErrorCode {
+  const known = error.code ? AUTH_ERRORS[error.code] : undefined;
+  if (known) return known;
+  console.error(
+    `[auth] ${action} failed (${error.code ?? error.status ?? "no code"}): ${error.message}`,
+  );
+  return "unknown";
 }

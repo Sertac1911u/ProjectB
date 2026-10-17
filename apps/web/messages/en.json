@@ -113,6 +113,10 @@
     "weakPassword": "This password is too weak, choose a stronger one.",
     "samePassword": "The new password must differ from the old one.",
     "rateLimited": "Too many attempts. Wait a moment and try again.",
+    "emailRejected": "This email address was not accepted. Try a different one.",
+    "emailNotAuthorized": "We cannot send a confirmation email to this address. Supabase's built-in email service only sends to members of the project team.",
+    "signupDisabled": "Sign-ups are currently closed.",
+    "userAlreadyExists": "An account with this email already exists. Try signing in.",
     "unknown": "Something went wrong. Please try again."
   },
   "Settings": {
