@@ -12,9 +12,7 @@
   "Landing": {
     "title": "Know where your money goes.",
     "subtitle": "Track your accounts, credit card instalments and monthly budget in one place.",
-    "openPreview": "Preview the dashboard",
     "signIn": "Sign in",
-    "signInSoon": "Sign in and sign up are coming in the next phase.",
     "features": {
       "accounts": {
         "title": "All accounts in one place",
@@ -32,7 +30,9 @@
         "title": "Multiple currencies",
         "description": "Lira, dollar, euro and pound accounts combined at current exchange rates."
       }
-    }
+    },
+    "getStarted": "Get started for free",
+    "openDashboard": "Open dashboard"
   },
   "Nav": {
     "dashboard": "Dashboard",
@@ -51,11 +51,92 @@
     "income": "Income this month",
     "expense": "Spending this month",
     "emptyTitle": "No data yet",
-    "emptyDescription": "Your summary will appear here once you add accounts and transactions."
+    "emptyDescription": "Your summary will appear here once you add accounts and transactions.",
+    "greeting": "Hello, {name}",
+    "greetingNoName": "Hello"
   },
   "NotFound": {
     "title": "Page not found",
     "description": "The page you are looking for may have moved or never existed.",
     "back": "Back to home"
+  },
+  "Auth": {
+    "email": "Email",
+    "password": "Password",
+    "newPassword": "New password",
+    "confirmPassword": "Repeat new password",
+    "passwordHint": "At least 8 characters.",
+    "login": {
+      "title": "Sign in",
+      "description": "Sign in to your account.",
+      "submit": "Sign in",
+      "forgot": "Forgot your password?",
+      "noAccount": "No account yet?",
+      "signUpLink": "Sign up"
+    },
+    "signup": {
+      "title": "Create an account",
+      "description": "Create your free account in seconds.",
+      "submit": "Sign up",
+      "haveAccount": "Already have an account?",
+      "loginLink": "Sign in",
+      "checkEmailTitle": "Check your email",
+      "checkEmail": "We sent a confirmation link to {email}. Click it to activate your account."
+    },
+    "forgot": {
+      "title": "Reset your password",
+      "description": "Enter your email and we will send you a reset link.",
+      "submit": "Send link",
+      "back": "Back to sign in",
+      "sent": "If an account exists for this address, we sent a reset link. Check your inbox."
+    },
+    "reset": {
+      "title": "Set a new password",
+      "description": "Choose a new password for your account.",
+      "submit": "Save password",
+      "done": "Your password has been updated.",
+      "continue": "Open dashboard"
+    },
+    "linkError": "This link is invalid or has expired. Please try again.",
+    "signOut": "Sign out"
+  },
+  "Errors": {
+    "invalidEmail": "Enter a valid email address.",
+    "passwordTooShort": "Password must be at least 8 characters.",
+    "passwordTooLong": "Password can be at most 72 characters.",
+    "passwordsDoNotMatch": "Passwords do not match.",
+    "displayNameTooLong": "Name can be at most 60 characters.",
+    "invalidLocale": "Invalid language.",
+    "invalidCurrency": "Invalid currency.",
+    "invalidCredentials": "Incorrect email or password.",
+    "emailNotConfirmed": "Your email is not confirmed yet. Click the link in your inbox.",
+    "weakPassword": "This password is too weak, choose a stronger one.",
+    "samePassword": "The new password must differ from the old one.",
+    "rateLimited": "Too many attempts. Wait a moment and try again.",
+    "unknown": "Something went wrong. Please try again."
+  },
+  "Settings": {
+    "profileTitle": "Profile",
+    "profileDescription": "Your name, interface language and the main currency used in reports.",
+    "displayName": "Display name",
+    "displayNamePlaceholder": "e.g. Alex",
+    "language": "Language",
+    "baseCurrency": "Main currency",
+    "baseCurrencyHint": "Accounts in other currencies are converted to this one in reports.",
+    "save": "Save",
+    "saved": "Saved.",
+    "securityTitle": "Security",
+    "securityDescription": "You sign in with: {email}",
+    "changePassword": "Change password",
+    "languages": {
+      "tr": "Türkçe",
+      "en": "English"
+    },
+    "currencies": {
+      "TRY": "Turkish lira (TRY)",
+      "USD": "US dollar (USD)",
+      "EUR": "Euro (EUR)",
+      "GBP": "British pound (GBP)"
+    }
   }
 }

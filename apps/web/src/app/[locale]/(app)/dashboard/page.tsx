@@ -1,29 +1,41 @@
-import { DEFAULT_CURRENCY, formatMoney } from "@projectb/core";
+import { DEFAULT_CURRENCY, formatMoney, isCurrencyCode } from "@projectb/core";
 import { ChartPie } from "lucide-react";
 import { getLocale, getTranslations } from "next-intl/server";
-import { PageHeader } from "@/components/page-header";
+import { Suspense } from "react";
 import {
   Card,
   CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { getProfile } from "@/lib/auth";
+
+const SUMMARY = ["netWorth", "income", "expense"] as const;
 
 export default async function DashboardPage() {
   const t = await getTranslations("Dashboard");
-  const tNav = await getTranslations("Nav");
-  const locale = await getLocale();
-  const zero = formatMoney(0, DEFAULT_CURRENCY, locale);
 
   return (
     <>
-      <PageHeader title={tNav("dashboard")} />
+      <Suspense
+        fallback={
+          <div className="mb-6 h-8 w-48 animate-pulse rounded bg-muted" />
+        }
+      >
+        <Greeting />
+      </Suspense>
       <div className="grid gap-4 sm:grid-cols-3">
-        {(["netWorth", "income", "expense"] as const).map((key) => (
+        {SUMMARY.map((key) => (
           <Card key={key}>
             <CardHeader>
               <CardDescription>{t(key)}</CardDescription>
-              <CardTitle className="text-2xl tabular-nums">{zero}</CardTitle>
+              <Suspense
+                fallback={
+                  <div className="h-8 w-24 animate-pulse rounded bg-muted" />
+                }
+              >
+                <ZeroAmount />
+              </Suspense>
             </CardHeader>
           </Card>
         ))}
@@ -38,5 +50,32 @@ export default async function DashboardPage() {
         </p>
       </Card>
     </>
+  );
+}
+
+async function Greeting() {
+  const [profile, t] = await Promise.all([
+    getProfile(),
+    getTranslations("Dashboard"),
+  ]);
+  return (
+    <h1 className="mb-6 text-2xl font-semibold tracking-tight">
+      {profile.displayName
+        ? t("greeting", { name: profile.displayName })
+        : t("greetingNoName")}
+    </h1>
+  );
+}
+
+/** Placeholder until accounts exist; shown in the user's main currency. */
+async function ZeroAmount() {
+  const [profile, locale] = await Promise.all([getProfile(), getLocale()]);
+  const currency = isCurrencyCode(profile.baseCurrency)
+    ? profile.baseCurrency
+    : DEFAULT_CURRENCY;
+  return (
+    <CardTitle className="text-2xl tabular-nums">
+      {formatMoney(0, currency, locale)}
+    </CardTitle>
   );
 }

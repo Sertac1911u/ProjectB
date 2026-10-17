@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import type { Messages } from "next-intl";
 import { getTranslations } from "next-intl/server";
+import { Suspense } from "react";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { Logo } from "@/components/logo";
 import { buttonVariants } from "@/components/ui/button";
@@ -18,6 +19,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Link } from "@/i18n/navigation";
+import { getClaims } from "@/lib/auth";
 
 const features: {
   key: keyof Messages["Landing"]["features"];
@@ -36,7 +38,12 @@ export default async function LandingPage() {
     <div className="mx-auto flex min-h-dvh max-w-5xl flex-col px-4 sm:px-6">
       <header className="flex items-center justify-between py-5">
         <Logo />
-        <LanguageSwitcher />
+        <div className="flex items-center gap-3">
+          <LanguageSwitcher />
+          <Suspense fallback={<div className="h-8 w-20" />}>
+            <HeaderAction />
+          </Suspense>
+        </div>
       </header>
 
       <main className="flex flex-1 flex-col justify-center gap-14 py-12">
@@ -46,23 +53,17 @@ export default async function LandingPage() {
           </h1>
           <p className="text-lg text-muted-foreground">{t("subtitle")}</p>
           <div className="flex flex-wrap items-center gap-3">
-            <Link href="/dashboard" className={buttonVariants({ size: "lg" })}>
-              {t("openPreview")}
+            <Link href="/signup" className={buttonVariants({ size: "lg" })}>
+              {t("getStarted")}
               <ArrowRight />
             </Link>
-            <span
-              className={buttonVariants({
-                variant: "outline",
-                size: "lg",
-                className: "pointer-events-none opacity-60",
-              })}
-              aria-disabled="true"
-              title={t("signInSoon")}
+            <Link
+              href="/login"
+              className={buttonVariants({ variant: "outline", size: "lg" })}
             >
               {t("signIn")}
-            </span>
+            </Link>
           </div>
-          <p className="text-sm text-muted-foreground">{t("signInSoon")}</p>
         </section>
 
         <section className="grid gap-4 sm:grid-cols-2">
@@ -82,5 +83,24 @@ export default async function LandingPage() {
         </section>
       </main>
     </div>
+  );
+}
+
+async function HeaderAction() {
+  const [claims, t] = await Promise.all([
+    getClaims(),
+    getTranslations("Landing"),
+  ]);
+  return claims ? (
+    <Link href="/dashboard" className={buttonVariants({ size: "sm" })}>
+      {t("openDashboard")}
+    </Link>
+  ) : (
+    <Link
+      href="/login"
+      className={buttonVariants({ variant: "ghost", size: "sm" })}
+    >
+      {t("signIn")}
+    </Link>
   );
 }

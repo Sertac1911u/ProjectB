@@ -7,4 +7,6 @@ export default defineConfig({
   dbCredentials: {
     url: process.env.DATABASE_URL ?? "",
   },
+  // Supabase manages its own roles (anon, authenticated, ...).
+  entities: { roles: { provider: "supabase" } },
 });

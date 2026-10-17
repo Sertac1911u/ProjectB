@@ -1,8 +1,7 @@
+import { DEFAULT_LOCALE, LOCALES } from "@projectb/core";
 import { defineRouting } from "next-intl/routing";
 
 export const routing = defineRouting({
-  locales: ["tr", "en"],
-  defaultLocale: "tr",
+  locales: LOCALES,
+  defaultLocale: DEFAULT_LOCALE,
 });
-
-export type Locale = (typeof routing.locales)[number];

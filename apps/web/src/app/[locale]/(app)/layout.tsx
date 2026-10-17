@@ -1,6 +1,8 @@
+import { Suspense } from "react";
 import { AppNav } from "@/components/app-nav";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { Logo } from "@/components/logo";
+import { UserMenu, UserMenuSkeleton } from "@/components/user-menu";
 
 export default function AppLayout({ children }: LayoutProps<"/[locale]">) {
   return (
@@ -9,12 +11,15 @@ export default function AppLayout({ children }: LayoutProps<"/[locale]">) {
         <div className="flex items-center justify-between">
           <Logo />
           <div className="md:hidden">
-            <LanguageSwitcher />
+            <LanguageSwitcher persist />
           </div>
         </div>
         <AppNav />
-        <div className="mt-auto hidden md:block">
-          <LanguageSwitcher />
+        <div className="mt-auto hidden flex-col gap-3 border-t pt-4 md:flex">
+          <Suspense fallback={<UserMenuSkeleton />}>
+            <UserMenu />
+          </Suspense>
+          <LanguageSwitcher persist />
         </div>
       </aside>
       <main className="min-w-0 flex-1 px-4 py-6 sm:px-8 sm:py-8">
