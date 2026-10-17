@@ -10,7 +10,17 @@ export type FormState = {
   fieldErrors?: FieldErrors;
   /** Submitted values to show again after a failed attempt (never passwords). */
   values?: Record<string, string>;
+  /**
+   * Differs on every response. Forms use it as their React key, so they
+   * remount (and refocus) even when two responses are otherwise identical.
+   */
+  nonce?: string;
 };
+
+/** Stamps a response with a fresh nonce; see FormState.nonce. */
+export function respond(state: FormState): FormState {
+  return { ...state, nonce: crypto.randomUUID() };
+}
 
 export const initialFormState: FormState = { status: "idle" };
 

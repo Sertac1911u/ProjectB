@@ -59,7 +59,7 @@ export function AccountForm({
   return (
     // Remount after each attempt so React's form reset keeps submitted values.
     <form
-      key={JSON.stringify(values)}
+      key={state.nonce ?? "initial"}
       action={action}
       className="flex flex-col gap-4"
       noValidate

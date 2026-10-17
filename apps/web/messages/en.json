@@ -248,7 +248,9 @@
     },
     "previous": "Previous",
     "next": "Next",
-    "transferLabel": "{from} → {to}"
+    "transferLabel": "{from} → {to}",
+    "saveAndNew": "Save and add another",
+    "saved": "Transaction saved. You can add the next one."
   },
   "Categories": {
     "title": "Categories",

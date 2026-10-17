@@ -75,14 +75,7 @@ async function Transactions({ searchParams }: { searchParams: SearchParams }) {
     Number.parseInt(String(params.page ?? "1"), 10) || 1,
   );
 
-  const [locale, t, accounts, categories, tags] = await Promise.all([
-    getLocale(),
-    getTranslations("Transactions"),
-    getAccounts(),
-    getCategories(),
-    getTags(),
-  ]);
-
+  const locale = await getLocale();
   // Invalid filter values are ignored rather than reported.
   const amount = (text?: string) => {
     const parsed = text ? parseMoney(text, "TRY", locale) : null;
@@ -101,7 +94,14 @@ async function Transactions({ searchParams }: { searchParams: SearchParams }) {
     minAmount: amount(values.min),
     maxAmount: amount(values.max),
   };
-  const { rows, hasMore } = await listTransactions(filters, page);
+  // All queries in parallel: each one is a round trip to the database.
+  const [t, accounts, categories, tags, { rows, hasMore }] = await Promise.all([
+    getTranslations("Transactions"),
+    getAccounts(),
+    getCategories(),
+    getTags(),
+    listTransactions(filters, page),
+  ]);
   const filtered = Object.values(values).some(Boolean);
 
   const pageLink = (target: number) => ({

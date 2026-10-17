@@ -8,6 +8,7 @@ import {
   asUser,
   categories,
   createDb,
+  setTransactionTags,
   tags,
   transactions,
   transactionTags,
@@ -242,5 +243,51 @@ describe.skipIf(!url)("finance tables", () => {
         .catch(causeOf);
       expect(result, table).toMatch(/permission denied/);
     }
+  });
+
+  it("sets a transaction's tags exactly, reusing existing ones regardless of case", async () => {
+    const tagsOf = (id: string) =>
+      as(alice, async (tx) =>
+        (
+          await tx
+            .select({ name: tags.name })
+            .from(transactionTags)
+            .innerJoin(tags, eq(tags.id, transactionTags.tagId))
+            .where(eq(transactionTags.transactionId, id))
+        )
+          .map((r) => r.name)
+          .sort(),
+      );
+    const [row] = await as(alice, (tx) =>
+      tx
+        .insert(transactions)
+        .values({
+          kind: "expense",
+          accountId: aliceCash,
+          amount: 1,
+          occurredOn: "2026-10-05",
+        })
+        .returning({ id: transactions.id }),
+    );
+    const id = row!.id;
+
+    await as(alice, (tx) => setTransactionTags(tx, id, ["Ev", "market"]));
+    expect(await tagsOf(id)).toEqual(["Ev", "market"]);
+
+    // "ev" matches the existing "Ev"; "market" is dropped; "yeni" is created.
+    await as(alice, (tx) => setTransactionTags(tx, id, ["ev", "yeni"]));
+    expect(await tagsOf(id)).toEqual(["Ev", "yeni"]);
+
+    await as(alice, (tx) => setTransactionTags(tx, id, []));
+    expect(await tagsOf(id)).toEqual([]);
+
+    const names = await as(alice, async (tx) =>
+      (await tx.select({ name: tags.name }).from(tags))
+        .map((r) => r.name)
+        .sort(),
+    );
+    expect(
+      names.filter((n) => ["Ev", "ev", "market", "yeni"].includes(n)),
+    ).toEqual(["Ev", "market", "yeni"]);
   });
 });
