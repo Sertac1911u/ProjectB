@@ -721,7 +721,8 @@
     "essentials": "Düzenli ödemeler, aylık",
     "envelopes": "Zarflar",
     "tile": "Gelirin kesilse ~{months} idare edersin",
-    "details": "Ayrıntılar"
+    "details": "Ayrıntılar",
+    "reasonLoans": "Kredi taksitlerin ayda {amount}; gelir kesilse de ödenmeye devam ettiği için hesaba katıldı."
   },
   "Debts": {
     "title": "Borç planı",
