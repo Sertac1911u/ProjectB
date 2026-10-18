@@ -294,13 +294,16 @@ async function Summary() {
                   kind={card.kind}
                   className="text-2xl font-semibold"
                 />
-                {card.key === "netWorth" && (
-                  <Sparkline
-                    values={history.points.map((p) => p.value)}
-                    label={t("netWorthTrend")}
-                    width={88}
-                  />
-                )}
+                {/* A trend needs a few months behind it to say anything. */}
+                {card.key === "netWorth" &&
+                  history.points.filter((p) => p.value !== null).length >=
+                    3 && (
+                    <Sparkline
+                      values={history.points.map((p) => p.value)}
+                      label={t("netWorthTrend")}
+                      width={88}
+                    />
+                  )}
               </div>
             </CardHeader>
           </Card>

@@ -10,38 +10,104 @@
 
 :root {
   --radius: 0.75rem;
-  --background: oklch(0.985 0.002 247);
-  --foreground: oklch(0.21 0.02 257);
-  --card: oklch(1 0 0);
+  /* Adaçayı: soft sage on paper-toned neutrals, low contrast on purpose. */
+  --background: #f3f4f0;
+  --foreground: #272b25;
+  --card: #fafbf7;
   --card-foreground: var(--foreground);
-  --muted: oklch(0.96 0.005 247);
-  --muted-foreground: oklch(0.52 0.02 257);
-  --border: oklch(0.92 0.006 247);
-  --primary: oklch(0.52 0.13 165);
-  --primary-foreground: oklch(0.99 0.01 165);
-  --accent: oklch(0.95 0.03 165);
-  --accent-foreground: oklch(0.38 0.09 165);
-  --destructive: oklch(0.58 0.2 27);
-  --warning: oklch(0.78 0.15 75);
-  --warning-foreground: oklch(0.5 0.12 60);
-  --ring: oklch(0.52 0.13 165);
+  --muted: #ebede5;
+  --muted-foreground: #62695e;
+  --border: #e0e3da;
+  --primary: #55755a;
+  --primary-foreground: #ffffff;
+  --accent: #e5ebe1;
+  --accent-foreground: #3d5741;
+  --destructive: #b5513f;
+  --destructive-foreground: #ffffff;
+  --warning: #c99a3c;
+  --warning-foreground: #8a5f17;
+  --ring: #55755a;
   /* Chart series, validated for color vision deficiencies on the card surface. */
-  --chart-income: #2a78d6;
-  --chart-expense: #eb6834;
+  --chart-income: #3a7cc0;
+  --chart-expense: #c4703c;
   /* Category slices, in this order; the rest share --chart-other. */
-  --chart-1: #2a78d6;
-  --chart-2: #eb6834;
-  --chart-3: #1baf7a;
-  --chart-4: #eda100;
-  --chart-5: #e87ba4;
-  --chart-6: #6250d6;
-  --chart-other: #a3a29a;
-  --chart-grid: #ebeae6;
-  --chart-axis: #c3c2b7;
+  --chart-1: #3f8a5a;
+  --chart-2: #3a7cc0;
+  --chart-3: #d39a2a;
+  --chart-4: #cf5f7f;
+  --chart-5: #7a68c9;
+  --chart-6: #c4703c;
+  --chart-other: #a3a69c;
+  --chart-grid: #e8eae3;
+  --chart-axis: #c2c6bb;
+}
+
+/* Dark: the system setting, unless light was chosen, or dark chosen. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --background: #151714;
+    --foreground: #e0e4db;
+    --card: #1c1f1a;
+    --card-foreground: var(--foreground);
+    --muted: #252923;
+    --muted-foreground: #a0a797;
+    --border: #2e332b;
+    --primary: #9cba9b;
+    --primary-foreground: #132013;
+    --accent: #263026;
+    --accent-foreground: #b9d2b5;
+    --destructive: #d9785f;
+    --destructive-foreground: #1f0d08;
+    --warning: #d6aa52;
+    --warning-foreground: #e2bd6e;
+    --ring: #9cba9b;
+    --chart-income: #4887cc;
+    --chart-expense: #c4703c;
+    --chart-1: #469562;
+    --chart-2: #4887cc;
+    --chart-3: #bf8a2a;
+    --chart-4: #cc5f7b;
+    --chart-5: #8272d6;
+    --chart-6: #c4703c;
+    --chart-other: #6f7469;
+    --chart-grid: #2a2e27;
+    --chart-axis: #454b41;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --background: #151714;
+  --foreground: #e0e4db;
+  --card: #1c1f1a;
+  --card-foreground: var(--foreground);
+  --muted: #252923;
+  --muted-foreground: #a0a797;
+  --border: #2e332b;
+  --primary: #9cba9b;
+  --primary-foreground: #132013;
+  --accent: #263026;
+  --accent-foreground: #b9d2b5;
+  --destructive: #d9785f;
+  --destructive-foreground: #1f0d08;
+  --warning: #d6aa52;
+  --warning-foreground: #e2bd6e;
+  --ring: #9cba9b;
+  --chart-income: #4887cc;
+  --chart-expense: #c4703c;
+  --chart-1: #469562;
+  --chart-2: #4887cc;
+  --chart-3: #bf8a2a;
+  --chart-4: #cc5f7b;
+  --chart-5: #8272d6;
+  --chart-6: #c4703c;
+  --chart-other: #6f7469;
+  --chart-grid: #2a2e27;
+  --chart-axis: #454b41;
+  color-scheme: dark;
 }
 
 @theme inline {
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
@@ -57,6 +123,7 @@
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
   --color-warning: var(--warning);
   --color-warning-foreground: var(--warning-foreground);
   --color-ring: var(--ring);

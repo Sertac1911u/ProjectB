@@ -43,13 +43,14 @@ export async function TransactionList({
   const days = Map.groupBy(rows, (row) => row.occurredOn);
 
   return (
-    <div className="flex flex-col gap-4">
+    // One card, with a quiet heading row for each day.
+    <Card className="overflow-hidden">
       {[...days].map(([day, items]) => (
-        <section key={day}>
-          <h2 className="mb-2 text-sm font-medium text-muted-foreground">
+        <section key={day} className="border-t first:border-t-0">
+          <h2 className="bg-muted/50 px-4 py-1.5 text-xs font-medium text-muted-foreground sm:px-5">
             {formatDay(day, locale)}
           </h2>
-          <Card className="divide-y">
+          <div className="divide-y border-t">
             {items.map((row) => {
               const Icon =
                 ICONS[row.kind as keyof typeof ICONS] ?? ArrowUpRight;
@@ -64,7 +65,7 @@ export async function TransactionList({
                 <Link
                   key={row.id}
                   href={`/transactions/${row.id}`}
-                  className="flex items-center gap-3 px-4 py-3 transition-colors first:rounded-t-xl last:rounded-b-xl hover:bg-muted/60 sm:px-5"
+                  className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-muted/60 sm:px-5"
                 >
                   <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground">
                     <Icon className="size-4" />
@@ -128,9 +129,9 @@ export async function TransactionList({
                 </Link>
               );
             })}
-          </Card>
+          </div>
         </section>
       ))}
-    </div>
+    </Card>
   );
 }

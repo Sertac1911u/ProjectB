@@ -110,7 +110,7 @@ Kulaklık girerken taksit seçince "3 × ₺2.000,00" önizlemesi görünmeli.
   | Kardeşime borç  | −₺10.000,00                    |
   | Altın           | ₺63.000,00                     |
 
-- Üstte: Varlıklar ₺221.598,71 (**kur**), Borçlar −₺108.279,99, Net servet ₺113.318,72 (**kur**), "Borç planı" düğmesi
+- Üstte tek özet kartı: Varlıklar ₺221.598,71 (**kur**), Borçlar −₺108.279,99, Net servet ₺113.318,72 (**kur**), "Borç planı" düğmesi; altında Toplam (TRY) ve Toplam (USD)
 
 **Arama ve filtre (İşlemler):**
 
@@ -215,7 +215,7 @@ Hedefler listesinde her hedefin altında "Bu hızla …" tarihi görünmeli.
 **Panel ve Nakit akışı (zarf eklemeden önce):**
 
 - Özet:
-  - Maaşa 29 gün var · **Günde ₺2.140,34** güvenle harcayabilirsin
+  - "Maaşa 29 gün var" etiketi · Günde güvenle harcayabileceğin **₺2.140,34** / gün
   - Maaşa kadar toplam ₺62.070,02
   - Şu an kullanılabilir ₺88.500,01
   - En düşük bakiye 5 Kasım 2026 tarihinde ₺62.070,02

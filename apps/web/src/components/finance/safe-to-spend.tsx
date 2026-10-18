@@ -65,76 +65,103 @@ export async function SafeToSpend({
 
   const short = forecast.safeToSpend < 0;
   const firstShortfall = forecast.shortfalls.find((e) => e.beforePayday);
+  const stats = [
+    !short && {
+      key: "total",
+      label: toPayday ? t("statSafeTotal") : t("statSafeTotalMonth"),
+      value: money(forecast.safeToSpend),
+    },
+    {
+      key: "available",
+      label: t("statAvailable"),
+      value: money(forecast.accountBalance),
+    },
+    forecast.reserved > 0 && {
+      key: "reserved",
+      label: t("statReserved"),
+      value: money(forecast.reserved),
+    },
+    forecast.lowest.balance < forecast.startBalance && {
+      key: "lowest",
+      label: t("statLowest", { date: formatDay(forecast.lowest.on, locale) }),
+      value: money(forecast.lowest.balance),
+      alert: short,
+    },
+  ].filter((x) => x !== false);
   return (
-    <Card className="flex flex-col gap-4 p-6">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="flex flex-col gap-1">
-          <p className="text-sm font-medium text-muted-foreground">
+    <Card className="flex flex-col overflow-hidden">
+      <div className="flex flex-col gap-4 bg-gradient-to-br from-accent/70 to-transparent p-6">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <span className="inline-flex items-center rounded-full bg-card/80 px-3 py-1 text-xs font-medium text-accent-foreground ring-1 ring-border">
             {toPayday
               ? t("daysToPayday", { days: forecast.daysLeft })
               : t("daysToMonthEnd", { days: forecast.daysLeft })}
-          </p>
-          {short ? (
-            <p className="flex items-center gap-2 text-2xl font-semibold text-destructive">
-              <AlertTriangle className="size-6 shrink-0" />
-              {toPayday
-                ? t("shortfall", { amount: money(-forecast.safeToSpend) })
-                : t("shortfallMonth", { amount: money(-forecast.safeToSpend) })}
-            </p>
-          ) : (
-            <p className="text-3xl font-semibold tracking-tight">
-              {t("perDay", { amount: money(forecast.dailyLimit) })}{" "}
-              <span className="text-base font-normal text-muted-foreground">
-                {t("perDayHint")}
-              </span>
-            </p>
+          </span>
+          {detailsLink && (
+            <Link
+              href="/cashflow"
+              className={buttonVariants({ variant: "outline", size: "sm" })}
+            >
+              {t("details")}
+              <ArrowRight />
+            </Link>
           )}
         </div>
-        {detailsLink && (
-          <Link
-            href="/cashflow"
-            className={buttonVariants({ variant: "outline", size: "sm" })}
-          >
-            {t("details")}
-            <ArrowRight />
-          </Link>
+        {short ? (
+          <p className="flex items-center gap-2 text-2xl font-semibold text-destructive">
+            <AlertTriangle className="size-6 shrink-0" />
+            {toPayday
+              ? t("shortfall", { amount: money(-forecast.safeToSpend) })
+              : t("shortfallMonth", { amount: money(-forecast.safeToSpend) })}
+          </p>
+        ) : (
+          <div className="flex flex-col gap-1">
+            <p className="text-sm text-muted-foreground">{t("perDayLabel")}</p>
+            <p className="flex flex-wrap items-baseline gap-x-2 text-4xl font-semibold tracking-tight text-primary tabular-nums">
+              {money(forecast.dailyLimit)}
+              <span className="text-base font-normal text-muted-foreground">
+                {t("perDayUnit")}
+              </span>
+            </p>
+          </div>
         )}
       </div>
 
-      <ul className="flex flex-col gap-1 text-sm text-muted-foreground">
-        {!short && (
-          <li>
-            {toPayday
-              ? t("safeTotal", { amount: money(forecast.safeToSpend) })
-              : t("safeTotalMonth", { amount: money(forecast.safeToSpend) })}
-          </li>
-        )}
-        <li>{t("available", { amount: money(forecast.accountBalance) })}</li>
-        {forecast.reserved > 0 && (
-          <li>{t("reservedLine", { amount: money(forecast.reserved) })}</li>
-        )}
-        {forecast.lowest.balance < forecast.startBalance && (
-          <li className={cn(short && "text-destructive")}>
-            {t("lowest", {
-              date: formatDay(forecast.lowest.on, locale),
-              amount: money(forecast.lowest.balance),
-            })}
-          </li>
-        )}
-        {firstShortfall && (
-          <li className="text-destructive">
-            {t("shortfallAt", {
-              date: formatDay(firstShortfall.on, locale),
-              label: describe(firstShortfall.source),
-              amount: money(firstShortfall.balance),
-            })}
-          </li>
-        )}
-        {forecast.missingRate && <li>{t("missingRates")}</li>}
-      </ul>
+      <dl className="grid grid-cols-2 gap-px border-t bg-border sm:grid-cols-4">
+        {stats.map((stat) => (
+          <div
+            key={stat.key}
+            className="flex flex-col gap-0.5 bg-card px-6 py-3"
+          >
+            <dt className="text-xs text-muted-foreground">{stat.label}</dt>
+            <dd
+              className={cn(
+                "text-sm font-semibold tabular-nums",
+                "alert" in stat && stat.alert && "text-destructive",
+              )}
+            >
+              {stat.value}
+            </dd>
+          </div>
+        ))}
+      </dl>
+      {(firstShortfall || forecast.missingRate) && (
+        <ul className="flex flex-col gap-1 border-t px-6 py-3 text-sm text-muted-foreground">
+          {firstShortfall && (
+            <li className="text-destructive">
+              {t("shortfallAt", {
+                date: formatDay(firstShortfall.on, locale),
+                label: describe(firstShortfall.source),
+                amount: money(firstShortfall.balance),
+              })}
+            </li>
+          )}
+          {forecast.missingRate && <li>{t("missingRates")}</li>}
+        </ul>
+      )}
 
       {!forecast.hasIncomeRule && (
-        <div className="flex flex-wrap items-center gap-3 rounded-md bg-muted/60 p-3 text-sm">
+        <div className="m-4 flex flex-wrap items-center gap-3 rounded-md bg-muted/60 p-3 text-sm">
           <p className="min-w-0 flex-1">{t("noPayday")}</p>
           <Link
             href={{ pathname: "/recurring/new", query: { kind: "income" } }}

@@ -115,83 +115,65 @@ async function AccountList() {
 
   return (
     <div className="flex flex-col gap-4">
-      {debts > 0 && (
-        <Card className="flex flex-wrap items-center gap-x-8 gap-y-3 p-5">
-          <div>
-            <p className="text-sm text-muted-foreground">{t("assets")}</p>
-            <Amount
-              value={assets}
-              currency={base}
-              locale={locale}
-              className="text-xl font-semibold"
-            />
-          </div>
-          <div>
-            <p className="text-sm text-muted-foreground">{t("debts")}</p>
-            <Amount
-              value={-debts}
-              currency={base}
-              locale={locale}
-              className="text-xl font-semibold"
-            />
-          </div>
-          <div>
-            <p className="text-sm text-muted-foreground">{t("netWorth")}</p>
-            <Amount
-              value={assets - debts}
-              currency={base}
-              locale={locale}
-              className="text-xl font-semibold"
-            />
-          </div>
-          {hasDebtPlan && (
-            <Link
-              href="/debts"
-              className={buttonVariants({
-                variant: "outline",
-                size: "sm",
-                className: "ml-auto",
-              })}
-            >
-              {t("debtPlan")}
-            </Link>
-          )}
-        </Card>
-      )}
+      {/* One summary: assets, debts and net worth (or just the total), with
+          the per-currency totals underneath when there is more than one. */}
       {totals.length > 0 && (
-        <div>
-          <div className="grid gap-4 sm:grid-cols-3">
-            {multiCurrency && (
-              <Card className="border-primary/30 p-5">
-                <p className="text-sm text-muted-foreground">
-                  {t("totalIn", { currency: base })}
-                </p>
-                <Amount
-                  value={overall.total}
-                  currency={base}
-                  locale={locale}
-                  className="text-2xl font-semibold"
-                />
-              </Card>
+        <Card className="flex flex-col gap-4 p-5">
+          <div className="flex flex-wrap items-end gap-x-10 gap-y-3">
+            {debts > 0 && (
+              <>
+                <Figure label={t("assets")}>
+                  <Amount value={assets} currency={base} locale={locale} />
+                </Figure>
+                <Figure label={t("debts")}>
+                  <Amount value={-debts} currency={base} locale={locale} />
+                </Figure>
+              </>
             )}
-            {totals.map(([currency, total]) => (
-              <Card key={currency} className="p-5">
-                <p className="text-sm text-muted-foreground">
-                  {t("total", { currency })}
-                </p>
-                <Amount
-                  value={total}
-                  currency={currency}
-                  locale={locale}
-                  className="text-2xl font-semibold"
-                />
-              </Card>
-            ))}
+            <Figure
+              label={
+                debts > 0 ? t("netWorth") : t("totalIn", { currency: base })
+              }
+              large
+            >
+              <Amount
+                value={debts > 0 ? assets - debts : overall.total}
+                currency={base}
+                locale={locale}
+              />
+            </Figure>
+            {hasDebtPlan && (
+              <Link
+                href="/debts"
+                className={buttonVariants({
+                  variant: "outline",
+                  size: "sm",
+                  className: "ml-auto self-center",
+                })}
+              >
+                {t("debtPlan")}
+              </Link>
+            )}
           </div>
           {multiCurrency && (
-            <RatesNote info={rateInfo} missing={overall.missing.length > 0} />
+            <div className="flex flex-col gap-1 border-t pt-3">
+              <p className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
+                {totals.map(([currency, total]) => (
+                  <span key={currency}>
+                    {t("total", { currency })}:{" "}
+                    <Amount
+                      value={total}
+                      currency={currency}
+                      locale={locale}
+                      className="font-medium text-foreground"
+                    />
+                  </span>
+                ))}
+              </p>
+              <RatesNote info={rateInfo} missing={overall.missing.length > 0} />
+            </div>
           )}
-        </div>
+        </Card>
       )}
       <Card className="divide-y">
         {active.map((account) => (
@@ -270,5 +252,30 @@ function AccountRow({
         )}
       </div>
     </Link>
+  );
+}
+
+function Figure({
+  label,
+  large = false,
+  children,
+}: {
+  label: string;
+  large?: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="flex flex-col gap-0.5">
+      <p className="text-sm text-muted-foreground">{label}</p>
+      <div
+        className={
+          large
+            ? "text-2xl font-semibold tracking-tight"
+            : "text-lg font-semibold"
+        }
+      >
+        {children}
+      </div>
+    </div>
   );
 }
