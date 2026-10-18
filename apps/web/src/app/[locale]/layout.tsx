@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist } from "next/font/google";
+import { Plus_Jakarta_Sans } from "next/font/google";
 import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
@@ -8,8 +8,8 @@ import { routing } from "@/i18n/routing";
 import { preferenceScript } from "@/lib/preferences";
 import "../globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const jakarta = Plus_Jakarta_Sans({
+  variable: "--font-jakarta",
   subsets: ["latin", "latin-ext"],
 });
 
@@ -30,7 +30,7 @@ export default async function LocaleLayout({
 
   return (
     // The head script sets display preferences on <html> before React loads.
-    <html lang={locale} className={geistSans.variable} suppressHydrationWarning>
+    <html lang={locale} className={jakarta.variable} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: preferenceScript }} />
       </head>

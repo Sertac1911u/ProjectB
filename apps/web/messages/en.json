@@ -60,7 +60,13 @@
     "openMenu": "Open menu",
     "closeMenu": "Close menu",
     "collapse": "Collapse menu",
-    "expand": "Expand menu"
+    "expand": "Expand menu",
+    "theme": "Theme",
+    "themes": {
+      "system": "System",
+      "light": "Light",
+      "dark": "Dark"
+    }
   },
   "Dashboard": {
     "netWorth": "Net worth",
@@ -635,7 +641,14 @@
     "howItWorks": "After planned payments, the lowest balance you reach before payday is what you can safely spend. Spending you have not planned is not predicted.",
     "goToAccounts": "Go to accounts",
     "thisPurchase": "This purchase",
-    "reservedLine": "Kept in envelopes: {amount}"
+    "reservedLine": "Kept in envelopes: {amount}",
+    "perDayLabel": "Safe to spend per day",
+    "perDayUnit": "/ day",
+    "statSafeTotal": "Total until payday",
+    "statSafeTotalMonth": "Total until month end",
+    "statAvailable": "Available now",
+    "statReserved": "Set aside in envelopes",
+    "statLowest": "Lowest balance · {date}"
   },
   "Welcome": {
     "title": "How do you want to use the app?",

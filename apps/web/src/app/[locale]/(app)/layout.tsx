@@ -4,6 +4,7 @@ import { LanguageSwitcher } from "@/components/language-switcher";
 import { Logo } from "@/components/logo";
 import { MobileMenu } from "@/components/shell/mobile-menu";
 import { SidebarToggle } from "@/components/shell/sidebar-toggle";
+import { ThemeSwitcher } from "@/components/shell/theme-switcher";
 import { UserMenu, UserMenuSkeleton } from "@/components/user-menu";
 import { getProfile } from "@/lib/auth";
 import { uiModeOf } from "@/lib/ui-mode";
@@ -20,7 +21,10 @@ export default function AppLayout({ children }: LayoutProps<"/[locale]">) {
             <Suspense fallback={<UserMenuSkeleton />}>
               <UserMenu />
             </Suspense>
-            <LanguageSwitcher persist />
+            <div className="flex items-center justify-between gap-2">
+              <LanguageSwitcher persist />
+              <ThemeSwitcher />
+            </div>
           </div>
         </MobileMenu>
       </header>
@@ -34,8 +38,9 @@ export default function AppLayout({ children }: LayoutProps<"/[locale]">) {
           <Suspense fallback={<UserMenuSkeleton />}>
             <UserMenu />
           </Suspense>
-          <div className="sidebar-collapsed:hidden">
+          <div className="flex items-center justify-between gap-2 sidebar-collapsed:hidden">
             <LanguageSwitcher persist />
+            <ThemeSwitcher />
           </div>
         </div>
       </aside>

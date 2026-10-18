@@ -60,7 +60,13 @@
     "openMenu": "Menüyü aç",
     "closeMenu": "Menüyü kapat",
     "collapse": "Menüyü daralt",
-    "expand": "Menüyü genişlet"
+    "expand": "Menüyü genişlet",
+    "theme": "Tema",
+    "themes": {
+      "system": "Sistem",
+      "light": "Açık",
+      "dark": "Koyu"
+    }
   },
   "Dashboard": {
     "netWorth": "Net varlık",
@@ -635,7 +641,14 @@
     "howItWorks": "Planlı ödemeler düşüldükten sonra maaşa kadar göreceğin en düşük bakiye, güvenle harcayabileceğin tutardır. Planlamadığın harcamalar tahmin edilmez.",
     "goToAccounts": "Hesaplara git",
     "thisPurchase": "Bu alışveriş",
-    "reservedLine": "Zarflara ayrılan: {amount}"
+    "reservedLine": "Zarflara ayrılan: {amount}",
+    "perDayLabel": "Günde güvenle harcayabileceğin",
+    "perDayUnit": "/ gün",
+    "statSafeTotal": "Maaşa kadar toplam",
+    "statSafeTotalMonth": "Ay sonuna kadar toplam",
+    "statAvailable": "Şu an kullanılabilir",
+    "statReserved": "Zarflara ayrılan",
+    "statLowest": "En düşük bakiye · {date}"
   },
   "Welcome": {
     "title": "Uygulamayı nasıl kullanmak istersin?",
