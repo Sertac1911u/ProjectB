@@ -4,8 +4,8 @@ import createNextIntlPlugin from "next-intl/plugin";
 const nextConfig: NextConfig = {
   cacheComponents: true,
   partialPrefetching: true,
-  // The default bottom-left spot covers the sidebar's sign-out button.
-  devIndicators: { position: "bottom-right" },
+  // The development badge ("Rendering…") only distracts while using the app.
+  devIndicators: false,
   transpilePackages: ["@projectb/core", "@projectb/db"],
   experimental: {
     // The Tailwind loader's scanned source files are not tracked by the

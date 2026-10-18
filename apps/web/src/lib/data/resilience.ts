@@ -33,7 +33,7 @@ const addDays = (day: string, days: number) =>
 export const getResilience = cache(async () => {
   const day = today();
   const lastMonth = periodRange("lastMonth", day);
-  const [accounts, rules, forecast, averages, rateInfo, profile] =
+  const [accounts, rules, forecast, averages, rateInfo, profile, then] =
     await Promise.all([
       getAccounts(),
       getRecurringRules(),
@@ -41,6 +41,7 @@ export const getResilience = cache(async () => {
       getMonthlyAverages(),
       getRates(),
       getProfile(),
+      getBalancesOn(lastMonth.to),
     ]);
   const currency: CurrencyCode = isCurrencyCode(profile.baseCurrency)
     ? profile.baseCurrency
@@ -116,7 +117,6 @@ export const getResilience = cache(async () => {
   // The change since last month compares only accounts that existed then,
   // so an account added today does not look like money gained. Gold is
   // revalued by hand, so its value has no history.
-  const then = await getBalancesOn(lastMonth.to);
   let change: number | null = null;
   for (const a of active) {
     if (a.type === "loan" || a.type === "gold") continue;

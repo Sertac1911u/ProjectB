@@ -285,9 +285,13 @@ export async function getTotals(from: string, to: string) {
   });
 }
 
-/** Every transaction that moves money on or off a card, oldest first. */
-export async function getCardTransactions(cardId: string) {
+/**
+ * Every transaction that moves money on or off any card, oldest first: one
+ * query that can start before the cards themselves are known.
+ */
+export const getAllCardTransactions = cache(async () => {
   await materializeRecurring();
+  const cards = sql`(select ${accounts.id} from ${accounts} where ${accounts.type} = 'credit_card')`;
   return withUser((tx) =>
     tx
       .select({
@@ -305,11 +309,18 @@ export async function getCardTransactions(cardId: string) {
       .from(transactions)
       .where(
         or(
-          eq(transactions.accountId, cardId),
-          eq(transactions.toAccountId, cardId),
+          sql`${transactions.accountId} in ${cards}`,
+          sql`${transactions.toAccountId} in ${cards}`,
         ),
       )
       .orderBy(asc(transactions.occurredOn), asc(transactions.createdAt)),
+  );
+});
+
+/** Every transaction that moves money on or off a card, oldest first. */
+export async function getCardTransactions(cardId: string) {
+  return (await getAllCardTransactions()).filter(
+    (t) => t.accountId === cardId || t.toAccountId === cardId,
   );
 }
 

@@ -46,6 +46,9 @@ import { cn } from "@/lib/utils";
 export default function DashboardPage() {
   return (
     <>
+      <Suspense fallback={null}>
+        <Preload />
+      </Suspense>
       <Suspense
         fallback={
           <div className="mb-6 h-8 w-48 animate-pulse rounded bg-muted" />
@@ -147,6 +150,37 @@ async function ResilienceTile() {
       <ArrowRight className="size-4 text-muted-foreground" />
     </Link>
   );
+}
+
+/**
+ * Starts every query the sections below need at once, instead of each
+ * section waiting for the ones before it (the results are cached per request).
+ */
+async function Preload() {
+  await connection();
+  const day = today();
+  const month = monthRange(day);
+  void Promise.allSettled([
+    getAccounts(),
+    getCashForecast(),
+    getResilience(),
+    getTotals(month.from, month.to),
+    getRates(),
+    getNetWorthHistory(
+      periodRange("12m", day).from,
+      periodRange("12m", day).to,
+    ),
+    getCategoryBreakdown(
+      "expense",
+      periodRange("thisMonth", day).from,
+      periodRange("thisMonth", day).to,
+    ),
+    getCashFlow(periodRange("6m", day).from, periodRange("6m", day).to),
+    getCategories(),
+    getBudgetOverview(monthOf(day)),
+    getGoals(),
+  ]);
+  return null;
 }
 
 /** Totals, budget alerts and charts, for the detailed interface only. */
