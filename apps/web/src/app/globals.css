@@ -1,5 +1,13 @@
 @import "tailwindcss";
 
+/* Inside the desktop sidebar while it is narrowed to its icons. */
+@custom-variant sidebar-collapsed {
+  html[data-sidebar="collapsed"] .app-sidebar &,
+  html[data-sidebar="collapsed"] &.app-sidebar {
+    @slot;
+  }
+}
+
 :root {
   --radius: 0.75rem;
   --background: oklch(0.985 0.002 247);
@@ -20,6 +28,14 @@
   /* Chart series, validated for color vision deficiencies on the card surface. */
   --chart-income: #2a78d6;
   --chart-expense: #eb6834;
+  /* Category slices, in this order; the rest share --chart-other. */
+  --chart-1: #2a78d6;
+  --chart-2: #eb6834;
+  --chart-3: #1baf7a;
+  --chart-4: #eda100;
+  --chart-5: #e87ba4;
+  --chart-6: #6250d6;
+  --chart-other: #a3a29a;
   --chart-grid: #ebeae6;
   --chart-axis: #c3c2b7;
 }
@@ -54,5 +70,49 @@
   }
   body {
     @apply bg-background font-sans text-foreground antialiased;
+  }
+}
+
+/* Dialogs fade and rise in; the system may ask for no motion. */
+.confirm-dialog[open] {
+  animation: dialog-in 160ms ease-out;
+}
+.confirm-dialog[open]::backdrop {
+  animation: backdrop-in 160ms ease-out;
+}
+@keyframes dialog-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+}
+@keyframes backdrop-in {
+  from {
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .confirm-dialog[open],
+  .confirm-dialog[open]::backdrop {
+    animation: none;
+  }
+}
+
+/* The small-screen menu slides in from the left. */
+.mobile-menu[open] {
+  animation: menu-in 200ms ease-out;
+}
+.mobile-menu[open]::backdrop {
+  animation: backdrop-in 200ms ease-out;
+}
+@keyframes menu-in {
+  from {
+    transform: translateX(-100%);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mobile-menu[open],
+  .mobile-menu[open]::backdrop {
+    animation: none;
   }
 }

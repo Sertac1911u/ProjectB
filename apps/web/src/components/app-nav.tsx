@@ -67,7 +67,7 @@ function NavLinks({
   const t = useTranslations("Nav");
 
   return (
-    <nav className="flex gap-1 overflow-x-auto md:flex-col md:overflow-visible">
+    <nav className="flex flex-col gap-0.5">
       {items
         .filter((item) => mode === "detailed" || item.simple)
         .map(({ href, key, icon: Icon }) => {
@@ -79,15 +79,18 @@ function NavLinks({
               key={href}
               href={href}
               aria-current={active ? "page" : undefined}
+              title={t(key)}
               className={cn(
-                "flex shrink-0 items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
+                "flex shrink-0 items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors sidebar-collapsed:justify-center sidebar-collapsed:px-0",
                 active
                   ? "bg-accent text-accent-foreground"
                   : "text-muted-foreground hover:bg-muted hover:text-foreground",
               )}
             >
-              <Icon className="size-4" />
-              {t(key)}
+              <Icon className="size-4.5 shrink-0" />
+              <span className="truncate sidebar-collapsed:sr-only">
+                {t(key)}
+              </span>
             </Link>
           );
         })}

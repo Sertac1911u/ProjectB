@@ -14,7 +14,8 @@
     "restore": "Geri al",
     "back": "Geri",
     "optional": "isteğe bağlı",
-    "confirmDelete": "Silmek istediğine emin misin? Bu işlem geri alınamaz."
+    "confirmTitle": "Silinsin mi?",
+    "confirmDelete": "Bu kayıt kalıcı olarak silinecek. Bu işlem geri alınamaz."
   },
   "Landing": {
     "title": "Paranın nereye gittiğini bil.",
@@ -53,6 +54,13 @@
     "settings": "Ayarlar",
     "categories": "Kategoriler",
     "recurring": "Tekrarlayan"
+  },
+  "Shell": {
+    "menu": "Menü",
+    "openMenu": "Menüyü aç",
+    "closeMenu": "Menüyü kapat",
+    "collapse": "Menüyü daralt",
+    "expand": "Menüyü genişlet"
   },
   "Dashboard": {
     "netWorth": "Net varlık",
@@ -205,8 +213,10 @@
     "confirmPassword": "Onaylamak için şifreni gir",
     "resetButton": "Tüm verileri sıfırla",
     "deleteButton": "Hesabımı kalıcı olarak sil",
-    "confirmReset": "Tüm verilerin silinecek ve uygulama sıfırdan başlayacak. Emin misin?",
-    "confirmDeleteAccount": "Hesabın ve tüm verilerin kalıcı olarak silinecek. Emin misin?"
+    "confirmResetTitle": "Veriler sıfırlansın mı?",
+    "confirmDeleteAccountTitle": "Hesap silinsin mi?",
+    "confirmReset": "Tüm verilerin silinecek ve uygulama sıfırdan başlayacak. Bu işlem geri alınamaz.",
+    "confirmDeleteAccount": "Hesabın ve tüm verilerin kalıcı olarak silinecek. Bu işlem geri alınamaz."
   },
   "AccountTypes": {
     "cash": "Nakit",
@@ -584,7 +594,9 @@
     "date": "Tarih",
     "share": "Pay",
     "amount": "Tutar",
-    "seeTransactions": "İşlemleri gör"
+    "seeTransactions": "İşlemleri gör",
+    "total": "Toplam",
+    "other": "Diğer"
   },
   "CashFlow": {
     "title": "Nakit akışı",
