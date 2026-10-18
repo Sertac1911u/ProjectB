@@ -24,7 +24,7 @@ import { isConfiguredCard, settingsOf } from "./cards";
 import {
   type AccountWithBalance,
   getAccounts,
-  getCardTransactions,
+  getAllCardTransactions,
 } from "./finance";
 import { getRates } from "./rates";
 import { getRecurringRules } from "./recurring";
@@ -95,13 +95,15 @@ export const simulatePurchase = (purchase: Purchase) =>
 async function computeForecast(purchase?: Purchase) {
   const day = today();
   const horizon = addDays(day, HORIZON_DAYS);
-  const [accounts, rules, rateInfo, profile, envelopeRows] = await Promise.all([
-    getAccounts(),
-    getRecurringRules(),
-    getRates(),
-    getProfile(),
-    getEnvelopes(),
-  ]);
+  const [accounts, rules, rateInfo, profile, envelopeRows, cardTransactions] =
+    await Promise.all([
+      getAccounts(),
+      getRecurringRules(),
+      getRates(),
+      getProfile(),
+      getEnvelopes(),
+      getAllCardTransactions(),
+    ]);
   const currency = code(profile.baseCurrency);
   let missingRate = false;
   const toBase = (amount: number, from: string) => {
@@ -209,32 +211,31 @@ async function computeForecast(purchase?: Purchase) {
       cardCharges.set(card.id, list);
     }
   }
-  await Promise.all(
-    cards.map(async (card) => {
-      const transactions = await getCardTransactions(card.id);
-      const payments = cardPayments(
-        settingsOf(card),
-        transactions,
-        card.id,
-        day,
-        horizon,
-        cardCharges.get(card.id),
-      );
-      for (const payment of payments) {
-        events.push({
-          on: payment.on,
-          amount: -toBase(payment.amount, card.currency),
-          source: {
-            type: "card",
-            cardId: card.id,
-            cardName: card.name,
-            statementDate: payment.statementDate,
-            overdue: payment.overdue,
-          },
-        });
-      }
-    }),
-  );
+  for (const card of cards) {
+    const payments = cardPayments(
+      settingsOf(card),
+      cardTransactions.filter(
+        (t) => t.accountId === card.id || t.toAccountId === card.id,
+      ),
+      card.id,
+      day,
+      horizon,
+      cardCharges.get(card.id),
+    );
+    for (const payment of payments) {
+      events.push({
+        on: payment.on,
+        amount: -toBase(payment.amount, card.currency),
+        source: {
+          type: "card",
+          cardId: card.id,
+          cardName: card.name,
+          statementDate: payment.statementDate,
+          overdue: payment.overdue,
+        },
+      });
+    }
+  }
 
   // Envelopes keep what they should hold by payday out of the money available.
   const monthEnd = monthRange(day).to;
