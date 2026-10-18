@@ -13,6 +13,7 @@ import { ArrowDownRight, ArrowUpRight, ChevronRight } from "lucide-react";
 import { connection } from "next/server";
 import { getLocale, getTranslations } from "next-intl/server";
 import { Suspense } from "react";
+import { DonutChart, type DonutSlice } from "@/components/charts/donut-chart";
 import { CashFlowChart } from "@/components/charts/cash-flow-chart";
 import { LineChart } from "@/components/charts/line-chart";
 import { bucketTitle } from "@/components/charts/scale";
@@ -38,6 +39,8 @@ import { cn } from "@/lib/utils";
 type SearchParams = PageProps<"/[locale]/reports">["searchParams"];
 
 const DEFAULT_PERIOD: ReportPeriod = "6m";
+/** How many categories get their own colour in the category chart. */
+const SLICE_COLORS = 6;
 
 export default async function ReportsPage({
   searchParams,
@@ -139,8 +142,32 @@ async function Reports({ searchParams }: { searchParams: SearchParams }) {
     return category ? categoryName(category, tCategories) : t("uncategorized");
   };
   const largest = breakdown.shares[0]?.total ?? 0;
-  const barColor =
-    kind === "income" ? "var(--chart-income)" : "var(--chart-expense)";
+  // The largest categories get their own colour; the rest share "Other".
+  const colorOf = (index: number) =>
+    index < SLICE_COLORS ? `var(--chart-${index + 1})` : "var(--chart-other)";
+  const slices: DonutSlice[] = breakdown.shares
+    .slice(0, SLICE_COLORS)
+    .map((group, i) => ({
+      key: group.categoryId ?? "none",
+      label: nameOf(group.categoryId),
+      value: group.total,
+      amount: money(group.total),
+      percent: percent(share(group.total, breakdown.total)),
+      color: colorOf(i),
+    }));
+  const rest = breakdown.shares
+    .slice(SLICE_COLORS)
+    .reduce((sum, g) => sum + g.total, 0);
+  if (rest > 0) {
+    slices.push({
+      key: "other",
+      label: t("other"),
+      value: rest,
+      amount: money(rest),
+      percent: percent(share(rest, breakdown.total)),
+      color: colorOf(SLICE_COLORS),
+    });
+  }
   const missing = flow.missing || breakdown.missing || netWorth.missing;
   const hasForeign = missing || accounts.some((a) => a.currency !== currency);
 
@@ -249,76 +276,95 @@ async function Reports({ searchParams }: { searchParams: SearchParams }) {
             {t("noData")}
           </p>
         ) : (
-          <ul className="flex flex-col gap-4 px-5 pb-5">
-            {breakdown.shares.map((group) => (
-              <li key={group.categoryId ?? "none"}>
-                <details className="group">
-                  <summary
-                    className={cn(
-                      "flex cursor-pointer list-none flex-col gap-1.5",
-                      group.children.length === 0 && "cursor-default",
-                    )}
-                  >
-                    <span className="flex items-baseline justify-between gap-3 text-sm">
-                      <span className="flex min-w-0 items-center gap-1 font-medium">
-                        {group.children.length > 0 && (
-                          <ChevronRight className="size-3.5 shrink-0 text-muted-foreground transition-transform group-open:rotate-90" />
-                        )}
-                        <span className="truncate">
-                          {nameOf(group.categoryId)}
-                        </span>
-                      </span>
-                      <span className="flex shrink-0 gap-3 tabular-nums">
-                        <span className="w-12 text-right text-muted-foreground">
-                          {percent(share(group.total, breakdown.total))}
-                        </span>
-                        <span className="w-28 text-right font-medium">
-                          {money(group.total)}
-                        </span>
-                      </span>
-                    </span>
-                    <span className="h-2 rounded-full bg-muted">
-                      <span
-                        className="block h-full rounded-full"
-                        style={{
-                          width: `${share(group.total, largest)}%`,
-                          background: barColor,
-                        }}
-                      />
-                    </span>
-                  </summary>
-                  {group.children.length > 0 && (
-                    <ul className="mt-2 flex flex-col gap-1 border-l pl-4 text-sm">
-                      {group.children.map((child) => (
-                        <li
-                          key={child.categoryId}
-                          className="flex justify-between gap-3 text-muted-foreground"
-                        >
+          <div className="grid items-start gap-6 px-5 pb-5 md:grid-cols-[14rem_minmax(0,1fr)]">
+            <div className="flex justify-center md:sticky md:top-6">
+              <DonutChart
+                slices={slices}
+                total={money(breakdown.total)}
+                totalLabel={t("total")}
+                label={
+                  kind === "income"
+                    ? t("incomeByCategory")
+                    : t("expenseByCategory")
+                }
+              />
+            </div>
+            <ul className="flex flex-col gap-4">
+              {breakdown.shares.map((group, index) => (
+                <li key={group.categoryId ?? "none"}>
+                  <details className="group">
+                    <summary
+                      className={cn(
+                        "flex cursor-pointer list-none flex-col gap-1.5",
+                        group.children.length === 0 && "cursor-default",
+                      )}
+                    >
+                      <span className="flex items-baseline justify-between gap-3 text-sm">
+                        <span className="flex min-w-0 items-center gap-1 font-medium">
+                          {group.children.length > 0 && (
+                            <ChevronRight className="size-3.5 shrink-0 text-muted-foreground transition-transform group-open:rotate-90" />
+                          )}
+                          <span
+                            aria-hidden
+                            className="size-2.5 shrink-0 rounded-sm"
+                            style={{ background: colorOf(index) }}
+                          />
                           <span className="truncate">
-                            {nameOf(child.categoryId)}
+                            {nameOf(group.categoryId)}
                           </span>
-                          <span className="tabular-nums">
-                            {money(child.total)}
+                        </span>
+                        <span className="flex shrink-0 gap-3 tabular-nums">
+                          <span className="w-12 text-right text-muted-foreground">
+                            {percent(share(group.total, breakdown.total))}
                           </span>
-                        </li>
-                      ))}
-                    </ul>
+                          <span className="w-28 text-right font-medium">
+                            {money(group.total)}
+                          </span>
+                        </span>
+                      </span>
+                      <span className="h-2 rounded-full bg-muted">
+                        <span
+                          className="block h-full rounded-full"
+                          style={{
+                            width: `${share(group.total, largest)}%`,
+                            background: colorOf(index),
+                          }}
+                        />
+                      </span>
+                    </summary>
+                    {group.children.length > 0 && (
+                      <ul className="mt-2 flex flex-col gap-1 border-l pl-4 text-sm">
+                        {group.children.map((child) => (
+                          <li
+                            key={child.categoryId}
+                            className="flex justify-between gap-3 text-muted-foreground"
+                          >
+                            <span className="truncate">
+                              {nameOf(child.categoryId)}
+                            </span>
+                            <span className="tabular-nums">
+                              {money(child.total)}
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </details>
+                  {group.categoryId && (
+                    <Link
+                      href={{
+                        pathname: "/transactions",
+                        query: { category: group.categoryId, kind, from, to },
+                      }}
+                      className="mt-1 inline-block text-xs font-medium text-primary hover:underline"
+                    >
+                      {t("seeTransactions")}
+                    </Link>
                   )}
-                </details>
-                {group.categoryId && (
-                  <Link
-                    href={{
-                      pathname: "/transactions",
-                      query: { category: group.categoryId, kind, from, to },
-                    }}
-                    className="mt-1 inline-block text-xs font-medium text-primary hover:underline"
-                  >
-                    {t("seeTransactions")}
-                  </Link>
-                )}
-              </li>
-            ))}
-          </ul>
+                </li>
+              ))}
+            </ul>
+          </div>
         )}
       </Card>
 

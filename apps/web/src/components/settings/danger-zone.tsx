@@ -71,6 +71,12 @@ function DangerForm({ kind }: { kind: "reset" | "delete" }) {
           message={
             kind === "reset" ? t("confirmReset") : t("confirmDeleteAccount")
           }
+          title={
+            kind === "reset"
+              ? t("confirmResetTitle")
+              : t("confirmDeleteAccountTitle")
+          }
+          confirmLabel={kind === "reset" ? t("resetButton") : t("deleteButton")}
         >
           {kind === "reset" ? t("resetButton") : t("deleteButton")}
         </ConfirmSubmit>

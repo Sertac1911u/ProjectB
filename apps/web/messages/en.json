@@ -14,7 +14,8 @@
     "restore": "Restore",
     "back": "Back",
     "optional": "optional",
-    "confirmDelete": "Are you sure you want to delete this? This cannot be undone."
+    "confirmTitle": "Delete this?",
+    "confirmDelete": "This will be deleted for good. This cannot be undone."
   },
   "Landing": {
     "title": "Know where your money goes.",
@@ -53,6 +54,13 @@
     "settings": "Settings",
     "categories": "Categories",
     "recurring": "Recurring"
+  },
+  "Shell": {
+    "menu": "Menu",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "collapse": "Collapse menu",
+    "expand": "Expand menu"
   },
   "Dashboard": {
     "netWorth": "Net worth",
@@ -205,8 +213,10 @@
     "confirmPassword": "Enter your password to confirm",
     "resetButton": "Reset all data",
     "deleteButton": "Delete my account for good",
-    "confirmReset": "All your data will be deleted and the app starts over. Are you sure?",
-    "confirmDeleteAccount": "Your account and all your data will be deleted for good. Are you sure?"
+    "confirmResetTitle": "Reset your data?",
+    "confirmDeleteAccountTitle": "Delete your account?",
+    "confirmReset": "All your data will be deleted and the app starts over. This cannot be undone.",
+    "confirmDeleteAccount": "Your account and all your data will be deleted for good. This cannot be undone."
   },
   "AccountTypes": {
     "cash": "Cash",
@@ -584,7 +594,9 @@
     "date": "Date",
     "share": "Share",
     "amount": "Amount",
-    "seeTransactions": "See transactions"
+    "seeTransactions": "See transactions",
+    "total": "Total",
+    "other": "Other"
   },
   "CashFlow": {
     "title": "Cash flow",

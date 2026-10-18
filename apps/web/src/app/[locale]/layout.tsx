@@ -5,6 +5,7 @@ import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { locale as rootLocale } from "next/root-params";
 import { routing } from "@/i18n/routing";
+import { preferenceScript } from "@/lib/preferences";
 import "../globals.css";
 
 const geistSans = Geist({
@@ -28,7 +29,11 @@ export default async function LocaleLayout({
   if (!hasLocale(routing.locales, locale)) notFound();
 
   return (
-    <html lang={locale} className={geistSans.variable}>
+    // The head script sets display preferences on <html> before React loads.
+    <html lang={locale} className={geistSans.variable} suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: preferenceScript }} />
+      </head>
       <body className="min-h-dvh">
         <NextIntlClientProvider>{children}</NextIntlClientProvider>
       </body>
